@@ -1,2 +1,2 @@
-floppya: 1_44=bin/OS.bin, status=inserted
+floppya: 1_44=bin/OS.img, status=inserted
 boot: a
