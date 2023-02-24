@@ -1,4 +1,4 @@
-CFLAGS=-Wbuiltin-declaration-mismatch -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -s -masm=intel -c
+CFLAGS=-Wbuiltin-declaration-mismatch -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -O0 -masm=intel -c
 run:
 	nasm -f bin boot.asm -o ./bin/boot.bin
 	gcc $(CFLAGS) kernel.c -o ./bin/kernel.o

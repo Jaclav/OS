@@ -1,18 +1,29 @@
 OUTPUT_FORMAT("binary")
 
-ENTRY(main);
-
 SECTIONS {
-    .text.start (main) : {
-        "bin/kernel.o"( .text )
-    }
+    .text :
+    {
+        *(kernelMain);
+        *(.text);
+     }
 
     .data : { *(.data) }
-    .rdata : { *(.rdata) }
     .bss : { *(.bss) }
+    .rodata : { *(.rodata) }
+
+    .note.GNU-stack :{ *(.note.GNU-stack) }
+    .rel.text         : { *(.rel.text) }
+    .comment          : { *(.comment) }
+    .eh_frame         : { *(.eh_frame) }
+    .rel.eh_frame     : { *(.rel.eh_frame) }
+    .symtab           : { *(.symtab) }
+    .strtab           : { *(.strtab) }
+    .shstrtab         : { *(.shstrtab) }
+    .relkernelMain    : { *(.relkernelMain) }
+    .text : { *(endFun) }
+
 
     /DISCARD/ : {
-        *(.eh_frame);
         *(.comment);
     }
 }

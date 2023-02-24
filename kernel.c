@@ -2,9 +2,16 @@
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
+void abc() {
+    putchar('X');
+}
+
+__attribute__ ((section ("kernelMain")))
 void main() {
     setVideoMode(2);
     setColor(VGA_COLOR_DARK_GREEN);
+    abc();
+    print("TEST of string literals");
     char L1[] = "Kernel loaded.\nVersion: ";
     print(L1);
 
@@ -23,12 +30,12 @@ void main() {
         key = getchar();
         if(key.character == 13) {
             putchar('\n');
-            const char CLS[] = "cls";
-            const char POS[] = "pos";
+            char CLS[] = "cls";
+            char POS[] = "pos";
             if(strcmp(command, CLS)) {
                 cls();
             }
-            else if(strcmp(command,POS)){
+            else if(strcmp(command, POS)) {
                 Position position = getCursorPosition();
                 printInt(position.x);
                 putchar(':');
