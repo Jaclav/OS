@@ -1,3 +1,5 @@
+#include <stdbool.h>
+
 typedef unsigned char Byte;
 typedef unsigned short Word;
 
@@ -39,7 +41,10 @@ Position getCursorPosition(void);
 void setCursorPosition(Position position);
 
 void putchar(Byte character);
-void print(const char *string);
+void print(char *string);
 void printInt(int a);
 
 Key getchar(void);
+
+bool strcmp(char *str1, char *str2);
+void reset(char *str);

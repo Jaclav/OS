@@ -3,11 +3,9 @@
 void cls(void) {
     Position position = {0, 0};
     setCursorPosition(position);
-    asm("int 0x10"
-        :
-        : "a" ((0x09 << 8) | ' '),
-        "b" (0x0),
-        "c" (0x640));
+    for(int i = 0; i < 0xffff; i++)
+        putchar(' ');
+    setCursorPosition(position);
 }
 
 void setColor(Byte color) {
@@ -29,7 +27,7 @@ Position getCursorPosition(void) {
 
     asm("int 0x10"
         : "=d"(dx)
-        : "a" (0x02 << 8), //I don't know why it work
+        : "a" (0x03 << 8), //I don't know why it work
         "b" (0x0));
     position.y = dx >> 8;
     position.x = (Byte)dx;
@@ -56,7 +54,7 @@ void putchar(Byte character) {
         "c" (0x01));
 }
 
-void print(const char *string) {
+void print(char *string) {
     while(*string != 0) {
         putchar(*string);
         string++;
@@ -72,7 +70,7 @@ void printInt(int a) {
         putchar('-');
         a *= -1;
     }
-    char buffor[20] = {};
+    char buffor[20];
     int ptr = 0;
     for(; a != 0; ptr++) {
         buffor[ptr] = (a % 10) + '0';
@@ -88,9 +86,28 @@ Key getchar(void) {
     asm("mov ah, 0x00\n\
     int 0x16"
         : "=a" (ax)
-        :"a" (0x00));
+        :"a" (0x10));
     Key key;
     key.character = (Byte) ax;
     key.scancode = ax >> 8;
     return key;
+}
+
+bool strcmp(char *str1, char *str2) {
+    while(*str1 != 0 && *str2 != 0) {
+        if(*str1 != *str2)
+            return false;
+        str1++;
+        str2++;
+    }
+    if(*str1 != *str2)
+        return false;
+    return true;
+}
+
+void reset(char *str) {
+    while(*str != 0) {
+        *str = 0;
+        str++;
+    }
 }

@@ -21,13 +21,28 @@ mov cl, 0x02                    ; 2nd sector (counted from 1)
 
 read_disk:
     mov ah, 0x02                ; BIOS read
-    mov al, 0x03                ; sectors to read
+    mov al, 0x11                ; sectors to read
     int 0x13                    ; BIOS disk
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
 
-; print info
+; print number of loaded sectors
+push ax
+mov bx, 10
+mov dx, 0
+div bx,
+mov cx, dx                      ;cx = ax % 10
+
+pop ax
+sub ax, cx
+mov bx, 10
+mov dx, 0
+div bx                          ;ax = (ax-ax %10)/10=(ax-cx)/bx
 add al, '0'
+call printChar
+
+mov ax, cx
+add ax, '0'
 call printChar
 
 mov ax, DISK_TEXT
