@@ -29,7 +29,7 @@ Position getCursorPosition(void) {
 
     asm("int 0x10"
         : "=d"(dx)
-        : "a" (0x02 << 8),
+        : "a" (0x03 << 8),
         "b" (0x0));
     position.y = dx >> 8;
     position.x = (Byte)dx;
