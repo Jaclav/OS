@@ -1,12 +1,16 @@
 #include "io.h"
 
 void main() {
-    setVideoMode(3);
+    setVideoMode(2);
     setColor(VGA_COLOR_DARK_GREEN);
-    puts("Kernel loaded.\n");
-    puts("Kernel loaded.\n");
+    print("Kernel loaded.\nVersion: ");
 
-    for(;;){
+    printInt(1234);
+    putchar(' ');
+    print(__TIME__);
+    putchar('\n');
+
+    for(;;) {
 
     }
 

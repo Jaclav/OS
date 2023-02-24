@@ -29,7 +29,7 @@ Position getCursorPosition(void) {
 
     asm("int 0x10"
         : "=d"(dx)
-        : "a" (0x02 << 8),
+        : "a" (0x02 << 8), //I don't know why it work
         "b" (0x0));
     position.y = dx >> 8;
     position.x = (Byte)dx;
@@ -46,28 +46,51 @@ void setCursorPosition(Position position) {
 }
 
 void putchar(Byte character) {
-    Position position = getCursorPosition();
-    position.x++;
-
-    if(character == '\n') {
-        position.y++;
-        position.x = 0;
-        setCursorPosition(position);
-        return;
-    }
+    if(character == '\n')
+        putchar('\r');
 
     asm("int 0x10"
         :
         : "a" ((0x0e<<8) | character),
         "b" (0x00),
         "c" (0x01));
-
-    setCursorPosition(position);
 }
 
-void puts(const Byte *string) {
+void print(const char *string) {
     while(*string != 0) {
         putchar(*string);
         string++;
     }
+}
+
+void printInt(int a) {
+    if(a == 0) {
+        putchar('0');
+        return;
+    }
+    if(a < 0) {
+        putchar('-');
+        a *= -1;
+    }
+    char buffor[20] = {};
+    int ptr = 0;
+    for(; a != 0; ptr++) {
+        buffor[ptr] = (a % 10) + '0';
+        a /= 10;
+    }
+    for(int i = ptr - 1; i >= 0; i--) {
+        putchar(buffor[i]);
+    }
+}
+
+Key getchar(void) {
+    Word ax;
+    asm("mov ah, 0x00\n\
+    int 0x16"
+        : "=a" (ax)
+        :"a" (0x00));
+    Key key;
+    key.character = (Byte) ax;
+    key.scancode = ax >> 8;
+    return key;
 }

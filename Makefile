@@ -1,4 +1,4 @@
-CFLAGS=-Wbuiltin-declaration-mismatch -Wall -pedantic -fno-PIC -fomit-frame-pointer -ffreestanding -Wfatal-errors -m16 -Os -s -masm=intel -c
+CFLAGS=-Wbuiltin-declaration-mismatch -Wall -pedantic -fno-PIC -fomit-frame-pointer -ffreestanding -Wfatal-errors -m16 -s -masm=intel -c
 run:
 	nasm -f bin boot.asm -o ./bin/boot.bin
 	gcc $(CFLAGS) kernel.c -o ./bin/kernel.o
@@ -7,7 +7,7 @@ run:
 
 	cat ./bin/boot.bin ./bin/kernel.bin > ./bin/OS.img
 	#bochs
-	echo c | bochs -q
+	#echo c | bochs -q
 
 	#qemu
 	#dd if=/dev/zero of=./bin/floppy.img bs=1024 count=1440

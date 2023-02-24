@@ -39,4 +39,7 @@ Position getCursorPosition(void);
 void setCursorPosition(Position position);
 
 void putchar(Byte character);
-void puts(const Byte *string);
+void print(const char *string);
+void printInt(int a);
+
+Key getchar(void);
