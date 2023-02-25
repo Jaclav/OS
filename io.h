@@ -20,22 +20,20 @@ typedef unsigned short Word;
 #define VGA_COLOR_LIGHT_BROWN 14
 #define VGA_COLOR_WHITE 15
 
-struct Position{
-    Byte x,y;
+struct Position {
+    Byte x, y;
 };
 typedef struct Position Position;
 
-struct Key{
+struct Key {
     Byte character, scancode;
 };
 typedef struct Key Key;
 
-//enum Color{Blue=2};
-//typedef Byte Color;
-
 void cls(void);
 void setColor(Byte color);
 void setVideoMode(Byte mode);
+Word getMemorySize(void);
 
 Position getCursorPosition(void);
 void setCursorPosition(Position position);

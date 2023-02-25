@@ -14,13 +14,13 @@ void main() {
     print("TEST of string literals");
     char L1[] = "Kernel loaded.\nVersion: ";
     print(L1);
-
-    printInt(1234);
-    putchar(' ');
     char L2[] = __TIME__;
     print(L2);
-    putchar('\n');
-    putchar('>');
+    char L3[] = "\nMemory size: ";
+    print(L3);
+    printInt(getMemorySize());
+    char L4[] = "kB\n>";
+    print(L4);
 
     Key key;
     char command[100];

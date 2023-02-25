@@ -21,6 +21,14 @@ void setVideoMode(Byte mode) {
         :"a"(mode | 0x0000));
 }
 
+Word getMemorySize(void) {
+    // size in kB
+    Word size;
+    asm("int 0x12"
+        :"=a"(size));
+    return size;
+}
+
 Position getCursorPosition(void) {
     Position position;
     Word dx;
