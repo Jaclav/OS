@@ -1,5 +1,6 @@
 #include "kernel/io.h"
 #include "kernel/graphics.h"
+#include "image.h"
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
@@ -36,6 +37,7 @@ void main() {
         bufforSize = gets(buffor);
         commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters < 0, then just copy buffor
         strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor) + 1);//copy also \0 character
+        command[commandSize] = 0;
 
         if((int)strchr(buffor, ' ') != 0) {
             strcpy(parameter, strchr(buffor, ' ') + 1);
@@ -68,6 +70,9 @@ void main() {
         }
         else if(strcmp(command, MODE)) {
             setVideoMode(stoi(parameter));
+            char L0[] = "Mode: ";
+            puts(L0);
+            puti(stoi(parameter));
         }
         else if(strcmp(command, TEST)) {
             puts(buffor);
@@ -83,11 +88,8 @@ void main() {
             puts("Napis2\n");
             puts(L3);
             puts(strncpy(L0, strchr(L1, 'p'), 3));
-        }
-        else if(strcmp(command, ASM)) {
-            asmmain();
-        }
-        else if(strcmp(command, GRAPHIC)) {
+
+            getc();
             setVideoMode(0x10);
             Position pos;
 
@@ -105,6 +107,16 @@ void main() {
             }
             gets(NULL);
             setVideoMode(0x2);
+            setColorPalette(VGA_COLOR_DARK_GREEN);
+        }
+        else if(strcmp(command, ASM)) {
+            asmmain();
+        }
+        else if(strcmp(command, GRAPHIC)) {
+            Color tab[1][1] = {{VGA_COLOR_GREEN}};
+            Position pos = {0, 100};
+            draw(pos, header_data, width, height);
+            getc();
         }
         else {
             char L0[] = "Error: unknown command!\n";
