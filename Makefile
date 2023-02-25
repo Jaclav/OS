@@ -1,21 +1,18 @@
-CFLAGS=-Wbuiltin-declaration-mismatch -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -O0 -masm=intel -c
-run:
+CFLAGS=-Wno-implicit-function-declaration -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -O0 -masm=intel -c -std=gnu11
+run: compile
+	qemu-system-i386 -drive file=./bin/OS.img,format=raw,if=floppy,index=0
+
+compile:
 	nasm -f bin boot.asm -o ./bin/boot.bin
+	gcc $(CFLAGS) kernel/io.c -o ./bin/io.o
+	gcc $(CFLAGS) kernel/string.c -o ./bin/string.o
 	gcc $(CFLAGS) kernel.c -o ./bin/kernel.o
-	gcc $(CFLAGS) io.c -o ./bin/io.o
 	ld -T linker.ld -melf_i386 bin/*.o -o bin/kernel.bin
 
 	cat ./bin/boot.bin ./bin/kernel.bin > ./bin/OS.img
-	#bochs
-	#echo c | bochs -q
 
-	#qemu
-	#dd if=/dev/zero of=./bin/floppy.img bs=1024 count=1440
-	#dd if=./bin/OS.bin of=./bin/floppy.img seek=0 count=1 conv=notrunc
-	#genisoimage -quiet -V 'MYOS' -input-charset iso8859-1 -o ./bin/myos.iso -b floppy.img -hide floppy.img ./bin/
-	#qemu-system-i386 -cdrom ./bin/myos.iso
-	qemu-system-i386 -drive file=./bin/OS.img,format=raw,if=floppy,index=0
+bochs: compile
+	echo c | bochs -q
 
-pendrive:
-	nasm -f bin main.asm -o boot.bin
-	sudo dd if=bootloader of=/dev/sdb bs=512
+clean:
+	rm bin/*

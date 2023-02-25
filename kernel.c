@@ -1,4 +1,4 @@
-#include "io.h"
+#include "kernel/io.h"
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
@@ -11,7 +11,7 @@ void main() {
     setVideoMode(0x02);
     setBackgroundColor(VGA_COLOR_DARK_GREEN);
     abc();
-    print("TEST of string literals");
+    //print("TEST of string literals"); //TODO: this crashes
     char L1[] = "Kernel loaded.\nVersion: ";
     print(L1);
     char L2[] = __TIME__;

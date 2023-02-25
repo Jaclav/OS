@@ -2,6 +2,7 @@
 
 typedef unsigned char Byte;
 typedef unsigned short Word;
+typedef unsigned short size_t;
 
 #define VGA_COLOR_BLACK 0
 #define VGA_COLOR_BLUE 1
@@ -20,33 +21,7 @@ typedef unsigned short Word;
 #define VGA_COLOR_LIGHT_BROWN 14
 #define VGA_COLOR_WHITE 15
 
-struct Position {
-    Byte x, y;
-};
-typedef struct Position Position;
-
-struct Key {
-    Byte character, scancode;
-};
-typedef struct Key Key;
-
 void cls(void);
 void setBackgroundColor(Byte color);
 void setVideoMode(Byte mode);
 Word getMemorySize(void);
-
-Position getCursorPosition(void);
-void setCursorPosition(Position position);
-
-void putchar(Byte character);
-void print(char *string);
-void printInt(int a);
-
-Key getchar(void);
-
-bool strcmp(char *str1, char *str2);
-int strlen(char *str);
-int stoi(char *str);
-void reset(char *str);
-
-int pow(int b, int p);
