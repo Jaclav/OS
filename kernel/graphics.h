@@ -30,6 +30,6 @@ void setVideoMode(Byte mode);
 void setColorPalette(Byte color);
 
 void writePixel(Position pos, Color color);
-void draw(Position begin, Color *data, size_t sizeX, size_t sizeY);
+void draw(Position begin, Color *data, size_t width, size_t height);
 
 #endif

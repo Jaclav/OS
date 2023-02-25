@@ -1,6 +1,5 @@
 #include "kernel/io.h"
 #include "kernel/graphics.h"
-#include "image.h"
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
@@ -113,10 +112,10 @@ void main() {
             asmmain();
         }
         else if(strcmp(command, GRAPHIC)) {
-            Color tab[1][1] = {{VGA_COLOR_GREEN}};
-            Position pos = {0, 100};
-            draw(pos, header_data, width, height);
-            getc();
+            setVideoMode(0x13);
+#include "image.h"
+            Position pos = {200, 100};
+            draw(pos, image_bmp, image_width, image_height);
         }
         else {
             char L0[] = "Error: unknown command!\n";
