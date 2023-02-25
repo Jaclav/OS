@@ -22,73 +22,57 @@ void main() {
     char L4[] = "kB\n>";
     print(L4);
 
-    Key key;
     char command[100];
     reset(command);
     int ptr = 0;
     for(;;) {
-        key = getKey();
-        if(key.character == 13) {//enter
+        ptr = getStr(command);
+        char CLS[] = "cls";
+        char POS[] = "pos";
+        char KEY[] = "key";
+        char MODE[] = "mode";
+        char TEST[] = "test";
+        if(strcmp(command, CLS)) {
+            cls();
+        }
+        else if(strcmp(command, POS)) {
+            Position position = getCursorPosition();
+            printInt(position.x);
+            printChar(':');
+            printInt(position.y);
+        }
+        else if(strcmp(command, KEY)) {
+            Key key = getKey();
+            printInt(key.character);
+            printChar(':');
+            printInt(key.scancode);
+        }
+        else if(strcmp(command, MODE)) {
+            getStr(command);
+            setVideoMode(stoi(command));
+        }
+        else if(strcmp(command, TEST)) {
+            char L0[] = "123456";
+            char L1[] = "Napis1\n";
+            char L3[] = "Napis3\n";
+            print(L1);
+            print("Napis2\n");
+            print(L3);
+            printInt(pow(2, 0));
+            printChar(' ');
+            printInt(pow(2, 10));
             printChar('\n');
-            char CLS[] = "cls";
-            char POS[] = "pos";
-            char KEY[] = "key";
-            char MODE[] = "mode";
-            char TEST[] = "test";
-            if(strcmp(command, CLS)) {
-                cls();
-            }
-            else if(strcmp(command, POS)) {
-                Position position = getCursorPosition();
-                printInt(position.x);
-                printChar(':');
-                printInt(position.y);
-            }
-            else if(strcmp(command, KEY)) {
-                key = getKey();
-                printInt(key.character);
-                printChar(':');
-                printInt(key.scancode);
-            }
-            else if(strcmp(command, MODE)) {
-                key = getKey();
-                setVideoMode(key.character - '0');
-            }
-            else if(strcmp(command, TEST)) {
-                char L0[] = "123456";
-                char L1[] = "Napis1\n";
-                char L3[] = "Napis3\n";
-                print(L1);
-                print("Napis2\n");
-                print(L3);
-                printInt(pow(2, 0));
-                printChar(' ');
-                printInt(pow(2, 10));
-                printChar('\n');
-                printInt(strlen(L0));
-                printChar(' ');
-                printInt(stoi(L0));
-                printChar('\n');
-                printInt(2147483647);
-            }
-
-            ptr = 0;
-            reset(command);
-            printChar('>');
-            continue;
+            printInt(strlen(L0));
+            printChar(' ');
+            printInt(stoi(L0));
+            printChar('\n');
+            printInt(2147483647);
         }
-        else if(key.character == 8 && ptr >= 0) { //backspace
-            if(ptr > 0) {
-                command[ptr] = 0;
-                ptr--;
-                printChar(8);
-                printChar(' ');
-                printChar(8);
-            }
-            continue;
+        else{
+            char L0[]="Error: unknown command!\n";
+            print(L0);
         }
-        printChar(key.character);
-        command[ptr++] = key.character;
+        printChar('>');
     }
 
     asm("hlt");

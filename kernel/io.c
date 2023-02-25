@@ -58,7 +58,7 @@ void printChar(Byte character) {
     asm("int 0x10"
         :
         : "a" ((0x0e<<8) | character),
-        "b" (VGA_COLOR_CYAN),
+        "b" (VGA_COLOR_LIGHT_GREEN),
         "c" (0x01));
 }
 
@@ -102,8 +102,10 @@ Key getKey(void) {
 }
 
 int getStr(char *str) {
+	//TODO: what when arrows are pressed?
     Key key;
     int ptr = 0;
+	reset(str);
     for(;;) {
         key = getKey();
         if(key.character == 13) {
