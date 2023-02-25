@@ -1,9 +1,10 @@
-// grandidierite.github.io/bios-interrupts/
-// cplusplus.com/reference/cstdio/putchar/
-// archive.kernel.org/oldlinux/htmldocs/kernel-api/API-memset.html
-// en.wikipedia.org/wiki/INT_16H
-// en.wikipedia.org/wiki/INT_10H
-// en.wikipedia.org/wiki/INT_13H
+// https://grandidierite.github.io/bios-interrupts/
+// https://cplusplus.com/reference/cstdio/putchar/
+// https://archive.kernel.org/oldlinux/htmldocs/kernel-api/API-memset.html
+// https://en.wikipedia.org/wiki/INT_16H
+// https://en.wikipedia.org/wiki/INT_10H
+// https://en.wikipedia.org/wiki/INT_13H
+// http://www.brackeen.com/vga/basics.html#3
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 //TODO: add sleep function via int 15h AH = 86h
 //TODO: handle key, shift, ctrl
