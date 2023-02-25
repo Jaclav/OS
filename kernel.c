@@ -2,6 +2,8 @@
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
+extern void asmmain();
+
 void abc() {
     putc('X');
 }
@@ -29,12 +31,10 @@ void main() {
     int commandSize = 0;
 
     char parameter[100];
-    int parameterSize = 0;
-
     for(;;) {
         bufforSize = gets(buffor);
-        commandSize = (int)strchr(buffor, ' ') - (int)buffor;
-        strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor));
+        commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters < 0, then just copy buffor
+        strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor) + 1);//copy also \0 character
 
         if((int)strchr(buffor, ' ') != 0) {
             strcpy(parameter, strchr(buffor, ' ') + 1);
@@ -45,6 +45,7 @@ void main() {
         char KEY[] = "key";
         char MODE[] = "mode";
         char TEST[] = "test";
+        char ASM[] = "asm";
         if(bufforSize == 0) {
 
         }
@@ -80,6 +81,9 @@ void main() {
             puts("Napis2\n");
             puts(L3);
             puts(strncpy(L0, strchr(L1, 'p'), 3));
+        }
+        else if(strcmp(command, ASM)) {
+            asmmain();
         }
         else {
             char L0[] = "Error: unknown command!\n";

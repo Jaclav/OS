@@ -74,7 +74,7 @@ mov ss, ax
 jmp 0x1000:0x0
 hlt
 
-%include "io.asm"
+%include "boot/io.asm"
 
 START_TEXT db "Starting OS...",0x0a,0x0d,"Loading disk...",0x0a,0x0d,0x00
 DISK_TEXT db " sectors readed, press any key to continue...",0x00
