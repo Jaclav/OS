@@ -14,7 +14,7 @@ Position getCursorPosition(void);
 void setCursorPosition(Position position);
 
 void putc(Byte character);
-void puts(char *string);
+void puts(const char *string);
 void puti(int a);
 
 Key getc(void);

@@ -62,10 +62,9 @@ void putc(Byte character) {
         "c" (0x01));
 }
 
-void puts(char *string) {
-    while(*string != 0) {
-        putc(*string);
-        string++;
+void puts(const char *string) {
+    for(int i = 0; string[i] != 0; i++) {
+        putc(string[i]);
     }
 }
 
@@ -102,14 +101,14 @@ Key getc(void) {
 }
 
 int gets(char *str) {
-	//TODO: what when arrows are pressed?
+    //TODO: what when arrows are pressed?
     Key key;
     int ptr = 0;
-	reset(str);
+    reset(str);
     for(;;) {
         key = getc();
         if(key.character == 13) {
-			putc('\n');
+            putc('\n');
             break;
         }
         if(key.character == 8 && ptr >= 0) { //backspace
@@ -122,8 +121,8 @@ int gets(char *str) {
             }
             continue;
         }
-		putc(key.character);
+        putc(key.character);
         str[ptr++] = key.character;
     }
-	return ptr;
+    return ptr;
 }

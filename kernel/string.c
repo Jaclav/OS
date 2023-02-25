@@ -30,15 +30,15 @@ const char * strchr ( const char * str, int character ) {
     return NULL;
 }
 
-size_t strlen(char *str) {
+size_t strlen(const char *str) {
     if(*str == 0)
         return 0;
     size_t size = 0;
-    for(; *str != 0; str++, size++) {}
+    for(; str[size] != 0; size++) {}
     return size;
 }
 
-int stoi(char *str) {
+int stoi(const char *str) {
     int num = 0;
     size_t size = strlen(str) - 1;
     for(size_t i = 0; i <= size; i++) {
@@ -48,9 +48,8 @@ int stoi(char *str) {
 }
 
 void reset(char *str) {
-    while(*str != 0) {
-        *str = 0;
-        str++;
+    for(int i = 0; str[i] != 0; i++) {
+        str[i] = 0;
     }
 }
 

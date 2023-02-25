@@ -35,7 +35,10 @@ void main() {
         bufforSize = gets(buffor);
         commandSize = (int)strchr(buffor, ' ') - (int)buffor;
         strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor));
-        strcpy(parameter, strchr(buffor, ' ') + 1);
+
+        if((int)strchr(buffor, ' ') != 0) {
+            strcpy(parameter, strchr(buffor, ' ') + 1);
+        }
 
         char CLS[] = "cls";
         char POS[] = "pos";
