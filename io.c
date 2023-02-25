@@ -8,7 +8,7 @@ void cls(void) {
     setCursorPosition(position);
 }
 
-void setColor(Byte color) {
+void setBackgroundColor(Byte color) {
     asm("int 0x10"
         :
         :"a"(0x0b << 8),
@@ -58,7 +58,7 @@ void putchar(Byte character) {
     asm("int 0x10"
         :
         : "a" ((0x0e<<8) | character),
-        "b" (0x00),
+        "b" (VGA_COLOR_CYAN),
         "c" (0x01));
 }
 
@@ -113,9 +113,34 @@ bool strcmp(char *str1, char *str2) {
     return true;
 }
 
+int strlen(char *str) {
+    if(*str == 0)
+        return 0;
+    int size = 0;
+    for(; *str != 0; str++, size++) {}
+    return size;
+}
+
+int stoi(char *str) {
+    int num = 0;
+    int size = strlen(str) - 1;
+    for(int i = 0; i <= size; i++) {
+        num += pow(10, (size - i)) * (str[i] - '0');
+    }
+    return num;
+}
+
 void reset(char *str) {
     while(*str != 0) {
         *str = 0;
         str++;
     }
+}
+
+int pow(int b, int p) {
+    int ret = 1;
+    for(int i = 0; i < p; i++) {
+        ret *= b;
+    }
+    return ret;
 }

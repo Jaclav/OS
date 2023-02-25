@@ -8,8 +8,8 @@ void abc() {
 
 __attribute__ ((section ("kernelMain")))
 void main() {
-    setVideoMode(2);
-    setColor(VGA_COLOR_DARK_GREEN);
+    setVideoMode(0x02);
+    setBackgroundColor(VGA_COLOR_DARK_GREEN);
     abc();
     print("TEST of string literals");
     char L1[] = "Kernel loaded.\nVersion: ";
@@ -28,10 +28,13 @@ void main() {
     int ptr = 0;
     for(;;) {
         key = getchar();
-        if(key.character == 13) {
+        if(key.character == 13) {//enter
             putchar('\n');
             char CLS[] = "cls";
             char POS[] = "pos";
+            char KEY[] = "key";
+            char MODE[] = "mode";
+            char TEST[] = "test";
             if(strcmp(command, CLS)) {
                 cls();
             }
@@ -41,10 +44,45 @@ void main() {
                 putchar(':');
                 printInt(position.y);
             }
+            else if(strcmp(command, KEY)) {
+                key = getchar();
+                printInt(key.character);
+                putchar(':');
+                printInt(key.scancode);
+            }
+            else if(strcmp(command, MODE)) {
+                key = getchar();
+                setVideoMode(key.character - '0');
+            }
+            else if(strcmp(command, TEST)) {
+                char L0[] = "123456";
+                char L1[] = "Napis1\n";
+                char L3[] = "Napis3\n";
+                print(L1);
+                print("Napis2\n");
+                print(L3);
+                printInt(pow(2, 0));
+                putchar(' ');
+                printInt(pow(2, 10));
+                putchar('\n');
+                printInt(strlen(L0));
+                putchar(' ');
+                printInt(stoi(L0));
+            }
 
             ptr = 0;
             reset(command);
             putchar('>');
+            continue;
+        }
+        else if(key.character == 8 && ptr >= 0) { //backspace
+            if(ptr > 0) {
+                command[ptr] = 0;
+                ptr--;
+                putchar(8);
+                putchar(' ');
+                putchar(8);
+            }
             continue;
         }
         putchar(key.character);

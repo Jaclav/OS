@@ -31,7 +31,7 @@ struct Key {
 typedef struct Key Key;
 
 void cls(void);
-void setColor(Byte color);
+void setBackgroundColor(Byte color);
 void setVideoMode(Byte mode);
 Word getMemorySize(void);
 
@@ -45,4 +45,8 @@ void printInt(int a);
 Key getchar(void);
 
 bool strcmp(char *str1, char *str2);
+int strlen(char *str);
+int stoi(char *str);
 void reset(char *str);
+
+int pow(int b, int p);
