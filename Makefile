@@ -1,4 +1,4 @@
-CFLAGS=-Wno-implicit-function-declaration -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -O0 -masm=intel -c -std=gnu11
+CFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -fno-pie -ffreestanding -Wfatal-errors -m16 -O0 -masm=intel -c -std=gnu11
 run: compile
 	qemu-system-i386 -drive file=./bin/OS.img,format=raw,if=floppy,index=0
 
