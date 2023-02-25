@@ -22,17 +22,27 @@ void main() {
     char L4[] = "kB\n>";
     puts(L4);
 
+    char buffor[100];
+    int bufforSize = 0;
+
     char command[100];
-    reset(command);
-    int ptr = 0;
+    int commandSize = 0;
+
+    char parameter[100];
+    int parameterSize = 0;
+
     for(;;) {
-        ptr = gets(command);
+        bufforSize = gets(buffor);
+        commandSize = (int)strchr(buffor, ' ') - (int)buffor;
+        strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor));
+        strcpy(parameter, strchr(buffor, ' ') + 1);
+
         char CLS[] = "cls";
         char POS[] = "pos";
         char KEY[] = "key";
         char MODE[] = "mode";
         char TEST[] = "test";
-        if(ptr == 0) {
+        if(bufforSize == 0) {
 
         }
         else if(strcmp(command, CLS)) {
@@ -51,10 +61,15 @@ void main() {
             puti(key.scancode);
         }
         else if(strcmp(command, MODE)) {
-            gets(command);
-            setVideoMode(stoi(command));
+            setVideoMode(stoi(parameter));
         }
         else if(strcmp(command, TEST)) {
+            puts(buffor);
+            putc('\n');
+            puts(command);
+            putc('\n');
+            puts(parameter);
+            putc('\n');
             char L0[8] = "123456";
             char L1[] = "Napis1\n";
             char L3[] = "Napis3\n";

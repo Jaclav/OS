@@ -21,6 +21,15 @@ bool strncmp ( const char * str1, const char * str2, size_t num ) {
     return true;
 }
 
+const char * strchr ( const char * str, int character ) {
+    while(*str != 0) {
+        if(*str == character)
+            return str;
+        str++;
+    }
+    return NULL;
+}
+
 size_t strlen(char *str) {
     if(*str == 0)
         return 0;
@@ -45,13 +54,11 @@ void reset(char *str) {
     }
 }
 
-const char * strchr ( const char * str, int character ) {
-    while(*str != 0) {
-        if(*str == character)
-            return str;
-        str++;
+char * strcpy ( char * destination, const char * source ) {
+    for(int i = 0; source[i - 1] != 0; i++) {// copy also \0 character
+        destination[i] = source[i];
     }
-    return NULL;
+    return destination;
 }
 
 char *strncpy ( char * destination, const char * source, size_t num ) {
