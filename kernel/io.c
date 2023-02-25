@@ -4,7 +4,7 @@ void cls(void) {
     Position position = {0, 0};
     setCursorPosition(position);
     for(int i = 0; i < 0xffff; i++)
-        printChar(' ');
+        putc(' ');
     setCursorPosition(position);
 }
 
@@ -51,9 +51,9 @@ void setCursorPosition(Position position) {
         "d" ((position.y << 8) | position.x));
 }
 
-void printChar(Byte character) {
+void putc(Byte character) {
     if(character == '\n')
-        printChar('\r');
+        putc('\r');
 
     asm("int 0x10"
         :
@@ -62,20 +62,20 @@ void printChar(Byte character) {
         "c" (0x01));
 }
 
-void print(char *string) {
+void puts(char *string) {
     while(*string != 0) {
-        printChar(*string);
+        putc(*string);
         string++;
     }
 }
 
-void printInt(int a) {
+void puti(int a) {
     if(a == 0) {
-        printChar('0');
+        putc('0');
         return;
     }
     if(a < 0) {
-        printChar('-');
+        putc('-');
         a *= -1;
     }
     char buffor[20];
@@ -85,11 +85,11 @@ void printInt(int a) {
         a /= 10;
     }
     for(int i = ptr - 1; i >= 0; i--) {
-        printChar(buffor[i]);
+        putc(buffor[i]);
     }
 }
 
-Key getKey(void) {
+Key getc(void) {
     Word ax;
     asm("mov ah, 0x00\n\
     int 0x16"
@@ -101,28 +101,28 @@ Key getKey(void) {
     return key;
 }
 
-int getStr(char *str) {
+int gets(char *str) {
 	//TODO: what when arrows are pressed?
     Key key;
     int ptr = 0;
 	reset(str);
     for(;;) {
-        key = getKey();
+        key = getc();
         if(key.character == 13) {
-			printChar('\n');
+			putc('\n');
             break;
         }
         if(key.character == 8 && ptr >= 0) { //backspace
             if(ptr > 0) {
                 str[ptr] = 0;
                 ptr--;
-                printChar(8);
-                printChar(' ');
-                printChar(8);
+                putc(8);
+                putc(' ');
+                putc(8);
             }
             continue;
         }
-		printChar(key.character);
+		putc(key.character);
         str[ptr++] = key.character;
     }
 	return ptr;
