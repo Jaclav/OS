@@ -13,6 +13,8 @@ struct Key {
 };
 typedef struct Key Key;
 
+void cls(void);
+
 Position getCursorPosition(void);
 void setCursorPosition(Position position);
 

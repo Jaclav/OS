@@ -8,27 +8,6 @@ void cls(void) {
     setCursorPosition(position);
 }
 
-void setBackgroundColor(Byte color) {
-    asm("int 0x10"
-        :
-        :"a"(0x0b << 8),
-        "b"(color | 0x0000));
-}
-
-void setVideoMode(Byte mode) {
-    asm("int 0x10"
-        :
-        :"a"(mode | 0x0000));
-}
-
-Word getMemorySize(void) {
-    // size in kB
-    Word size;
-    asm("int 0x12"
-        :"=a"(size));
-    return size;
-}
-
 Position getCursorPosition(void) {
     Position position;
     Word dx;
@@ -58,7 +37,7 @@ void putc(Byte character) {
     asm("int 0x10"
         :
         : "a" ((0x0e<<8) | character),
-        "b" (VGA_COLOR_LIGHT_GREEN),
+        "b" (10),                       //TODO: do it better
         "c" (0x01));
 }
 

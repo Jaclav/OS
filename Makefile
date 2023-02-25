@@ -7,6 +7,7 @@ compile:
 	nasm -f elf32 loader.asm -o bin/loader.o
 	gcc $(CFLAGS) kernel/io.c -o bin/io.o
 	gcc $(CFLAGS) kernel/string.c -o bin/string.o
+	gcc $(CFLAGS) kernel/stdlib.c -o bin/stdlib.o
 	gcc $(CFLAGS) kernel/graphics.c -o bin/graphics.o
 	gcc $(CFLAGS) kernel.c -o bin/kernel.o
 	ld -T linker.ld -melf_i386 bin/*.o -o bin/kernel.bin

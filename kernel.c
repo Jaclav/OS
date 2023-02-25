@@ -12,7 +12,7 @@ void abc() {
 __attribute__ ((section ("kernelMain")))
 void main() {
     setVideoMode(0x02);
-    setBackgroundColor(VGA_COLOR_DARK_GREEN);
+    setColorPalette(VGA_COLOR_DARK_GREEN);
     abc();
     //puts("TEST of string literals"); //TODO: this crashes, why!?
     char L1[] = "Kernel loaded.\nVersion: ";
@@ -96,6 +96,12 @@ void main() {
                 pos.y = i % 250;
                 pos.x %= 250;
                 writePixel(pos, VGA_COLOR_GREEN);
+            }
+
+            for(int i = 0; i < SIZE_X; i++) {
+                pos.x = i;
+                pos.y = SIZE_Y - i;
+                writePixel(pos, VGA_COLOR_LIGHT_CYAN);
             }
             gets(NULL);
             setVideoMode(0x2);
