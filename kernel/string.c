@@ -13,17 +13,25 @@ bool strcmp(char *str1, char *str2) {
     return true;
 }
 
-int strlen(char *str) {
+bool strncmp ( const char * str1, const char * str2, size_t num ) {
+    for(size_t i = 0; i < num; i++) {
+        if(str1[i] != str2[i])
+            return false;
+    }
+    return true;
+}
+
+size_t strlen(char *str) {
     if(*str == 0)
         return 0;
-    int size = 0;
+    size_t size = 0;
     for(; *str != 0; str++, size++) {}
     return size;
 }
 
 int stoi(char *str) {
     int num = 0;
-    int size = strlen(str) - 1;
+    size_t size = strlen(str) - 1;
     for(size_t i = 0; i <= size; i++) {
         num += pow(10, (size - i)) * (str[i] - '0');
     }
@@ -35,4 +43,20 @@ void reset(char *str) {
         *str = 0;
         str++;
     }
+}
+
+const char * strchr ( const char * str, int character ) {
+    while(*str != 0) {
+        if(*str == character)
+            return str;
+        str++;
+    }
+    return NULL;
+}
+
+char *strncpy ( char * destination, const char * source, size_t num ) {
+    for(size_t i = 0; i < num; i++) {
+        destination[i] = source[i];
+    }
+    return destination;
 }

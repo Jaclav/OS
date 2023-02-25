@@ -1,8 +1,10 @@
 #include <stdbool.h>
 
+#define NULL 0
+
 typedef unsigned char Byte;
 typedef unsigned short Word;
-typedef unsigned short size_t;
+typedef unsigned int size_t;
 
 #define VGA_COLOR_BLACK 0
 #define VGA_COLOR_BLUE 1

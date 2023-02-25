@@ -32,7 +32,7 @@ void main() {
         char KEY[] = "key";
         char MODE[] = "mode";
         char TEST[] = "test";
-        if(ptr==0){
+        if(ptr == 0) {
 
         }
         else if(strcmp(command, CLS)) {
@@ -55,24 +55,16 @@ void main() {
             setVideoMode(stoi(command));
         }
         else if(strcmp(command, TEST)) {
-            char L0[] = "123456";
+            char L0[8] = "123456";
             char L1[] = "Napis1\n";
             char L3[] = "Napis3\n";
             puts(L1);
             puts("Napis2\n");
             puts(L3);
-            puti(pow(2, 0));
-            putc(' ');
-            puti(pow(2, 10));
-            putc('\n');
-            puti(strlen(L0));
-            putc(' ');
-            puti(stoi(L0));
-            putc('\n');
-            puti(2147483647);
+            puts(strncpy(L0, strchr(L1, 'p'), 3));
         }
-        else{
-            char L0[]="Error: unknown command!\n";
+        else {
+            char L0[] = "Error: unknown command!\n";
             puts(L0);
         }
         putc('>');
