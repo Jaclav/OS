@@ -54,9 +54,12 @@ void reset(char *str) {
 }
 
 char * strcpy ( char * destination, const char * source ) {
-    for(int i = 0; source[i - 1] != 0; i++) {// copy also \0 character
+    //copy all characters, including null
+    int i = 0;
+    do {
         destination[i] = source[i];
-    }
+        i++;
+    } while(source[i - 1] != 0);
     return destination;
 }
 

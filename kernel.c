@@ -42,14 +42,17 @@ void main() {
     int commandSize = 0;
 
     char parameter[100];
+
     for(;;) {
         bufforSize = gets(buffor);
-        commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters < 0, then just copy buffor
-        strncpy(command, buffor, commandSize >= 0 ? commandSize : strlen(buffor) + 1);//copy also \0 character
-        command[commandSize] = 0;
-
-        if((int)strchr(buffor, ' ') != 0) {
-            strcpy(parameter, strchr(buffor, ' ') + 1);
+        commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters commandSize=-buffor, then just copy buffor
+        if(commandSize < 0) {
+            strcpy(command, buffor);
+        }
+        else {
+            strncpy(command, buffor, commandSize);
+            command[commandSize] = 0;//set null character
+            strcpy(parameter, strchr(buffor, ' ') + 1);//copies also null
         }
 
         char CLS[] = "cls";
@@ -98,6 +101,12 @@ void main() {
             puts(L3);
             puts(strncpy(L0, strchr(L1, 'p'), 3));
 
+            putc('\n');
+            char test2[] = "cdYou shouldn't see this";
+            char test1[] = "ab";
+            strcpy(test2, test1);
+            puts(test2);
+
             getc();
             setVideoMode(0x10);
             Position pos;
@@ -109,7 +118,7 @@ void main() {
                 writePixel(pos, VGA_COLOR_GREEN);
             }
 
-            for(int i = 0; i < SIZE_X; i++) {
+            for(size_t i = 0; i < SIZE_X; i++) {
                 pos.x = i;
                 pos.y = SIZE_Y - i;
                 writePixel(pos, VGA_COLOR_LIGHT_CYAN);

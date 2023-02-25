@@ -87,6 +87,7 @@ int gets(char *str) {
     for(;;) {
         key = getc();
         if(key.character == 13) {
+            str[ptr] = 0;//end string with null
             putc('\n');
             break;
         }
