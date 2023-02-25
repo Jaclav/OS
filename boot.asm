@@ -1,8 +1,9 @@
+;grandidierite.github.io/bios-interrupts/
 org 0x7c00
 
 ; set video mode
 mov ah, 0x00
-mov al, 0x02
+mov al, 0x10    ; 640x350 with 16 colors
 int 0x10
 
 ; greeting
@@ -44,6 +45,18 @@ call printChar
 mov ax, cx
 add ax, '0'
 call printChar
+
+;add vertical line
+mov cx, 0x00
+L1:
+mov ah, 0x0c
+mov al, 0x0f    ;color
+mov bh, 0x00    ;page
+inc cx
+mov dx, 0x30    ;vertical
+int 0x10
+cmp cx, 0x270
+jle L1
 
 mov ax, DISK_TEXT
 call print

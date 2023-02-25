@@ -1,7 +1,11 @@
 printChar:
 ;AL - character to print
-	mov ah, 0x0e
+	pusha
+	mov ah, 0x0e	;write character
+	mov bh, 0x00	;page
+	mov bl, 0x0f	;color
 	int 0x10
+	popa
 	ret
 
 print:
