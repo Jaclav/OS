@@ -1,7 +1,10 @@
+#ifndef IO_H
+#define IO_H
+
 #include "stdlib.h"
 
 struct Position {
-    Byte x, y;
+    Word x, y;
 };
 typedef struct Position Position;
 
@@ -19,3 +22,5 @@ void puti(int a);
 
 Key getc(void);
 int gets(char *str);
+
+#endif

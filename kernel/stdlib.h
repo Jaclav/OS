@@ -1,3 +1,6 @@
+#ifndef STDLIB_H
+#define STDLIB_H
+
 #include <stdbool.h>
 
 #define NULL 0
@@ -5,6 +8,8 @@
 typedef unsigned char Byte;
 typedef unsigned short Word;
 typedef unsigned int size_t;
+
+typedef Byte Color;
 
 #define VGA_COLOR_BLACK 0
 #define VGA_COLOR_BLUE 1
@@ -27,3 +32,5 @@ void cls(void);
 void setBackgroundColor(Byte color);
 void setVideoMode(Byte mode);
 Word getMemorySize(void);
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef STRING_H
+#define STRING_H
+
 #include <stdbool.h>
 #include "stdlib.h"
 
@@ -11,3 +14,5 @@ void reset(char *str);
 
 char * strcpy ( char * destination, const char * source );
 char *strncpy ( char * destination, const char * source, size_t num );
+
+#endif

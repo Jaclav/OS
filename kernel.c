@@ -1,4 +1,5 @@
 #include "kernel/io.h"
+#include "kernel/graphics.h"
 
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
@@ -46,6 +47,7 @@ void main() {
         char MODE[] = "mode";
         char TEST[] = "test";
         char ASM[] = "asm";
+        char GRAPHIC[] = "graphic";
         if(bufforSize == 0) {
 
         }
@@ -84,6 +86,19 @@ void main() {
         }
         else if(strcmp(command, ASM)) {
             asmmain();
+        }
+        else if(strcmp(command, GRAPHIC)) {
+            setVideoMode(0x10);
+            Position pos;
+
+            for(int i = 0; i < 10000; i++) {
+                pos.x += i;
+                pos.y = i % 250;
+                pos.x %= 250;
+                writePixel(pos, VGA_COLOR_GREEN);
+            }
+            gets(NULL);
+            setVideoMode(0x2);
         }
         else {
             char L0[] = "Error: unknown command!\n";
