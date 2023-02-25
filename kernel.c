@@ -3,7 +3,7 @@
 //TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
 void abc() {
-    putchar('X');
+    printChar('X');
 }
 
 __attribute__ ((section ("kernelMain")))
@@ -11,7 +11,7 @@ void main() {
     setVideoMode(0x02);
     setBackgroundColor(VGA_COLOR_DARK_GREEN);
     abc();
-    //print("TEST of string literals"); //TODO: this crashes
+    //print("TEST of string literals"); //TODO: this crashes, why!?
     char L1[] = "Kernel loaded.\nVersion: ";
     print(L1);
     char L2[] = __TIME__;
@@ -27,9 +27,9 @@ void main() {
     reset(command);
     int ptr = 0;
     for(;;) {
-        key = getchar();
+        key = getKey();
         if(key.character == 13) {//enter
-            putchar('\n');
+            printChar('\n');
             char CLS[] = "cls";
             char POS[] = "pos";
             char KEY[] = "key";
@@ -41,17 +41,17 @@ void main() {
             else if(strcmp(command, POS)) {
                 Position position = getCursorPosition();
                 printInt(position.x);
-                putchar(':');
+                printChar(':');
                 printInt(position.y);
             }
             else if(strcmp(command, KEY)) {
-                key = getchar();
+                key = getKey();
                 printInt(key.character);
-                putchar(':');
+                printChar(':');
                 printInt(key.scancode);
             }
             else if(strcmp(command, MODE)) {
-                key = getchar();
+                key = getKey();
                 setVideoMode(key.character - '0');
             }
             else if(strcmp(command, TEST)) {
@@ -62,30 +62,32 @@ void main() {
                 print("Napis2\n");
                 print(L3);
                 printInt(pow(2, 0));
-                putchar(' ');
+                printChar(' ');
                 printInt(pow(2, 10));
-                putchar('\n');
+                printChar('\n');
                 printInt(strlen(L0));
-                putchar(' ');
+                printChar(' ');
                 printInt(stoi(L0));
+                printChar('\n');
+                printInt(2147483647);
             }
 
             ptr = 0;
             reset(command);
-            putchar('>');
+            printChar('>');
             continue;
         }
         else if(key.character == 8 && ptr >= 0) { //backspace
             if(ptr > 0) {
                 command[ptr] = 0;
                 ptr--;
-                putchar(8);
-                putchar(' ');
-                putchar(8);
+                printChar(8);
+                printChar(' ');
+                printChar(8);
             }
             continue;
         }
-        putchar(key.character);
+        printChar(key.character);
         command[ptr++] = key.character;
     }
 

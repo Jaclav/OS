@@ -4,7 +4,7 @@ void cls(void) {
     Position position = {0, 0};
     setCursorPosition(position);
     for(int i = 0; i < 0xffff; i++)
-        putchar(' ');
+        printChar(' ');
     setCursorPosition(position);
 }
 
@@ -51,9 +51,9 @@ void setCursorPosition(Position position) {
         "d" ((position.y << 8) | position.x));
 }
 
-void putchar(Byte character) {
+void printChar(Byte character) {
     if(character == '\n')
-        putchar('\r');
+        printChar('\r');
 
     asm("int 0x10"
         :
@@ -64,18 +64,18 @@ void putchar(Byte character) {
 
 void print(char *string) {
     while(*string != 0) {
-        putchar(*string);
+        printChar(*string);
         string++;
     }
 }
 
 void printInt(int a) {
     if(a == 0) {
-        putchar('0');
+        printChar('0');
         return;
     }
     if(a < 0) {
-        putchar('-');
+        printChar('-');
         a *= -1;
     }
     char buffor[20];
@@ -85,11 +85,11 @@ void printInt(int a) {
         a /= 10;
     }
     for(int i = ptr - 1; i >= 0; i--) {
-        putchar(buffor[i]);
+        printChar(buffor[i]);
     }
 }
 
-Key getchar(void) {
+Key getKey(void) {
     Word ax;
     asm("mov ah, 0x00\n\
     int 0x16"
@@ -99,4 +99,29 @@ Key getchar(void) {
     key.character = (Byte) ax;
     key.scancode = ax >> 8;
     return key;
+}
+
+int getStr(char *str) {
+    Key key;
+    int ptr = 0;
+    for(;;) {
+        key = getKey();
+        if(key.character == 13) {
+			printChar('\n');
+            break;
+        }
+        if(key.character == 8 && ptr >= 0) { //backspace
+            if(ptr > 0) {
+                str[ptr] = 0;
+                ptr--;
+                printChar(8);
+                printChar(' ');
+                printChar(8);
+            }
+            continue;
+        }
+		printChar(key.character);
+        str[ptr++] = key.character;
+    }
+	return ptr;
 }

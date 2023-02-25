@@ -13,8 +13,9 @@ typedef struct Key Key;
 Position getCursorPosition(void);
 void setCursorPosition(Position position);
 
-void putchar(Byte character);
+void printChar(Byte character);
 void print(char *string);
 void printInt(int a);
 
-Key getchar(void);
+Key getKey(void);
+int getStr(char *str);
