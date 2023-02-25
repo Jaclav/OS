@@ -23,7 +23,7 @@ void writePixel(Position pos, Color color) {
 
 void draw(Position begin, Color *data, size_t width, size_t height) {
     //begin is position of first up right corner pixel
-    Position pos = {};
+    Position pos;
     for(size_t y = 0; y < height; y++) {
         for(size_t x = 0; x < width; x++) {
             pos.x = x + begin.x;

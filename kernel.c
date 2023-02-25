@@ -1,7 +1,17 @@
+// grandidierite.github.io/bios-interrupts/
+// cplusplus.com/reference/cstdio/putchar/
+// archive.kernel.org/oldlinux/htmldocs/kernel-api/API-memset.html
+// en.wikipedia.org/wiki/INT_16H
+// en.wikipedia.org/wiki/INT_10H
+// en.wikipedia.org/wiki/INT_13H
+//TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
+//TODO: add sleep function via int 15h AH = 86h
+//TODO: handle key, shift, ctrl
+//TODO: add file I/O
+//TODO: read about wiki.osdev.org/Segmentation
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
-//TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
 
 extern void asmmain();
 

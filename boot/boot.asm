@@ -1,4 +1,3 @@
-;grandidierite.github.io/bios-interrupts/
 org 0x7c00
 
 ; set video mode

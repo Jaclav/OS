@@ -1,3 +1,4 @@
+//TODO: add .bmp pl.wikipedia.org/wiki/Windows_Bitmap
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
