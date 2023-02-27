@@ -19,6 +19,8 @@ pop ebp
 ; reading sectors
 DISK_ADDRESS equ 0x2000
 mov bx, DISK_ADDRESS
+mov es, bx
+mov bx, 0x0
 
 mov dh, 0x0                     ; head
 mov dl, 0x0                     ; drive
@@ -32,7 +34,15 @@ read_disk:
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
 
-;jmp DISK_ADDRESS:0x0
+mov ax, DISK_ADDRESS
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
+
+push 'J'
+jmp DISK_ADDRESS:0x0
 
 ;print readed memory
 mov cx, 0
