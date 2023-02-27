@@ -5,14 +5,13 @@
 // https://en.wikipedia.org/wiki/INT_10H
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
-//TODO: cannot use func("string") (const literal) nor *p (pointer to literal), only array of chars
+//TODO: cannot give string literal to char* parameter, only int
 //TODO: add sleep function via int 15h AH = 86h
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
 //TODO: read about wiki.osdev.org/Segmentation
 #include "kernel/io.h"
 #include "kernel/graphics.h"
-
 
 extern void asmmain(char a, char b, char c, int d, int e);
 
@@ -25,16 +24,11 @@ void main() {
     setVideoMode(0x02);
     setColorPalette(VGA_COLOR_DARK_GREEN);
     abc();
-    //puts("TEST of string literals"); //TODO: this crashes, why!?
-    char L1[] = "Kernel loaded.\nVersion: ";
-    puts(L1);
-    char L2[] = __TIME__;
-    puts(L2);
-    char L3[] = "\nMemory size: ";
-    puts(L3);
+    puts("Kernel loaded.\nVersion: ");
+    puts(__TIME__);
+    puts("\nMemory size: ");
     puti(getMemorySize());
-    char L4[] = "kB\n>";
-    puts(L4);
+    puts("kB\n>");
 
     char buffor[100];
     int bufforSize = 0;
@@ -135,7 +129,7 @@ void main() {
         }
         else if(strcmp(command, GRAPHIC)) {
             setVideoMode(0x13);
-#include "image.h"
+    #include "image.h"
             Position pos = {200, 100};
             draw(pos, image_bmp, image_width, image_height);
         }
