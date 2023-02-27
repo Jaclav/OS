@@ -9,6 +9,7 @@
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
 //TODO: read about wiki.osdev.org/Segmentation
+//TODO: https://en.m.wikibooks.org/wiki/X86_Disassembly/Functions_and_Stack_Frames
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
@@ -17,14 +18,6 @@ extern void asmmain(char a, char b, char c, int d, int e);
 void abc() {
     putc('X');
 }
-/*
-void fun1(int a){
-    puti(a);
-}
-
-void fun2(char *a){
-    puti(a);
-}*/
 
 __attribute__ ((section ("kernelMain")))
 void main() {
@@ -86,8 +79,7 @@ void main() {
         }
         else if(strcmp(command, MODE)) {
             setVideoMode(stoi(parameter));
-            char L0[] = "Mode: ";
-            puts(L0);
+            puts("Mode: ");
             puti(stoi(parameter));
         }
         else if(strcmp(command, TEST)) {
@@ -99,10 +91,8 @@ void main() {
             putc('\n');
             char L0[8] = "123456";
             char L1[] = "Napis1\n";
-            char L3[] = "Napis3\n";
             puts(L1);
             puts("Napis2\n");
-            puts(L3);
             puts(strncpy(L0, strchr(L1, 'p'), 3));
 
             putc('\n');

@@ -42,7 +42,7 @@ void putc(Byte character) {
 }
 
 void puts(const int string) {
-    char* ptr = (int*)(string);
+    char* ptr = (char*)(string);
     while(*ptr != 0) {
         putc(*ptr);
         ptr++;
