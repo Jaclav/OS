@@ -5,6 +5,7 @@
 // https://en.wikipedia.org/wiki/INT_10H
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
+// https://www.ctyme.com/rbrown.htm
 //TODO: cannot give string literal to char* parameter, only int
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
@@ -13,7 +14,7 @@
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
-extern int asmmain(char a, char b, char c, int d, int e);
+extern int asmmain(char a, int b);
 
 void abc() {
     putc('X');
@@ -124,7 +125,7 @@ void main() {
         else if(strcmp(command, ASM)) {
             asm("xor ax,ax");
 
-            puti(asmmain('A', 'B', 'W', "CBA", "Napis4"));
+            puti(asmmain('X', "Loading disk:"));
         }
         else if(strcmp(command, GRAPHIC)) {
             setVideoMode(0x13);

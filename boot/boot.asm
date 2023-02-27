@@ -1,3 +1,4 @@
+KERNEL_ADDRESS equ 0x1000
 org 0x7c00
 
 ; set video mode
@@ -10,7 +11,7 @@ mov ax, START_TEXT
 call print
 
 ; reading sectors
-mov bx, 0x1000
+mov bx, KERNEL_ADDRESS
 mov es, bx
 mov bx, 0x0
 
@@ -21,7 +22,7 @@ mov cl, 0x02                    ; 2nd sector (counted from 1)
 
 read_disk:
     mov ah, 0x02                ; BIOS read
-    mov al, 0x20                ; sectors to read
+    mov al, 0x10                ; sectors to read
     int 0x13                    ; BIOS disk
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
@@ -63,14 +64,14 @@ call print
 call getChar
 
 ;reset
-mov ax, 0x1000
+mov ax, KERNEL_ADDRESS
 mov ds, ax
 mov es, ax
 mov fs, ax
 mov gs, ax
 mov ss, ax
 
-jmp 0x1000:0x0
+jmp KERNEL_ADDRESS:0x0
 hlt
 
 %include "boot/io.asm"

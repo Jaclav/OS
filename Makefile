@@ -4,6 +4,7 @@ run: compile
 
 compile:
 	nasm -f bin boot/boot.asm -o bin/boot.bin
+	nasm -f bin disk.asm -o bin/disk.bin
 	nasm -f elf32 loader.asm -o bin/loader.o
 	gcc $(CFLAGS) kernel/io.c -o bin/io.o
 	gcc $(CFLAGS) kernel/string.c -o bin/string.o
@@ -13,9 +14,11 @@ compile:
 	ld -T linker.ld -melf_i386 bin/*.o -o bin/kernel.bin
 
 	cat bin/boot.bin bin/kernel.bin > bin/OS.img
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1	# create buffor
+	dd if=bin/disk.bin of=bin/OS.img seek=15		# write disk at 15th sector
 
 bochs: compile
-	echo c | bochs -q
+	bochs -q
 
 clean:
 	rm bin/*
