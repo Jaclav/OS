@@ -34,6 +34,11 @@ read_disk:
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
 
+call getAddress
+getAddress:
+pop ax
+push ax
+
 mov ax, DISK_ADDRESS
 mov ds, ax
 mov es, ax
@@ -44,19 +49,38 @@ mov ss, ax
 push 'J'
 jmp DISK_ADDRESS:0x0
 
-;print readed memory
+mov ax,'W'
+call printChar
+
+;;  print readed memory
+mov ax, DISK_ADDRESS
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
+
 mov cx, 0
 L1:
 push cx
 
-mov bx,cx
-mov ax, [DISK_ADDRESS+bx]
+mov bx, cx
+mov ax, [bx]
 call printChar
 
 pop cx
 inc cx
 cmp cx, 1024
 jle L1
+
+
+;;  print readed memory
+mov ax, 0x1000
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
 
 mov ax, 21
 ret

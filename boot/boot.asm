@@ -22,7 +22,7 @@ mov cl, 0x02                    ; 2nd sector (counted from 1)
 
 read_disk:
     mov ah, 0x02                ; BIOS read
-    mov al, 0x10                ; sectors to read
+    mov al, 0x0e                ; sectors to read
     int 0x13                    ; BIOS disk
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
