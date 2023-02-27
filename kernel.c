@@ -14,7 +14,7 @@
 #include "kernel/graphics.h"
 
 
-extern void asmmain();
+extern void asmmain(char a, char b, char c, int d, int e);
 
 void abc() {
     putc('X');
@@ -129,7 +129,9 @@ void main() {
             setColorPalette(VGA_COLOR_DARK_GREEN);
         }
         else if(strcmp(command, ASM)) {
-            asmmain();
+            asm("xor ax,ax");
+
+            asmmain('A', 'B', 'W', "CBA", "Napis4");
         }
         else if(strcmp(command, GRAPHIC)) {
             setVideoMode(0x13);
