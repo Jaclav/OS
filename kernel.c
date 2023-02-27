@@ -13,7 +13,7 @@
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
-extern void asmmain(char a, char b, char c, int d, int e);
+extern int asmmain(char a, char b, char c, int d, int e);
 
 void abc() {
     putc('X');
@@ -124,11 +124,11 @@ void main() {
         else if(strcmp(command, ASM)) {
             asm("xor ax,ax");
 
-            asmmain('A', 'B', 'W', "CBA", "Napis4");
+            puti(asmmain('A', 'B', 'W', "CBA", "Napis4"));
         }
         else if(strcmp(command, GRAPHIC)) {
             setVideoMode(0x13);
-    #include "image.h"
+#include "image.h"
             Position pos = {200, 100};
             draw(pos, image_bmp, image_width, image_height);
         }

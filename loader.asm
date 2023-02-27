@@ -1,5 +1,4 @@
 global asmmain
-global printStr
 [bits 16]
 asmmain:
 push ebp
@@ -35,6 +34,8 @@ call print
 
 mov esp,ebp
 pop ebp
+
+mov ax, 21
 ret
 
 %include "boot/io.asm"
