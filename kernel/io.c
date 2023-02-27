@@ -14,7 +14,7 @@ Position getCursorPosition(void) {
 
     asm("int 0x10"
         : "=d"(dx)
-        : "a" (0x03 << 8), //I don't know why it work
+        : "a" (0x03 << 8),
         "b" (0x0));
     position.y = dx >> 8;
     position.x = (Byte)dx;
@@ -37,7 +37,7 @@ void putc(Byte character) {
     asm("int 0x10"
         :
         : "a" ((0x0e<<8) | character),
-        "b" (10),                       //TODO: do it better
+        "b" (10),                       //TODO: add cursorColor and setCursorColor(Color color)
         "c" (0x01));
 }
 
