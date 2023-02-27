@@ -17,6 +17,14 @@ extern void asmmain(char a, char b, char c, int d, int e);
 void abc() {
     putc('X');
 }
+/*
+void fun1(int a){
+    puti(a);
+}
+
+void fun2(char *a){
+    puti(a);
+}*/
 
 __attribute__ ((section ("kernelMain")))
 void main() {
@@ -24,8 +32,8 @@ void main() {
     setColorPalette(VGA_COLOR_DARK_GREEN);
     abc();
     puts("Kernel loaded.\nVersion: ");
-    udelay(10000000);
-    putc('\n');
+    puts(__DATE__);
+    putc(' ');
     puts(__TIME__);
     puts("\nMemory size: ");
     puti(getMemorySize());
