@@ -11,4 +11,6 @@ typedef unsigned int size_t;
 
 Word getMemorySize(void);
 
+void udelay(unsigned long usecs);
+
 #endif

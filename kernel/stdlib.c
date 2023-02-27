@@ -7,3 +7,10 @@ Word getMemorySize(void) {
         :"=a"(size));
     return size;
 }
+
+void udelay(unsigned long usecs) {
+    //http://vitaly_filatov.tripod.com/ng/asm/asm_026.13.html
+    asm("int 0x15"
+        :
+        :"a"(0x86<<8), "c"(usecs>>16), "d"((Word)usecs));
+}

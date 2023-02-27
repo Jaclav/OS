@@ -6,7 +6,6 @@
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
 //TODO: cannot give string literal to char* parameter, only int
-//TODO: add sleep function via int 15h AH = 86h
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
 //TODO: read about wiki.osdev.org/Segmentation
@@ -25,6 +24,8 @@ void main() {
     setColorPalette(VGA_COLOR_DARK_GREEN);
     abc();
     puts("Kernel loaded.\nVersion: ");
+    udelay(10000000);
+    putc('\n');
     puts(__TIME__);
     puts("\nMemory size: ");
     puti(getMemorySize());
