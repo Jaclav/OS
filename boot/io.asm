@@ -1,3 +1,5 @@
+KERNEL_ADDRESS equ 0x1000
+
 debug:
 ;MAGIC BREAKEPOINT in bochs, to enable in .bochsrc:
 ;magic_break: enabled=1

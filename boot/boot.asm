@@ -1,4 +1,3 @@
-KERNEL_ADDRESS equ 0x1000
 org 0x7c00
 
 ; set video mode
@@ -76,7 +75,7 @@ hlt
 
 %include "boot/io.asm"
 
-START_TEXT db "Starting OS...",0x0a,0x0d,"Loading disk...",0x0a,0x0d,0x00
+START_TEXT db "Starting OS...",0x0a,0x0d,"Loading kernel...",0x0a,0x0d,0x00
 DISK_TEXT db " sectors readed, press any key to continue...",0x00
 
 times 510 - ($-$$) db 0x90
