@@ -1,8 +1,9 @@
+bits 16
 org 0x7c00
 
 ; set video mode
 mov ah, 0x00
-mov al, 0x10    ; 640x350 with 16 colors
+mov al, 0x10                    ; 640x350 with 16 colors
 int 0x10
 
 ; greeting

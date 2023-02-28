@@ -30,7 +30,7 @@ print_L:
 print_exit:
 	ret
 
-getChar
+getChar:
 	mov ah, 0x00
 	int 0x16
 	ret

@@ -1,3 +1,4 @@
+bits 16
 pop ax
 call printChar
 

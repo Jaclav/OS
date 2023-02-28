@@ -1,5 +1,6 @@
+bits 16
 global asmmain
-[bits 16]
+
 asmmain:
 push ebp
 mov  ebp, esp
@@ -75,7 +76,7 @@ jle L1
 mov ax, KERNEL_ADDRESS
 mov ds, ax
 
-mov eax, 22
+mov ax, 22
 ret
 
 %include "boot/io.asm"
