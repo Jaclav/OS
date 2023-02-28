@@ -1,3 +1,10 @@
+debug:
+;MAGIC BREAKEPOINT in bochs, to enable in .bochsrc:
+;magic_break: enabled=1
+	xchg bx, bx
+	nop
+	ret
+
 printChar:
 ;AL - character to print
 	pusha

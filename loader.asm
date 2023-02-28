@@ -34,11 +34,6 @@ read_disk:
     jc read_disk                ; if error repeat
     ; returns number of readed sectors in AL
 
-call getAddress
-getAddress:
-pop ax
-push ax
-
 mov ax, DISK_ADDRESS
 mov ds, ax
 mov es, ax
@@ -46,6 +41,11 @@ mov fs, ax
 mov gs, ax
 mov ss, ax
 
+;push return address
+call getAddress
+getAddress:
+pop cx;get current address
+push cx;push it
 push 'J'
 jmp DISK_ADDRESS:0x0
 
@@ -82,7 +82,7 @@ mov fs, ax
 mov gs, ax
 mov ss, ax
 
-mov ax, 21
+mov eax, 22
 ret
 
 %include "boot/io.asm"
