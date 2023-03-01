@@ -1,83 +1,84 @@
-bits 16
-org 0x7c00
+[bits 16]
+org		0x7c00
 
-; set video mode
-mov ah, 0x00
-mov al, 0x10                    ; 640x350 with 16 colors
-int 0x10
+mov		ah,		0				; set video mode
+mov		al,		0x10			; 640x350 with 16 colors
+int		0x10					; BIOS screen
 
 ; greeting
-mov ax, START_TEXT
-call print
+push	START_TEXT
+call	puts
+add		sp,		2
 
-; reading sectors
-mov bx, KERNEL_ADDRESS
-mov es, bx
-mov bx, 0x0
+;;;;;;;;;;;;;
+; LOAD KERNEL
+mov		bx,		KERNEL_ADDRESS
+mov		es,		bx				; es:bx is an address to write in memory
+mov		bx,		0				; address to write = KERNEL_ADDRESS:0x0
 
-mov dh, 0x0                     ; head
-mov dl, 0x0                     ; drive
-mov ch, 0x0                     ; cylinder
-mov cl, 0x02                    ; 2nd sector (counted from 1)
+mov		ch,		0				; cylinder
+mov		cl,		2				; 2nd sector (counted from 1 - 1st is this bootloader)
+mov		dh,		0				; head
+mov		dl,		0				; drive
 
 read_disk:
-    mov ah, 0x02                ; BIOS read
-    mov al, 0x0e                ; sectors to read
-    int 0x13                    ; BIOS disk
-    jc read_disk                ; if error repeat
-    ; returns number of readed sectors in AL
+	mov		ah,		2			; read
+	mov		al,		0x0e		; number of sectors to read - size of kernel
+	int		0x13				; BIOS disk
+	jc read_disk				; CF=1 if error
+	; AL = number of readed sectors
 
 ; print number of loaded sectors
-push ax
-mov bx, 10
-mov dx, 0
-div bx,
-mov cx, dx                      ;cx = ax % 10
+;TODO: reverse it
+xor		ah,		ah
+sectors:
+	push	ax
+	mov 	bx,		10
+	mov		dx,		0
+	div		bx					; dx = ax % bx
 
-pop ax
-sub ax, cx
-mov bx, 10
-mov dx, 0
-div bx                          ;ax = (ax-ax %10)/10=(ax-cx)/bx
-add al, '0'
-call printChar
+	add		dx, 	'0'
+	push	dx
+	call	putc
+	add		sp,		2
+	pop		ax
+	mov		dx,		0
+	div		bx
+	cmp		al,		0
+	jne		sectors
 
-mov ax, cx
-add ax, '0'
-call printChar
-
-;add vertical line
-mov cx, 0x00
+; draw vertical line
+mov		cx,		0x270
 L1:
-mov ah, 0x0c
-mov al, 0x0f    ;color
-mov bh, 0x00    ;page
-inc cx
-mov dx, 0x30    ;vertical
-int 0x10
-cmp cx, 0x270
-jle L1
+mov		ah,		0x0c			; write a pixel
+mov		al,		0x0f    		; color
+mov		bh,		0x00    		; page
+mov		dx,		0x30    		; vertical
+int		0x10					; BIOS screen
+loop 	L1
 
-mov ax, DISK_TEXT
-call print
+push	PROMPT_TEXT
+call	puts
+add		sp,		4
 
-call getChar
+call 	getChar
 
-;reset
-mov ax, KERNEL_ADDRESS
-mov ds, ax
-mov es, ax
-mov fs, ax
-mov gs, ax
-mov ss, ax
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; SET SEGMENTS AND JUMP TO KERNEL
+mov		ax,		KERNEL_ADDRESS
+mov		ds,		ax
+mov		es,		ax
+mov		fs,		ax
+mov		gs,		ax
+mov		ss,		ax
 
-jmp KERNEL_ADDRESS:0x0
+jmp 	KERNEL_ADDRESS:0x0
 hlt
 
 %include "boot/io.asm"
 
 START_TEXT db "Starting OS...",0x0a,0x0d,"Loading kernel...",0x0a,0x0d,0x00
-DISK_TEXT db " sectors readed, press any key to continue...",0x00
+PROMPT_TEXT db " sectors readed, press any key to continue...",0x00
 
 times 510 - ($-$$) db 0x90
 dw 0xaa55
