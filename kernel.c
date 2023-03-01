@@ -10,7 +10,6 @@
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
 //TODO: read about wiki.osdev.org/Segmentation
-//TODO: https://en.m.wikibooks.org/wiki/X86_Disassembly/Functions_and_Stack_Frames
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 

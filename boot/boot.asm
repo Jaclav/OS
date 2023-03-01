@@ -29,31 +29,18 @@ read_disk:
 	; AL = number of readed sectors
 
 ; print number of loaded sectors
-;TODO: reverse it
 xor		ah,		ah
-sectors:
-	push	ax
-	mov 	bx,		10
-	mov		dx,		0
-	div		bx					; dx = ax % bx
-
-	add		dx, 	'0'
-	push	dx
-	call	putc
-	add		sp,		2
-	pop		ax
-	mov		dx,		0
-	div		bx
-	cmp		al,		0
-	jne		sectors
+push	ax
+call	puti
+add		sp,		2
 
 ; draw vertical line
-mov		cx,		0x270
+mov		cx,		0x270			; draw 0x270 pixels
 L1:
 mov		ah,		0x0c			; write a pixel
 mov		al,		0x0f    		; color
 mov		bh,		0x00    		; page
-mov		dx,		0x30    		; vertical
+mov		dx,		0x30    		; vertical position
 int		0x10					; BIOS screen
 loop 	L1
 

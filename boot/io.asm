@@ -1,13 +1,21 @@
 KERNEL_ADDRESS equ 0x1000
 
+; ABI:
+	;; parameters are on stack - first parameter is on top
+	;; after calling caller must clear stack
+	;; function must leave CPU as it was before call
+	;; use stack frames
+	;; stack e.g. [LOCAL VARIABLES] [USED REGISTERS] [FRAME POINTER i.e. ebp] [REURN ADDRESS] [PARAMETERS]
+
 debug:
-;MAGIC BREAKEPOINT in bochs, to enable in .bochsrc:
-;magic_break: enabled=1
+	;; MAGIC BREAKEPOINT in bochs, to enable in .bochsrc:
+	;; magic_break: enabled=1
 	xchg	bx,		bx
 	nop
 	ret
 
 putc:
+	;; write single character
 	push	bp
 	mov		bp,		sp
 	push	ax
@@ -26,53 +34,91 @@ putc:
 	ret
 
 puts:
+	;; write string
 	push	bp
 	mov		bp,		sp
 	push	ax
 	push	bx
 
+	mov		ax,		0
 	mov 	bx,		[bp + 4]
-puts_L:
-	mov al, [bx]
-	cmp al, 0
-	je puts_exit
 
+	.loop:
+	mov		al,		[bx]
+	cmp		al,		0
+	je		.after
 	push	ax
 	call	putc
 	add		sp,		2
+	inc 	bx
+	jmp 	.loop
 
-	inc bx
-	jmp puts_L
-puts_exit:
+	.after:
 	pop 	bx
 	pop 	ax
 	mov		sp,		bp
 	pop		bp
 	ret
 
-;TODO remove old printChar and print
+puti:
+	;; write int
+	push	bp
+	mov		bp,		sp
+	push	ax
+	push	bx
+	push	cx
+	push	dx
 
+	mov		ax,		[bp + 4]
+	push	0					; end of digits to print
+
+	.loop:
+	mov 	bx,		10
+	mov		dx,		0
+	mov		cx,		ax
+	div		bx					; dx = ax % 10
+	mov		ax,		cx
+	;; push digit in ascii on stack
+	add		dx, 	'0'
+	push	dx
+
+	mov		dx,		0
+	div		bx					; ax = ax / 10
+	cmp		al,		0
+	jne		.loop
+
+	.loop2:
+	pop		ax
+	cmp		ax,		0
+	je		.after
+	push	ax
+	call	putc
+	add		sp,		2
+	jmp		.loop2
+
+	.after:
+	pop		dx
+	pop		cx
+	pop		bx
+	pop		ax
+	mov		sp,		bp
+	pop		bp
+	ret
+
+;TODO remove old printChar and print
+;TODO add \n as \n\r when no \r
 printChar:
 ;AL - character to print
-	mov ah, 0x0e	;write character
-	mov bh, 0x00	;page
-	mov bl, 0x0f	;color
-	int 0x10
+	push	ax
+	call	putc
+	add		sp,		2
 	ret
 
 print:
 ;AX - address of text to print
-	mov bx, ax
-print_L:
-	mov al, [bx]
-	cmp al, 0
-	je print_exit
-	push bx
-	call printChar
-	pop bx
-	inc bx
-	jmp print_L
-print_exit:
+	push	ax
+	call	puts
+	add		sp,		2
 	ret
 
 getChar:
