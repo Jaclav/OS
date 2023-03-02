@@ -21,4 +21,4 @@ bochs: compile
 	bochs -q
 
 clean:
-	rm bin/*
+	rm -rf bin/*

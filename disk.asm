@@ -13,7 +13,7 @@ db "DISK INFORMATION: ABC",0x00
 start:
 push	DWORD START_TEXT
 call	puts
-add		sp,		2
+add		sp,		4
 
 ;;;;;;;;;;;;;;;;;;
 ;; return procedure
