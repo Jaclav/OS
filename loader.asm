@@ -71,7 +71,6 @@ asmmain:
 	mov		fs,		ax
 	mov		gs,		ax
 	mov		ss,		ax
-	mov		sp,		bp
 
 	push	WORD 'W'
 	call	DWORD putc

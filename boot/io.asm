@@ -6,7 +6,7 @@ KERNEL_ADDRESS equ 0x1000
 	;; after calling caller must clear stack
 	;; function must leave CPU as it was before call
 	;; use stack frames
-	;; stack e.g. [LOCAL VARIABLES] [USED REGISTERS] [FRAME POINTER i.e. ebp] [RETURN ADDRESS] [PARAMETERS]
+	;; stack e.g. [LOCAL VARIABLES] [USED REGISTERS] [FRAME POINTER i.e. bp] [RETURN ADDRESS] [PARAMETERS]
 
 debug:
 	;; MAGIC BREAKEPOINT in bochs, to enable in .bochsrc:
