@@ -15,6 +15,8 @@ push	DWORD START_TEXT
 call	puts
 add		sp,		4
 
+int		0x20
+
 ;;;;;;;;;;;;;;;;;;
 ;; return procedure
 mov		bx,		[ebp+6]
