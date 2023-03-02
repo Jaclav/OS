@@ -122,9 +122,7 @@ void main() {
             setColorPalette(VGA_COLOR_DARK_GREEN);
         }
         else if(strcmp(command, ASM)) {
-            asm("xor ax,ax");
-
-            puti(asmmain('X', "Loading disk:"));
+            puti(asmmain('Y', "Loading disk:"));
         }
         else if(strcmp(command, GRAPHIC)) {
             setVideoMode(0x13);

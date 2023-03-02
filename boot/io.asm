@@ -17,6 +17,7 @@ debug:
 
 putc:
 	;; write single character
+	;TODO add \n as \n\r when no \r
 	push	bp
 	mov		bp,		sp
 	push	ax
@@ -104,22 +105,6 @@ puti:
 	pop		ax
 	mov		sp,		bp
 	pop		bp
-	ret
-
-;TODO remove old printChar and print
-;TODO add \n as \n\r when no \r
-printChar:
-;AL - character to print
-	push	ax
-	call	putc
-	add		sp,		2
-	ret
-
-print:
-;AX - address of text to print
-	push	ax
-	call	puts
-	add		sp,		2
 	ret
 
 getChar:
