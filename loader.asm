@@ -6,7 +6,7 @@ extern abc
 extern putc
 extern puts
 extern puti
-; as kernel is in 32 bits functions must be called with 32bit address - call DWORD
+;! as kernel is in 32 bits functions must be called with 32bit address - call DWORD
 ; can also push 0; call func
 
 asmmain:
@@ -47,8 +47,7 @@ asmmain:
 	; print number of loaded sectors
 	xor		ah,		ah
 	push	DWORD eax
-	push	0						; TODO: WHY!?
-	call	puti
+	call	DWORD puti
 	add		sp,		4
 
 	; change segments

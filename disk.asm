@@ -16,8 +16,8 @@ add		sp,		4
 
 int		0x20
 
-mov		esp,	ebp					; reset stack as it was
-pop		ebp							; reset ebp as it was
+mov		esp,	ebp
+pop		ebp
 iret
 hlt
 
