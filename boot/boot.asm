@@ -1,4 +1,4 @@
-[bits 16]
+bits 16
 org		0x7c00
 
 mov		ah,		0				; set video mode

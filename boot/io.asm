@@ -1,4 +1,4 @@
-[bits 16]
+bits 16
 KERNEL_ADDRESS equ 0x1000
 
 ; ABI:
