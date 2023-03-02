@@ -1,9 +1,8 @@
 bits 16
-
 push	ebp
 mov		ebp,	esp
 
-push	WORD[ebp+8]				; print parameter
+push	WORD[ebp+10]				; print parameter
 call	putc
 add		sp,		2
 
@@ -17,23 +16,8 @@ add		sp,		4
 
 int		0x20
 
-;;;;;;;;;;;;;;;;;;
-;; return procedure
-; change segment
-mov		ax,		[ebp+6]			; segment
-mov		bx,		[ebp+4]			; offset
-pop		ebp						; reset ebp as it was
-mov		esp,	ebp				; reset stack as it was
-mov		ds,		ax
-mov		es,		ax
-mov		fs,		ax
-mov		gs,		ax
-mov		ss,		ax
-
-; jump back
-push	0
-push	ax						; segment
-push	bx						; offset
+mov		esp,	ebp					; reset stack as it was
+pop		ebp							; reset ebp as it was
 iret
 hlt
 

@@ -10,88 +10,98 @@ extern puti
 ; can also push 0; call func
 
 asmmain:
-push	ebp
-mov		ebp,	esp
+	push	ebp
+	mov		ebp,	esp
 
-call	DWORD 	abc
+	call	DWORD 	abc
 
-push	WORD[ebp+8]
-call	DWORD putc
-add		esp,	2
+	push	WORD[ebp+8]
+	call	DWORD putc
+	add		esp,	2
 
-push	DWORD[ebp+12]
-call	DWORD puts
-add		esp,	2
+	push	DWORD[ebp+12]
+	call	DWORD puts
+	add		esp,	4
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; READ DISK_ADDRESS
-; reading sectors
-DISK_ADDRESS equ 0x2000
-;save at address es:bx
-mov 	bx,		DISK_ADDRESS
-mov 	es,		bx
-mov 	bx,		0x0
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; READ DISK_ADDRESS
+	; reading sectors
+	DISK_ADDRESS equ 0x2000
+	;save at address es:bx
+	mov 	bx,		DISK_ADDRESS
+	mov 	es,		bx
+	mov 	bx,		0x0
 
-mov 	dh,		0x0             ; head
-mov 	dl,		0x0             ; drive
-mov 	ch,		0x0             ; cylinder
-mov 	cl,		0x10            ; 16th sector (counted from 1), because at 15th sector of memory disk is located via Makefile
+	mov 	dh,		0x0             ; head
+	mov 	dl,		0x0             ; drive
+	mov 	ch,		0x0             ; cylinder
+	mov 	cl,		0x10            ; 16th sector (counted from 1), because at 15th sector of memory disk is located via Makefile
 
-read_disk:
-	mov		ah,		0x02        ; BIOS read
-	mov		al,		0x02        ; sectors to read
-	int		0x13                ; BIOS disk
-	jc read_disk                ; CF=1 if error
-	; AL = number of readed sectors
+	read_disk:
+		mov		ah,		0x02        ; BIOS read
+		mov		al,		0x02        ; sectors to read
+		int		0x13                ; BIOS disk
+		jc read_disk                ; CF=1 if error
+		; AL = number of readed sectors
 
-; print number of loaded sectors
-xor		ah,		ah
-push	DWORD eax
-push	0
-call	puti
-add		sp,		4
+	; print number of loaded sectors
+	xor		ah,		ah
+	push	DWORD eax
+	push	0						; TODO: WHY!?
+	call	puti
+	add		sp,		4
 
-; change segments
-mov		ax,		DISK_ADDRESS
-mov		ds,		ax
-mov		es,		ax
-mov		fs,		ax
-mov		gs,		ax
-mov		ss,		ax
+	; change segments
+	mov		ax,		DISK_ADDRESS
+	mov		ds,		ax
+	mov		es,		ax
+	mov		fs,		ax
+	mov		gs,		ax
+	mov		ss,		ax
 
-; call program
-push	'Z'						;give a parameter to program
-call	DISK_ADDRESS:0x0
+	; call program
+	push	'Z'						; give a parameter to program
+	push 	0						; set zero as flag register - for iret
+	call	DISK_ADDRESS:0x0		; push cs; push ip; with line above can iret
+	add		sp,		2
+	;reset segments
+	mov		ax,		KERNEL_ADDRESS
+	mov		ds,		ax
+	mov		es,		ax
+	mov		fs,		ax
+	mov		gs,		ax
+	mov		ss,		ax
+	mov		sp,		bp
 
-push	'W'
-call	DWORD putc
-add		sp,		2
-
-; change segment
-mov		ax,		DISK_ADDRESS
-mov		ds,		ax
-
-mov cx, 0
-L1:
-	push	cx
-	mov		bx,		cx
-	mov		ax,		[ds:bx]
-	push	ax
+	push	WORD 'W'
 	call	DWORD putc
 	add		sp,		2
 
-	pop		cx
-	inc		cx
-	cmp		cx,		1024
-	jle		L1
+	; change segment
+	push 	ds
+	mov		ax,		DISK_ADDRESS
+	mov		ds,		ax
 
-;restore segment
-mov		ax,		KERNEL_ADDRESS
-mov		ds,		ax
+	mov cx, 0
+	L1:
+		push	cx
+		mov		bx,		cx
+		mov		ax,		[ds:bx]
+		push	ax
+		call	DWORD putc
+		add		sp,		2
 
-pop		ebp
-mov		eax,		43
-ret
+		pop		cx
+		inc		cx
+		cmp		cx,		1024
+		jle		L1
+
+	;restore segment
+	pop 	ds
+
+	pop		ebp
+	mov		eax,		43
+	ret
 
 setInterrupts:
 	; https://wiki.osdev.org/Interrupt_Vector_Table
