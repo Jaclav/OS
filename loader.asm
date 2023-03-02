@@ -23,9 +23,8 @@ asmmain:
 	call	DWORD puts
 	add		esp,	4
 
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; READ DISK_ADDRESS
-	; reading sectors
+	;;;;;;;;;;;
+	; READ DISK
 	DISK_ADDRESS equ 0x2000
 	;save at address es:bx
 	mov 	bx,		DISK_ADDRESS
@@ -37,11 +36,11 @@ asmmain:
 	mov 	ch,		0x0             ; cylinder
 	mov 	cl,		0x10            ; 16th sector (counted from 1), because at 15th sector of memory disk is located via Makefile
 
-	read_disk:
+	.read_disk:
 		mov		ah,		0x02        ; BIOS read
 		mov		al,		0x02        ; sectors to read
 		int		0x13                ; BIOS disk
-		jc read_disk                ; CF=1 if error
+		jc .read_disk                ; CF=1 if error
 		; AL = number of readed sectors
 
 	; print number of loaded sectors
@@ -50,6 +49,8 @@ asmmain:
 	call	DWORD puti
 	add		sp,		4
 
+	;;;;;;;;;;;
+	; CALL DISK
 	; change segments
 	mov		ax,		DISK_ADDRESS
 	mov		ds,		ax
@@ -57,13 +58,12 @@ asmmain:
 	mov		fs,		ax
 	mov		gs,		ax
 	mov		ss,		ax
-
 	; call program
 	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
 	call	DISK_ADDRESS:0x0		; push cs; push ip; with line above can iret
 	add		sp,		2
-	;reset segments
+	; reset segments
 	mov		ax,		KERNEL_ADDRESS
 	mov		ds,		ax
 	mov		es,		ax
@@ -75,26 +75,23 @@ asmmain:
 	call	DWORD putc
 	add		sp,		2
 
+	;;;;;;;;;;;;
+	; PRINT DISK
 	; change segment
 	push 	ds
 	mov		ax,		DISK_ADDRESS
 	mov		ds,		ax
-
-	mov cx, 0
-	L1:
-		push	cx
-		mov		bx,		cx
+	mov bx, 0
+	.print_disk:
 		mov		ax,		[ds:bx]
 		push	ax
 		call	DWORD putc
 		add		sp,		2
 
-		pop		cx
-		inc		cx
-		cmp		cx,		1024
-		jle		L1
-
-	;restore segment
+		inc		bx
+		cmp		bx,		600
+		jle		.print_disk
+	; restore segment
 	pop 	ds
 
 	pop		ebp
