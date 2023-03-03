@@ -4,6 +4,8 @@ bits 16
 	;; https://wiki.osdev.org/Interrupt_Vector_Table
 	;; https://wiki.osdev.org/Interrupt_Service_Routines
 	;; When interrupt handler is called on stack are: [esp]=old eip [esp+2]=old cs [esp+4] old flags
+	;; to use local interrupt's variables DS must be changed to local i.e. KERNEL_ADDRESS
+	;; all cs of interrupt handler are KERNEL_ADDRESS - only kernel should handle
 
 %include "lib.asm"
 global setInterrupts
@@ -54,11 +56,16 @@ syscall:
 	je		.putc
 	cmp		ah,		1
 	je		.puts
+	cmp		ah,		2
+	je		.puti
 	; if not recognised print message
-	mov		bx,		.message
-	jmp		.puts
+	setDS KERNEL_ADDRESS
+	push	.message
+	call 	puts
+	add		sp,		2
+	pop		ds
 	iret
-	.message db "SYSCALL YAY!",0xa,0x0d,0
+	.message db "SYSCALL YAY!",0xa,0
 
 	.putc:
 		;; al is character to put
@@ -75,17 +82,21 @@ syscall:
 		add		sp,		2
 		iret
 
+	.puti:
+		;; bx is number to print
+		push	bx
+		call	puti
+		add		sp,		2
+		iret
+
 divZero:
 	;; zero division handler
 	dbg
-	mov		cx,		.len
-	.loop:
-	mov		ah,		0xe
-	mov		bx,		.len
-	sub		bx,		cx
-	mov		al,		cs:.message+bx
-	int 	0x10
-	loop .loop
+	setDS KERNEL_ADDRESS
+	push	.err
+	call 	puts
+	add		sp,		2
+	pop		ds
 
 	cmp		esi,	0				; when C divides it uses idiv - 3 byte and divides by esi
 	jne 	.Csrc
@@ -95,7 +106,6 @@ divZero:
 
 	mov		ax,		1
 	iret
-	.message db "ERROR: Zero division!",0xa,0x0d
-	.len equ $-.message
+	.err db "ERROR: Zero division!",0xa,0
 
 %include "boot/io.asm"

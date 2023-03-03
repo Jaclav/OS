@@ -47,12 +47,12 @@ asmmain:
 
 	;;;;;;;;;;;
 	; CALL DISK
-	setSegments DISK_ADDRESS
+	setSegments 	DISK_ADDRESS
 	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
 	call	DISK_ADDRESS:0x0		; push cs; push ip; with line above can iret
 	add		sp,		2
-	setSegments KERNEL_ADDRESS
+	setSegments 	KERNEL_ADDRESS
 
 	push	WORD 'W'
 	call	DWORD putc
@@ -61,10 +61,8 @@ asmmain:
 	;;;;;;;;;;;;
 	; PRINT DISK
 	; change segment
-	push 	ds
-	mov		ax,		DISK_ADDRESS
-	mov		ds,		ax
-	mov bx, 0
+	setDS	DISK_ADDRESS
+	mov 	bx, 	0
 	.print_disk:
 		mov		ax,		[ds:bx]
 		push	ax
@@ -74,7 +72,6 @@ asmmain:
 		inc		bx
 		cmp		bx,		600
 		jle		.print_disk
-	; restore segment
 	pop 	ds
 
 	pop		ebp

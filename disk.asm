@@ -19,7 +19,7 @@ pop		ebp
 iret
 hlt
 
-DISK_TEXT db 0x0a,0x0d,"Disk loaded successfully",0x0a,0x0d,0x00
+DISK_TEXT db 0x0a,"Disk loaded successfully.",0x0a,0x00
 
 times 512 - ($-$$) db 0x90
 db "Text 1234, hello dear OS!"

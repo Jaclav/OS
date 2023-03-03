@@ -9,12 +9,19 @@ bits 16
 
 putc:
 	;; write single character
-	;TODO add \n as \n\r when no \r
 	push	bp
 	mov		bp,		sp
 	push	ax
 	push	bx
 
+	cmp		al,		0x0a	; \n = \r\n
+	jne		.after
+	mov		al,		0x0d	; character
+	mov		ah,		0x0e	; TELETYPE OUTPUT
+	mov		bh,		0x00	; page
+	mov 	bl,		0x0f	; color = white
+	int 	0x10			; BIOS screen
+	.after:
 	mov		al,		[bp + 4]; character
 	mov		ah,		0x0e	; TELETYPE OUTPUT
 	mov		bh,		0x00	; page
