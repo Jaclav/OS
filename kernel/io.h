@@ -2,6 +2,7 @@
 #define IO_H
 
 #include "stdlib.h"
+#include "string.h"
 
 struct Key {
 	Byte character, scancode;
@@ -10,40 +11,23 @@ typedef struct Key Key;
 
 void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
-	if(character == '\n')
-		putc('\r');
-
 	asm("int 0x20"
 	    :
-	    : "a" (0x0171));
+	    : "a" (0x0000|character));
 }
 
 void puts(const int string) {
 	asm("int 0x20"
 	    :
-	    : "a" ((1<<8)),
+	    : "a" (0x0100),
 	    "b" (string));
 }
 
-
 void puti(int a) {
-	if(a == 0) {
-		putc('0');
-		return;
-	}
-	if(a < 0) {
-		putc('-');
-		a *= -1;
-	}
-	char buffor[20];
-	int ptr = 0;
-	for(; a != 0; ptr++) {
-		buffor[ptr] = (a % 10) + '0';
-		a /= 10;
-	}
-	for(int i = ptr - 1; i >= 0; i--) {
-		putc(buffor[i]);
-	}
+	asm("int 0x20"
+	    :
+	    : "a" (0x0200),
+	    "b" (a));
 }
 
 Key getc(void) {
@@ -62,7 +46,7 @@ int gets(char *str) {
 	//TODO: what when arrows are pressed?
 	Key key;
 	int ptr = 0;
-	//reset(str);
+	reset(str);
 	for(;;) {
 		key = getc();
 		if(key.character == 13) {

@@ -12,6 +12,7 @@
 #include "kernel/graphics.h"
 
 #define KERNEL_ADDRESS 0x1000
+#define DEBUG asm("xchg bx,bx");
 extern int asmmain(char a, int b);
 extern int setInterrupts();
 extern int addInterrupt(int number, short function);
@@ -44,7 +45,6 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREEN);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	asm("xchg bx,bx");
 	abc();
 	puts("Kernel loaded.\nVersion: ");
 	puts(__DATE__);

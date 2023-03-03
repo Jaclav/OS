@@ -56,6 +56,8 @@ syscall:
 	je		.putc
 	cmp		ah,		1
 	je		.puts
+	cmp		ah,		2
+	je		.puti
 	; if not recognised print message
 	setDS KERNEL_ADDRESS
 	push	.message
@@ -63,7 +65,7 @@ syscall:
 	add		sp,		2
 	pop		ds
 	iret
-	.message db "SYSCALL YAY!",0xa,0x0d,0
+	.message db "SYSCALL YAY!",0xa,0
 
 	.putc:
 		;; al is character to put
@@ -77,6 +79,13 @@ syscall:
 		;; bx is address of string to put
 		push	bx
 		call	puts
+		add		sp,		2
+		iret
+
+	.puti:
+		;; bx is number to print
+		push	bx
+		call	puti
 		add		sp,		2
 		iret
 
@@ -97,6 +106,6 @@ divZero:
 
 	mov		ax,		1
 	iret
-	.err db "ERROR: Zero division!",0xa,0x0d,0
+	.err db "ERROR: Zero division!",0xa,0
 
 %include "boot/io.asm"
