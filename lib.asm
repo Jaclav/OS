@@ -1,4 +1,13 @@
 KERNEL_ADDRESS equ 0x1000
+
+%macro setDS 1
+	;; set ds safely
+	;;! ds must be later popped
+	push	ds
+	mov		ax,		%1
+	mov		ds,		ax
+%endmacro
+
 %macro setSegments 1
 	;; set all segments (except cs) to %1
 	mov		ax,		%1

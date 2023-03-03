@@ -11,6 +11,7 @@
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
+#define KERNEL_ADDRESS 0x1000
 extern int asmmain(char a, int b);
 extern int setInterrupts();
 extern int addInterrupt(int number, short function);
@@ -30,7 +31,10 @@ struct interrupt_frame
 typedef struct interrupt_frame interrupt_frame;
 __attribute__((interrupt))
 void int0x21(struct interrupt_frame* frame){
+	//see interrupts.asm
+	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 	puts("INT 0x21!\n");
+	asm("pop ds");
 }
 
 __attribute__ ((section ("kernelMain")))
