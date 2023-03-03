@@ -39,10 +39,12 @@ void int0x21(struct interrupt_frame* frame){
 
 __attribute__ ((section ("kernelMain")))
 void main() {
+	puti(2137);
 	setVideoMode(0x02);
 	setColorPalette(VGA_COLOR_DARK_GREEN);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
+	asm("xchg bx,bx");
 	abc();
 	puts("Kernel loaded.\nVersion: ");
 	puts(__DATE__);
