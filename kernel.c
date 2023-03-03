@@ -5,19 +5,32 @@
 // https://en.wikipedia.org/wiki/INT_10H
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
-// https://www.ctyme.com/rbrown.htm
-//TODO: cannot give string literal to char* parameter, only int
+//TODO: cannot give string literal to char* parameter, only int WHY!?
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
-//TODO: read about wiki.osdev.org/Segmentation
 #include "kernel/io.h"
 #include "kernel/graphics.h"
 
 extern int asmmain(char a, int b);
 extern int setInterrupts();
+extern int addInterrupt(int number, short function);
 
 void abc() {
 	putc('X');
+}
+
+struct interrupt_frame
+{
+    Word ip;
+    Word cs;
+    Word flags;
+    Word sp;
+    Word ss;
+};
+typedef struct interrupt_frame interrupt_frame;
+__attribute__((interrupt))
+void int0x21(struct interrupt_frame* frame){
+	puts("INT 0x21!\n");
 }
 
 __attribute__ ((section ("kernelMain")))
@@ -25,6 +38,7 @@ void main() {
 	setVideoMode(0x02);
 	setColorPalette(VGA_COLOR_DARK_GREEN);
 	setInterrupts();
+	addInterrupt(0x0021, int0x21);
 	abc();
 	puts("Kernel loaded.\nVersion: ");
 	puts(__DATE__);
@@ -86,7 +100,8 @@ void main() {
 		}
 		else if(strcmp(command, TEST)) {
 			asm("int 0x20":
-			:"a"(0xff00));
+			    :"a"(0xff00));
+			asm("int 0x21");
 			puts(buffor);
 			putc('\n');
 			puts(command);
