@@ -85,7 +85,8 @@ void main() {
 			puti(stoi(parameter));
 		}
 		else if(strcmp(command, TEST)) {
-			asm("int 0x20");
+			asm("int 0x20":
+			:"a"(0xff00));
 			puts(buffor);
 			putc('\n');
 			puts(command);

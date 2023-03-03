@@ -1,7 +1,6 @@
 bits 16
 KERNEL_ADDRESS equ 0x1000
 global asmmain
-global setInterrupts
 extern abc
 extern putc
 extern puts
@@ -97,67 +96,3 @@ asmmain:
 	pop		ebp
 	mov		eax,		43
 	ret
-
-setInterrupts:
-	; https://wiki.osdev.org/Interrupt_Vector_Table
-	; https://wiki.osdev.org/Interrupt_Service_Routines
-	push	ebp
-	mov		ebp,	esp
-
-	push	ds
-	;handle 0 division
-	mov		bx,		0
-	mov 	ds,		bx
-	mov		WORD[ds:bx+2],	cs
-	mov		WORD[ds:bx],	divZero
-	;handle syscall
-	mov		bx,		0x20*4
-	mov		WORD[ds:bx+2],	cs
-	mov		WORD[ds:bx],	syscall
-	pop		ds
-
-	pop ebp
-	ret
-
-syscall:
-	;; system calls
-	mov		cx,		.len
-	.loop:
-	mov		ah,		0xe
-	mov		bx,		.len
-	sub		bx,		cx
-	mov		al,		cs:.message+bx
-	int 	0x10
-	loop .loop
-
-	iret
-	.message db "SYSCALL YAY!",0xa,0x0d
-	.len equ $-.message
-
-divZero:
-	;; zero division handler
-	; print message
-	mov		cx,		.len
-	.loop:
-	mov		ah,		0xe
-	mov		bx,		.len
-	sub		bx,		cx
-	mov		al,		cs:.message+bx
-	int 	0x10
-	loop .loop
-
-	xchg	bx,		bx				; start debug
-	;pop		bx					; EIP
-	;pop		ds					; CS
-	;add 		sp,		2			; EFLAGS
-
-	cmp		esi,	0				; when C divides it uses idiv - 3 byte and divides by esi
-	jne 	.Csrc
-	add	WORD[esp],	2				; if esi register is zero (it's int 0) then add 2 and 1 byte
-	.Csrc:							; if it is 'normal' 1 byte div
-	add	WORD[esp],	1
-
-	mov		ax,		1
-	iret
-	.message db "ERROR: Zero division!",0xa,0x0d
-	.len equ $-.message
