@@ -1,4 +1,5 @@
 bits 16
+%include "lib.asm"
 org		0x7c00
 
 mov		ah,		0				; set video mode
@@ -50,15 +51,7 @@ add		sp,		4
 
 call 	getChar
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; SET SEGMENTS AND JUMP TO KERNEL
-mov		ax,		KERNEL_ADDRESS
-mov		ds,		ax
-mov		es,		ax
-mov		fs,		ax
-mov		gs,		ax
-mov		ss,		ax
-
+setSegments KERNEL_ADDRESS
 jmp 	KERNEL_ADDRESS:0x0
 hlt
 
