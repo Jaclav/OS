@@ -13,7 +13,7 @@ void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
 	asm("int 0x20"
 	    :
-	    : "a" (0x0000|character));
+	    : "a" (character));		//TODO: Will passing BYTE to WORD register cause an error?
 }
 
 void puts(const int string) {
