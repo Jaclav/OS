@@ -31,7 +31,7 @@ __attribute__((section("start")))
 void main() {
 	puti(2137);
 	setVideoMode(0x02);
-	setColorPalette(VGA_COLOR_DARK_GREEN);
+	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
 	puts("Kernel loaded.\nVersion: ");
@@ -68,7 +68,7 @@ void main() {
 		char MODE[] = "mode";
 		char TEST[] = "test";
 		char DISK[] = "disk";
-		char GRAPHIC[] = "graphic";
+		char PIC[] = "pic";
 		if(bufforSize == 0) {
 
 		}
@@ -132,15 +132,15 @@ void main() {
 			}
 			gets(NULL);
 			setVideoMode(0x2);
-			setColorPalette(VGA_COLOR_DARK_GREEN);
+			setColorPalette(VGA_COLOR_DARK_GREY);
 		}
 		else if(strcmp(command, DISK)) {
 			puti(asmmain(stoi(parameter), "Loading disk:"));
 		}
-		else if(strcmp(command, GRAPHIC)) {
+		else if(strcmp(command, PIC)) {
 			setVideoMode(0x13);
 #include "image.h"
-			Position pos = {200, 100};
+			Position pos = {100, 50};
 			draw(pos, image_bmp, image_width, image_height);
 		}
 		else {
