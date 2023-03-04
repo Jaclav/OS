@@ -3,7 +3,7 @@
 #define GRAPHICS_H
 
 #include "io.h"
-#include "stdlib.h"
+#include "types.h"
 
 typedef Byte Color;
 
@@ -24,8 +24,10 @@ typedef Byte Color;
 #define VGA_COLOR_LIGHT_BROWN 14
 #define VGA_COLOR_WHITE 15
 
-extern const size_t SIZE_X;
-extern const size_t SIZE_Y;
+struct Position {
+	Word x, y;
+};
+typedef struct Position Position;
 
 const size_t SIZE_X = 640;
 const size_t SIZE_Y = 350;
@@ -59,6 +61,28 @@ void draw(Position begin, Color *data, size_t width, size_t height) {
             writePixel(pos, data[y * (width) + x]);
         }
     }
+}
+
+Position getCursorPosition(void) {
+	Position position;
+	Word dx;
+
+	asm("int 0x10"
+	    : "=d"(dx)
+	    : "a" (0x03 << 8),
+	    "b" (0x0));
+	position.y = dx >> 8;
+	position.x = (Byte)dx;
+
+	return position;
+}
+
+void setCursorPosition(Position position) {
+	asm("int 0x10"
+	    :
+	    : "a" (0x0200),
+	    "b" (0x0),
+	    "d" ((position.y << 8) | position.x));
 }
 
 #endif

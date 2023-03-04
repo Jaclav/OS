@@ -1,8 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
-#include "stdlib.h"
-#include "string.h"
+#include "types.h"
 
 struct Key {
 	Byte character, scancode;
@@ -46,7 +45,6 @@ int gets(char *str) {
 	//TODO: what when arrows are pressed?
 	Key key;
 	int ptr = 0;
-	reset(str);
 	for(;;) {
 		key = getc();
 		if(key.character == 13) {

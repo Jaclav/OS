@@ -9,29 +9,21 @@
 //TODO: handle key, shift, ctrl
 //TODO: add file I/O
 #include "kernel/io.h"
+#include "kernel/string.h"
+#include "kernel/interrupts.h"
+#include "kernel/stdlib.h"
 #include "kernel/graphics.h"
 
 #define KERNEL_ADDRESS 0x1000
 #define DEBUG asm("xchg bx,bx");
 extern int asmmain(char a, int b);
-extern int setInterrupts();
-extern int addInterrupt(int number, short function);
 
 void abc() {
 	putc('X');
 }
 
-struct interrupt_frame
-{
-    Word ip;
-    Word cs;
-    Word flags;
-    Word sp;
-    Word ss;
-};
-typedef struct interrupt_frame interrupt_frame;
 __attribute__((interrupt))
-void int0x21(struct interrupt_frame* frame){
+void int0x21(struct interruptFrame* frame){
 	//see interrupts.asm
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 	puts("INT 0x21!\n");

@@ -1,20 +1,7 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
-#include <stdbool.h>
-#include <stdint.h>
-
-#define NULL 0
-
-typedef unsigned char Byte;
-typedef unsigned short Word;
-typedef unsigned int size_t;
-
-struct Position {
-	Word x, y;
-};
-typedef struct Position Position;
-
+#include "types.h"
 
 Word getMemorySize(void) {
 	// size in kB
@@ -44,28 +31,6 @@ void cls(void) {
 	    "b" (0x0),
 	    "c" (0xffff),
 	    "d" (0x0));
-}
-
-Position getCursorPosition(void) {
-	Position position;
-	Word dx;
-
-	asm("int 0x10"
-	    : "=d"(dx)
-	    : "a" (0x03 << 8),
-	    "b" (0x0));
-	position.y = dx >> 8;
-	position.x = (Byte)dx;
-
-	return position;
-}
-
-void setCursorPosition(Position position) {
-	asm("int 0x10"
-	    :
-	    : "a" (0x0200),
-	    "b" (0x0),
-	    "d" ((position.y << 8) | position.x));
 }
 
 #endif

@@ -10,8 +10,8 @@ BINS=$(BOOT:.asm=.bin)
 
 run: clean $(BINS) $(OBJS) $(SOBJS) disk.bin
 	ld -T linker.ld -melf_i386 bin/*.o bin/kernel/*.o -o bin/kernel.bin
-	#gcc $(CFLAGS) disk2.c -o bin/disk2.o
-	#ld -T linker.ld -melf_i386 bin/disk2.o -o bin/disk.bin
+	gcc $(CFLAGS) disk2.c -o bin/disk2.o
+	ld -T linker.ld -melf_i386 bin/disk2.o -o bin/disk.bin
 
 	cat bin/boot/boot.bin bin/kernel.bin > bin/OS.img
 	dd if=/dev/zero of=bin/OS.img seek=100 count=1	# create buffor

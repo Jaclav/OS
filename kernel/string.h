@@ -1,8 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include <stdbool.h>
-#include "stdlib.h"
+#include "types.h"
 #include "math.h"
 
 bool strcmp(char *str1, char *str2) {
