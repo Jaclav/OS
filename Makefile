@@ -1,6 +1,6 @@
 INTFLAGS=-mgeneral-regs-only -mno-red-zone -mgeneral-regs-only
 WFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
-CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -masm=intel -c -std=gnu11 $(INTFLAGS)
+CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 $(INTFLAGS)
 SRC=$(wildcard kernel.c kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o)
 AOBJS=$(SRC:.asm=.o)
@@ -27,7 +27,7 @@ run: clean $(BINS) $(OBJS) $(AOBJS) table.bin $(DISK) $(ADISK)
 	nasm -fbin $< -o bin/$@
 
 %.bin: %.c
-	gcc $(CFLAGS) $< -o bin/$<.o
+	gcc $(CFLAGS) -Os $< -o bin/$<.o
 	ld -T linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
