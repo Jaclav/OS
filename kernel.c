@@ -7,7 +7,6 @@
 // http://www.brackeen.com/vga/basics.html#3
 //TODO: cannot give string literal to char* parameter, only int WHY!?
 //TODO: handle key, shift, ctrl
-//TODO: add file I/O
 //TODO: https://cplusplus.com/reference/cerrno/errno/ https://cplusplus.com/reference/cstring/strerror/ https://cplusplus.com/reference/system_error/errc/
 #include "kernel/io.h"
 #include "kernel/string.h"
