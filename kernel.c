@@ -38,7 +38,7 @@ void int0x21(struct interrupt_frame* frame){
 	asm("pop ds");
 }
 
-__attribute__ ((section ("kernelMain")))
+__attribute__((section("start")))
 void main() {
 	puti(2137);
 	setVideoMode(0x02);
