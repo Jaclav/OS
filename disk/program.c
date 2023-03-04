@@ -1,5 +1,5 @@
-#include "kernel/interrupts.h"
-#include "kernel/io.h"
+#include "../kernel/interrupts.h"
+#include "../kernel/io.h"
 
 char a[] = "Greetings from C disk!\n";
 __attribute__((section("start")))

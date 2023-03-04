@@ -16,11 +16,7 @@
 
 #define KERNEL_ADDRESS 0x1000
 #define DEBUG asm("xchg bx,bx");
-extern int asmmain(char a, int b);
-
-void abc() {
-	putc('X');
-}
+extern int asmmain(char sector, int message);
 
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame){
@@ -37,7 +33,6 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREEN);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	abc();
 	puts("Kernel loaded.\nVersion: ");
 	puts(__DATE__);
 	putc(' ');
@@ -71,7 +66,7 @@ void main() {
 		char KEY[] = "key";
 		char MODE[] = "mode";
 		char TEST[] = "test";
-		char ASM[] = "asm";
+		char DISK[] = "disk";
 		char GRAPHIC[] = "graphic";
 		if(bufforSize == 0) {
 
@@ -138,8 +133,8 @@ void main() {
 			setVideoMode(0x2);
 			setColorPalette(VGA_COLOR_DARK_GREEN);
 		}
-		else if(strcmp(command, ASM)) {
-			puti(asmmain('Y', "Loading disk:"));
+		else if(strcmp(command, DISK)) {
+			puti(asmmain(stoi(parameter), "Loading disk:"));
 		}
 		else if(strcmp(command, GRAPHIC)) {
 			setVideoMode(0x13);

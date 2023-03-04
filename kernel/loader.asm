@@ -1,7 +1,6 @@
 bits 16
 %include "lib.asm"
 global asmmain
-extern abc
 extern putc
 extern puts
 extern puti
@@ -12,12 +11,6 @@ asmmain:
 	push	ebp
 	mov		ebp,	esp
 
-	call	DWORD 	abc
-
-	push	WORD[ebp+8]
-	call	DWORD putc
-	add		esp,	2
-
 	push	DWORD[ebp+12]
 	call	DWORD puts
 	add		esp,	4
@@ -25,7 +18,7 @@ asmmain:
 	;;;;;;;;;;;
 	; READ DISK
 	DISK_ADDRESS equ 0x2000
-	SECTORS_TO_READ	equ	2
+	SECTORS_TO_READ	equ	1
 	;save at address es:bx
 	mov 	bx,		DISK_ADDRESS
 	mov 	es,		bx
@@ -34,8 +27,7 @@ asmmain:
 	mov 	dh,		0x0             ; head
 	mov 	dl,		0x0             ; drive
 	mov 	ch,		0x0             ; cylinder
-	mov 	cl,		0x10            ; 16th sector (counted from 1), because at 15th sector of memory disk is located via Makefile
-
+	mov 	cl,		[ebp+8]			; sector (counted from 1)
 	.read_disk:
 		mov		ah,		2        	; BIOS read
 		mov		al,		SECTORS_TO_READ; sectors to read
@@ -70,7 +62,7 @@ asmmain:
 		add		sp,		2
 
 		inc		bx
-		cmp		bx,		600
+		cmp		bx,		520
 		jle		.print_disk
 	pop 	ds
 
