@@ -1,4 +1,5 @@
 //TODO: add .bmp pl.wikipedia.org/wiki/Windows_Bitmap
+//TODO https://cplusplus.com/forum/general/19079/
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
