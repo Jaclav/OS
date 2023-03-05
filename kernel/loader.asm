@@ -18,7 +18,7 @@ asmmain:
 	;;;;;;;;;;;
 	; READ DISK
 	DISK_ADDRESS equ 0x2000
-	SECTORS_TO_READ	equ	1
+	SECTORS_TO_READ	equ	2
 	;save at address es:bx
 	mov 	bx,		DISK_ADDRESS
 	mov 	es,		bx
@@ -49,22 +49,6 @@ asmmain:
 	push	WORD 'W'
 	call	DWORD putc
 	add		sp,		2
-
-	;;;;;;;;;;;;
-	; PRINT DISK
-	; change segment
-	setDS	DISK_ADDRESS
-	mov 	bx, 	0
-	.print_disk:
-		mov		ax,		[ds:bx]
-		push	ax
-		call	DWORD putc
-		add		sp,		2
-
-		inc		bx
-		cmp		bx,		520
-		jle		.print_disk
-	pop 	ds
 
 	pop		ebp
 	mov		eax,		43

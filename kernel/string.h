@@ -51,10 +51,10 @@ int stoi(const char *str) {
 }
 
 void *memset(void * ptr, int value, size_t count) {
-	asm("L:\n\
+	asm("L%=:\n\
         mov [bx],dx\n\
         inc bx\n\
-        loop L"
+        loop L%="
 	    ::"b"(ptr), "c"(count), "d"(value));
 	return ptr;
 }
