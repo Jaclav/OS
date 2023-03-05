@@ -1,13 +1,12 @@
 bits 16
 %include "lib.asm"
-global asmmain
-extern putc
+global load
 extern puts
-extern puti
+extern putc
 ;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD
 ; can also push 0; call func
 
-asmmain:
+load:
 	push	ebp
 	mov		ebp,	esp
 

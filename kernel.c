@@ -17,7 +17,7 @@
 
 #define KERNEL_ADDRESS 0x1000
 #define DEBUG asm("xchg bx,bx");
-extern int asmmain(char sector, int message);
+extern int load(char sector, int message);
 
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame) {
@@ -66,7 +66,7 @@ void main() {
 		char KEY[] = "key";
 		char MODE[] = "mode";
 		char TEST[] = "test";
-		char DISK[] = "disk";
+		char LOAD[] = "load";
 		char PIC[] = "pic";
 		char SEC[] = "sec";
 		char LS[] = "ls";
@@ -135,8 +135,8 @@ void main() {
 			setVideoMode(0x2);
 			setColorPalette(VGA_COLOR_DARK_GREY);
 		}
-		else if(strcmp(command, DISK)) {
-			puti(asmmain(stoi(parameter), "Loading disk:"));
+		else if(strcmp(command, LOAD)) {
+			puti(load(stoi(parameter), "Loading disk:"));
 		}
 		else if(strcmp(command, PIC)) {
 			setVideoMode(0x13);
