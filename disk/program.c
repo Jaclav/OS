@@ -13,7 +13,7 @@ void main(struct interruptFrame* frame) {
 	if(readSector(disk, 17, 1) == 0) {
 		puts("ERROR");
 	}
-	for(int i = 0; i < 100; i++)
+	for(int i = 0; i < 512; i++)
 		putc(disk[i]);
 	putc('\n');
 	return;
