@@ -23,6 +23,9 @@ size_t fread (void * ptr, size_t size, size_t count, FILE * stream) {
  *
  * @return number of loaded sectors or 0 when reading error
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 size_t readSector (void * ptr, size_t bsector, size_t count) {
 	/*
 	 * ES:BX address to store
@@ -46,5 +49,6 @@ size_t readSector (void * ptr, size_t bsector, size_t count) {
 	    :
 	    :"a"(count), "d"(0), "c"(bsector));
 }
+#pragma GCC diagnostic pop
 
 #endif

@@ -147,8 +147,9 @@ void main() {
 		else if(strcmp(command, SEC)) {
 			char disk[512];
 			memset(disk, ' ', 512);
-			puti(readSector(disk, stoi(parameter), 1));
-			putc('\n');
+			if(readSector(disk, stoi(parameter), 1) == 0) {
+				puts("ERROR");
+			}
 			for(int i = 0; i < 512; i++)
 				putc(disk[i]);
 			putc('\n');
