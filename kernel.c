@@ -119,7 +119,7 @@ void main() {
 
 			getc();
 			setVideoMode(0x10);
-			Position pos;
+			Position pos={0,0};
 
 			for(int i = 0; i < 10000; i++) {
 				pos.x += i;
@@ -158,7 +158,7 @@ void main() {
 			putc('\n');
 		}
 		else if(strcmp(command, LS)) {
-			Byte *disk;// get pointer to disk table in memory
+			Byte *disk=NULL;// get pointer to disk table in memory
 			if(readSector(disk, 2, 1) == 0) {/*second sector stores disk table*/
 				puts("ERROR: disk table not found!");
 				continue;

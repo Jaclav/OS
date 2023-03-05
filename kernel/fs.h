@@ -10,6 +10,18 @@ struct FILE {
 };
 typedef struct FILE FILE;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+/**
+ * @brief
+ *
+ * @param ptr
+ * @param size
+ * @param count
+ * @param stream
+ * @return size_t
+ */
 size_t fread (void * ptr, size_t size, size_t count, FILE * stream) {
 
 }
@@ -20,12 +32,8 @@ size_t fread (void * ptr, size_t size, size_t count, FILE * stream) {
  * @param ptr pointer to memory where sectors will be stored
  * @param bsector number of first sector (counted from 1)
  * @param count how many sectors load
- *
- * @return number of loaded sectors or 0 when reading error
+ * @return size_t number of loaded sectors or 0 when reading error
  */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-type"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 size_t readSector (void * ptr, size_t bsector, size_t count) {
 	/*
 	 * ES:BX address to store
@@ -49,6 +57,6 @@ size_t readSector (void * ptr, size_t bsector, size_t count) {
 	    :
 	    :"a"(count), "d"(0), "c"(bsector));
 }
-#pragma GCC diagnostic pop
 
+#pragma GCC diagnostic pop
 #endif

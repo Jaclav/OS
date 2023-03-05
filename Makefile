@@ -17,7 +17,7 @@ run: clean kernel disk
 	#qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
 kernel:$(BINS) $(OBJS) disk/table.bin
-	#code loaded to memory contains disk table and actual kernel
+	#code loaded to memory by bootloader contains disk table and kernel
 	ld -T kernel.ld -melf_i386 bin/*.o bin/kernel/*.o -o bin/kernel.bin
 	cat bin/boot/boot.bin bin/disk/table.bin bin/kernel.bin > bin/OS.img
 
@@ -41,8 +41,8 @@ disk: disk/auto.bin disk/program.bin
 	nasm $(MACROS) -felf32 $< -o bin/$@
 
 clean:
-	rm -rf bin/*
-	mkdir -p bin
-	mkdir -p bin/boot
-	mkdir -p bin/disk
-	mkdir -p bin/kernel
+	@rm -rf bin/*
+	@mkdir -p bin
+	@mkdir -p bin/boot
+	@mkdir -p bin/disk
+	@mkdir -p bin/kernel
