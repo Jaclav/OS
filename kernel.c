@@ -18,9 +18,6 @@
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
 #endif
-#ifndef DISK_SECTOR
-#define DISK_SECTOR 0
-#endif
 #define DEBUG asm("xchg bx,bx");
 extern int load(char sector, int message);
 
@@ -161,7 +158,8 @@ void main() {
 		}
 		else if(strcmp(command, LS)) {
 			Byte disk[512];
-			if(readSector(disk, DISK_SECTOR, 1) == 0) {
+			//TODO: it's already loaded, don't double it
+			if(readSector(disk, 2, 1) == 0) {/*second sector stores disk table*/
 				puts("ERROR: disk table not found!");
 				continue;
 			}

@@ -8,24 +8,23 @@ BOOT=$(wildcard boot/*.asm)
 BINS=$(BOOT:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=15
-KERNEL_SIZE=$(DISK_START)-1
-DISK_SECTOR=$(DISK_START)+1	#because sectors are conted from 1
-MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE) -DDISK_SECTOR=$(DISK_SECTOR)
+DISK_START=16#counted from 0, so first disk sector will be 17 (counted from 1)
+KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15
+MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
 run: clean kernel disk
 	bochs -q
 	#qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
-kernel:$(BINS) $(OBJS)
-	ld -T linker.ld -melf_i386 bin/*.o bin/kernel/*.o -o bin/kernel.bin
-	cat bin/boot/boot.bin bin/kernel.bin > bin/OS.img
+kernel:$(BINS) $(OBJS) disk/table.bin
+	#code loaded to memory contains disk table and actual kernel
+	ld -T kernel.ld -melf_i386 bin/*.o bin/kernel/*.o -o bin/kernel.bin
+	cat bin/boot/boot.bin bin/disk/table.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
-disk: disk/table.bin disk/auto.bin disk/program.bin
+disk: disk/auto.bin disk/program.bin
 	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
-	dd if=bin/disk/table.bin of=bin/OS.img seek=$(DISK_START)	# write disk table at 14th sector
-	cat bin/disk/auto.bin >> bin/OS.img
+	dd if=bin/disk/auto.bin of=bin/OS.img seek=$(DISK_START)
 	cat bin/disk/program.bin >> bin/OS.img
 
 %.bin: %.asm

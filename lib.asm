@@ -1,9 +1,6 @@
 %ifndef KERNEL_ADDRESS
 	%define KERNEL_ADDRESS 0
 %endif
-%ifndef KERNEL_SIZE
-	%define KERNEL_SIZE 0
-%endif
 
 %macro setDS 1
 	;; set ds safely

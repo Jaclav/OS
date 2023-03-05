@@ -24,7 +24,7 @@ mov		dl,		0				; drive
 
 read_disk:
 	mov		ah,		2			; read
-	mov		al,		KERNEL_SIZE ; number of sectors to read
+	mov		al,		KERNEL_SIZE+1; number of sectors to read = disk table + kernel
 	int		0x13				; BIOS disk
 	jc read_disk				; CF=1 if error
 	; AL = number of readed sectors
@@ -52,7 +52,7 @@ add		sp,		4
 call 	getChar
 
 setSegments KERNEL_ADDRESS
-jmp 	KERNEL_ADDRESS:0x0
+jmp 	KERNEL_ADDRESS:0x200
 hlt
 
 %include "boot/io.asm"
