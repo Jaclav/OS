@@ -15,7 +15,12 @@
 #include "kernel/graphics.h"
 #include "kernel/fs.h"
 
-#define KERNEL_ADDRESS 0x1000
+#ifndef KERNEL_ADDRESS
+#define KERNEL_ADDRESS 0
+#endif
+#ifndef DISK_SECTOR
+#define DISK_SECTOR 0
+#endif
 #define DEBUG asm("xchg bx,bx");
 extern int load(char sector, int message);
 
@@ -156,7 +161,7 @@ void main() {
 		}
 		else if(strcmp(command, LS)) {
 			Byte disk[512];
-			if(readSector(disk, 15, 1) == 0) {
+			if(readSector(disk, DISK_SECTOR, 1) == 0) {
 				puts("ERROR: disk table not found!");
 				continue;
 			}

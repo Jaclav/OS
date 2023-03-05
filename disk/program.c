@@ -10,7 +10,7 @@ void main(struct interruptFrame* frame) {
 	puts(a);
 	Byte disk[512]={0};
 	memset(disk, ' ', 512);
-	if(readSector(disk, 17, 1) == 0) {
+	if(readSector(disk, 18, 1) == 0) {
 		puts("ERROR");
 	}
 	for(int i = 0; i < 512; i++)
