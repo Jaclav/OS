@@ -9,16 +9,20 @@ Simple 16 bit operating system. My goal is to achive:
 * change to protected mode
 * protection rings
 * multithreading
+
+All sectors in BIOS *are counted from 1*
 ## Commands
-| Command | Description                                              |
-| :------ | :------------------------------------------------------- |
-| cls     | clear screen                                             |
-| pos     | print cursor position                                    |
-| key     | get keycode                                              |
-| mode $  | change video mode to $                                   |
-| test    | test kernel library                                      |
-| disk $  | Execute and print 512B from $th sector  (counted from 1) |
-| pic     | Draw image.h file                                        |
+| Command | Description                     |
+| :------ | :------------------------------ |
+| cls     | clear screen                    |
+| pos     | print cursor position           |
+| key     | get keycode                     |
+| mode $  | change video mode to $          |
+| test    | test kernel library             |
+| load $  | Execute program from $th sector |
+| pic     | Draw image.h file               |
+| sec     | Print $th sector                |
+| ls      | Print files and their sizes     |
 ## SYSTEM Interruptions
 0x20 is system interruption
 | AH   | Description               | Parameters            |

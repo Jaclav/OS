@@ -147,6 +147,7 @@ void main() {
 			draw(pos, image_bmp, image_width, image_height);
 		}
 		else if(strcmp(command, SEC)) {
+			/* read sector to table and display this table*/
 			char disk[512];
 			memset(disk, ' ', 512);
 			if(readSector(disk, stoi(parameter), 1) == 0) {
@@ -157,8 +158,7 @@ void main() {
 			putc('\n');
 		}
 		else if(strcmp(command, LS)) {
-			Byte disk[512];
-			//TODO: it's already loaded, don't double it
+			Byte *disk;// get pointer to disk table in memory
 			if(readSector(disk, 2, 1) == 0) {/*second sector stores disk table*/
 				puts("ERROR: disk table not found!");
 				continue;
