@@ -24,7 +24,7 @@ mov		dl,		0				; drive
 
 read_disk:
 	mov		ah,		2			; read
-	mov		al,		0x0e		; number of sectors to read - size of kernel
+	mov		al,		0x0d		; number of sectors to read - size of kernel
 	int		0x13				; BIOS disk
 	jc read_disk				; CF=1 if error
 	; AL = number of readed sectors

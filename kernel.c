@@ -29,7 +29,6 @@ void int0x21(struct interruptFrame* frame) {
 
 __attribute__((section("start")))
 void main() {
-	puti(2137);
 	setVideoMode(0x02);
 	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
@@ -70,6 +69,7 @@ void main() {
 		char DISK[] = "disk";
 		char PIC[] = "pic";
 		char SEC[] = "sec";
+		char LS[] = "ls";
 		if(bufforSize == 0) {
 
 		}
@@ -153,6 +153,36 @@ void main() {
 			for(int i = 0; i < 512; i++)
 				putc(disk[i]);
 			putc('\n');
+		}
+		else if(strcmp(command, LS)) {
+			Byte disk[512];
+			if(readSector(disk, 15, 1) == 0) {
+				puts("ERROR: disk table not found!");
+				continue;
+			}
+			if(disk[0] != 0xcf || disk[1] != 0xaa || disk[2] != 0x55) {
+				puts("ERROR: wrong disk table format!");
+				continue;
+			}
+			char name[100];
+			Byte sector;
+			Byte size;
+			puts("NAME          SECTOR  SIZE\n");
+			size_t i = 0;
+			while(disk[i * 18 + 3] != 0) {
+				strncpy(name, (char *)disk + 3 + i * 18, 16);
+				sector = disk[i * 18 + 16 + 3];
+				size = disk[i * 18 + 17 + 3];
+				puts(name);
+				for(size_t j = 0; j < 16 - strlen(name); j++)putc(' ');
+				puti(sector);
+				puts("     ");
+				puti(size);
+				putc('\n');
+				i++;
+			}
+			puti(i);
+			puts(" file(s)\n");
 		}
 		else {
 			char L0[] = "Error: unknown command!\n";

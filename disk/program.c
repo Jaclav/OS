@@ -8,7 +8,7 @@ __attribute__((section("start")))
 __attribute__((interrupt))//will return by iret - to offset AND segment
 void main(struct interruptFrame* frame) {
 	puts(a);
-	char disk[512];
+	Byte disk[512]={0};
 	memset(disk, ' ', 512);
 	if(readSector(disk, 17, 1) == 0) {
 		puts("ERROR");
