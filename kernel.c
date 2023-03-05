@@ -13,13 +13,14 @@
 #include "kernel/interrupts.h"
 #include "kernel/stdlib.h"
 #include "kernel/graphics.h"
+#include "kernel/fs.h"
 
 #define KERNEL_ADDRESS 0x1000
 #define DEBUG asm("xchg bx,bx");
 extern int asmmain(char sector, int message);
 
 __attribute__((interrupt))
-void int0x21(struct interruptFrame* frame){
+void int0x21(struct interruptFrame* frame) {
 	//see interrupts.asm
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 	puts("INT 0x21!\n");
@@ -68,6 +69,7 @@ void main() {
 		char TEST[] = "test";
 		char DISK[] = "disk";
 		char PIC[] = "pic";
+		char SEC[] = "sec";
 		if(bufforSize == 0) {
 
 		}
@@ -141,6 +143,15 @@ void main() {
 #include "image.h"
 			Position pos = {100, 50};
 			draw(pos, image_bmp, image_width, image_height);
+		}
+		else if(strcmp(command, SEC)) {
+			char disk[512];
+			memset(disk, ' ', 512);
+			puti(readSector(disk, stoi(parameter), 1));
+			putc('\n');
+			for(int i = 0; i < 512; i++)
+				putc(disk[i]);
+			putc('\n');
 		}
 		else {
 			char L0[] = "Error: unknown command!\n";

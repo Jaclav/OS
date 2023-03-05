@@ -10,23 +10,19 @@ typedef struct Key Key;
 
 void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
-	asm("int 0x20"
-	    :
-	    : "a" (character));		//TODO: Will passing BYTE to WORD register cause an error?
+	asm("mov ah,0\n\
+		int 0x20"
+	    :: "a" (character));
 }
 
 void puts(const int string) {
 	asm("int 0x20"
-	    :
-	    : "a" (0x0100),
-	    "b" (string));
+	    ::"a"(0x0100), "b"(string));
 }
 
 void puti(int a) {
 	asm("int 0x20"
-	    :
-	    : "a" (0x0200),
-	    "b" (a));
+	    ::"a"(0x0200), "b"(a));
 }
 
 Key getc(void) {
