@@ -17,11 +17,11 @@ load:
 	;;;;;;;;;;;
 	; READ DISK
 	DISK_ADDRESS equ 0x2000
-	SECTORS_TO_READ	equ	2
+	SECTORS_TO_READ	equ	3
 	;save at address es:bx
 	mov 	bx,		DISK_ADDRESS
 	mov 	es,		bx
-	mov 	bx,		0x0
+	mov 	bx,		0x100
 
 	mov 	dh,		0x0             ; head
 	mov 	dl,		0x0             ; drive
@@ -41,6 +41,9 @@ load:
 	setSegments 	DISK_ADDRESS
 	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
+	; set COM header
+	mov 	DWORD[0x0],	0xfbe89090
+	mov 	DWORD[0x4],	0x0000cf00
 	call	DISK_ADDRESS:0x0		; push cs; push ip; with line above can iret
 	add		sp,		2
 	setSegments 	KERNEL_ADDRESS
@@ -50,5 +53,5 @@ load:
 	add		sp,		2
 
 	pop		ebp
-	mov		eax,		43
+	mov		eax,	43
 	ret

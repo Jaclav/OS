@@ -1,6 +1,6 @@
 INTFLAGS=-mgeneral-regs-only -mno-red-zone -mgeneral-regs-only
 WFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
-CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 $(INTFLAGS)
+CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude $(INTFLAGS)
 SRC=$(wildcard kernel.c kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
 

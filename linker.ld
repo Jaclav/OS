@@ -1,7 +1,7 @@
 OUTPUT_FORMAT("binary")
 /*ENTRY won't work because it sets function to be first in elf format, not in binary*/
 SECTIONS {
-    .text :
+    .text 0x100:
     {
         *(start);
         *(.text);

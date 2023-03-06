@@ -8,11 +8,11 @@
 //TODO: cannot give string literal to char* parameter, only int WHY!?
 //TODO: handle key, shift, ctrl
 //TODO: https://cplusplus.com/reference/cerrno/errno/ https://cplusplus.com/reference/cstring/strerror/ https://cplusplus.com/reference/system_error/errc/
-#include "kernel/io.h"
-#include "kernel/string.h"
+#include <io.h>
+#include <string.h>
+#include <stdlib.h>
+#include <graphics.h>
 #include "kernel/interrupts.h"
-#include "kernel/stdlib.h"
-#include "kernel/graphics.h"
 #include "kernel/fs.h"
 
 #ifndef KERNEL_ADDRESS

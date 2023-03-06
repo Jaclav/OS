@@ -8,9 +8,9 @@ dw 0x55aa
 db "bootloader",0,"     ",		1,				1
 db "table.bin",0,"      ",		2,				1
 db "kernel.sys",0,"     ",		3,				KERNEL_SIZE
-db "auto.bin",0,"       ",		LOADED_END+1,	1
+db "auto.com",0,"       ",		LOADED_END+1,	1
 db "data.txt",0,"       ",		LOADED_END+2,	1
-db "programC.bin",0,"   ",		LOADED_END+3,	2
+db "programC.com",0,"   ",		LOADED_END+3,	2
 db 0
 
 times 512-($-$$) db 0

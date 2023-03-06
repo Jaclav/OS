@@ -1,4 +1,5 @@
 bits 16
+org 0x100
 push	ebp
 mov		ebp,	esp
 
@@ -16,8 +17,7 @@ int		0x20
 
 mov		esp,	ebp
 pop		ebp
-iret
-hlt
+ret
 
 DISK_TEXT db 0x0a,"Disk loaded successfully.",0x0a,0x00
 
