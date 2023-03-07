@@ -41,10 +41,10 @@ load:
 	setSegments 	DISK_ADDRESS
 	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
-	; set COM header
-	mov 	DWORD[0x0],	0xfbe89090
-	mov 	DWORD[0x4],	0x0000cf00
-	call	DISK_ADDRESS:0x0		; push cs; push ip; with line above can iret
+	; set COM header, see header.asm
+	mov 	DWORD[0x0],	0x006a9090
+	mov 	DWORD[0x4],	0xcf00f9e8
+	call	DISK_ADDRESS:0x0		; push flags; push cs; push ip
 	add		sp,		2
 	setSegments 	KERNEL_ADDRESS
 

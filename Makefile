@@ -31,8 +31,7 @@ disk: disk/auto.bin disk/program.bin
 	nasm $(MACROS) -fbin $< -o bin/$@
 
 %.bin: %.c
-#when -m32 ret without retw
-	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude $< -o bin/$<.o
+	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -Os $< -o bin/$<.o
 	ld -T linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
