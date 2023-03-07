@@ -1,6 +1,4 @@
-%ifndef KERNEL_SIZE
-	%define KERNEL_SIZE 0
-%endif
+%include "lib.asm"
 %define LOADED_END KERNEL_SIZE+2	;Sector after loaded stuff KERNEL_SIZE + 1 (boot sector) + 1 (table)
 iret
 dw 0x55aa

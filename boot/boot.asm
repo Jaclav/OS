@@ -1,6 +1,8 @@
 bits 16
+%ifidn __?OUTPUT_FORMAT?__, bin
+	org		0x7c00
+%endif
 %include "lib.asm"
-org		0x7c00
 
 mov		ah,		0				; set video mode
 mov		al,		0x10			; 640x350 with 16 colors

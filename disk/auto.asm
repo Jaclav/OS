@@ -1,5 +1,7 @@
 bits 16
-org 0x100
+%ifidn __?OUTPUT_FORMAT?__, bin
+	org 	0x100
+%endif
 push	ebp
 mov		ebp,	esp
 
