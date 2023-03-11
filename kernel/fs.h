@@ -7,13 +7,12 @@
 #define FILESIZE_MAX 4048
 #define EOF -1
 
-static struct FILE {
+typedef struct {
 	Word beginSector;
 	Word size;
 	Word iterator;
 	Byte content[FILESIZE_MAX];//do it dynamically
-};
-typedef struct FILE FILE;
+} FILE;
 
 /**
  * @brief
@@ -23,10 +22,10 @@ typedef struct FILE FILE;
  * @return FILE*
  */
 FILE *fopen(int name, int mode) {
-	/*static FILE file = {};
+	static FILE file;
 	file.beginSector = 0;
 	file.size = 0;
-	file.iterator = 0;*/
+	file.iterator = 0;
 
 	return NULL;
 }

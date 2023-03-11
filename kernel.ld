@@ -7,12 +7,16 @@ SECTIONS {
         *(.text);
      }
 
-    .data : { *(.data) }
-    .bss : { *(.bss) }
     .rodata : { *(.rodata) }
+    .data : { *(.data) }
+    .bss :
+    {
+        *(COMMON)/*https://stackoverflow.com/questions/28474675/arm-common-section-and-fno-common-flag*/
+        *(.bss)
+    }
 
     /DISCARD/ : {
-        *(.comment);
-        *(.eh_frame);
+        *(.comment)
+        *(.eh_frame)
     }
 }
