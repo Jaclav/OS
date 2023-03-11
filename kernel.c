@@ -168,7 +168,7 @@ void main() {
 			Byte size;
 			puts("NAME          SECTOR  SIZE\n");
 			size_t i = 0;
-			while(disk[i * 18 + 3] != 0) {
+			while((disk[i * 18 + 3] != 0) && i * 18 + 3 < 512) {
 				strncpy(name, (char *)disk + 3 + i * 18, 16);
 				sector = disk[i * 18 + 16 + 3];
 				size = disk[i * 18 + 17 + 3];

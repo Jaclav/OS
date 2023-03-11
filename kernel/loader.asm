@@ -5,6 +5,7 @@ extern puts
 extern putc
 ;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD
 ; can also push 0; call func
+;TODO: add check if in code is 8E - change of sreg or EA - jmpf and then don't execute
 
 load:
 	push	ebp
