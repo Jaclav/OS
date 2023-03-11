@@ -4,15 +4,44 @@
 #define FS_H
 
 #include "types.h"
+#define FILESIZE_MAX 4048
+#define EOF -1
 
-struct FILE {
-
+static struct FILE {
+	Word beginSector;
+	Word size;
+	Word iterator;
+	Byte content[FILESIZE_MAX];//do it dynamically
 };
 typedef struct FILE FILE;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-type"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+/**
+ * @brief
+ *
+ * @param name
+ * @param mode
+ * @return FILE*
+ */
+FILE *fopen(int name, int mode) {
+	/*static FILE file = {};
+	file.beginSector = 0;
+	file.size = 0;
+	file.iterator = 0;*/
+
+	return NULL;
+}
+
+/**
+ * @brief
+ *
+ * @param stream
+ * @return int
+ */
+int fclose(FILE *file) {
+	memset(file->content, 0x90, FILESIZE_MAX);
+	return 0;
+}
+
 /**
  * @brief
  *
@@ -32,10 +61,13 @@ size_t fread (void *ptr, size_t size, size_t count, FILE * stream) {
  * @param stream
  * @return int
  */
-int fgetc (FILE *stream){
+int fgetc (FILE *stream) {
 
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /**
  * @brief read sectors and store them in memory
  *

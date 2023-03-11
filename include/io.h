@@ -25,6 +25,7 @@ void puti(int a) {
 	    ::"a"(0x0200), "b"(a));
 }
 
+//TODO: add separate getchar and getKey
 Key getc(void) {
 	Word ax;
 	asm("mov ah, 0x00\n\
@@ -37,6 +38,7 @@ Key getc(void) {
 	return key;
 }
 
+//TODO: may cause memory leak
 int gets(char *str) {
 	//TODO: what when arrows are pressed?
 	Key key;

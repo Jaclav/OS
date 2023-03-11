@@ -119,7 +119,7 @@ void main() {
 
 			getc();
 			setVideoMode(0x10);
-			Position pos={0,0};
+			Position pos = {0, 0};
 
 			for(int i = 0; i < 10000; i++) {
 				pos.x += i;
@@ -158,16 +158,12 @@ void main() {
 			putc('\n');
 		}
 		else if(strcmp(command, LS)) {
-			Byte *disk=NULL;// get pointer to disk table in memory
-			if(readSector(disk, 2, 1) == 0) {/*second sector stores disk table*/
-				puts("ERROR: disk table not found!");
-				continue;
-			}
+			Byte *disk = 0x0;//first 512 Bytes is file table
 			if(disk[0] != 0xcf || disk[1] != 0xaa || disk[2] != 0x55) {
 				puts("ERROR: wrong disk table format!");
 				continue;
 			}
-			char name[100];
+			char name[17];
 			Byte sector;
 			Byte size;
 			puts("NAME          SECTOR  SIZE\n");
