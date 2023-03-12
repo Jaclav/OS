@@ -22,10 +22,15 @@ kernel:$(BINS) $(OBJS) disk/table.bin
 	cat bin/boot/boot.bin bin/disk/table.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
-disk: disk/auto.bin disk/program.bin
+disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
 	dd if=bin/disk/auto.bin of=bin/OS.img seek=$(DISK_START)
-	cat bin/disk/program.bin >> bin/OS.img
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=bin/disk/program.bin of=bin/OS.img seek=18
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=bin/disk/pic.bin of=bin/OS.img seek=21
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=bin/disk/image.bin of=bin/OS.img seek=24
 
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@

@@ -4,6 +4,7 @@
 #define FS_H
 
 #include "types.h"
+#include "string.h"
 #define FILESIZE_MAX 4048
 #define EOF -1
 

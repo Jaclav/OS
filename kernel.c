@@ -64,7 +64,6 @@ void main() {
 		char MODE[] = "mode";
 		char TEST[] = "test";
 		char LOAD[] = "load";
-		char PIC[] = "pic";
 		char SEC[] = "sec";
 		char LS[] = "ls";
 		if(bufforSize == 0) {
@@ -124,12 +123,6 @@ void main() {
 		}
 		else if(strcmp(command, LOAD)) {
 			puti(load(stoi(parameter), "Loading disk:"));
-		}
-		else if(strcmp(command, PIC)) {
-			setVideoMode(0x13);
-#include "image.h"
-			Position pos = {100, 50};
-			draw(pos, image_bmp, image_width, image_height);
 		}
 		else if(strcmp(command, SEC)) {
 			/* read sector to table and display this table*/
