@@ -10,7 +10,9 @@ Simple 16 bit operating system. My goal is to achive:
 * protection rings
 * multithreading
 
-All sectors in BIOS *are counted from 1*
+All sectors in BIOS **are counted from 1**\
+Screenshot:\
+![Screenshot](screenshot.png)
 ## Commands
 | Command | Description                     |
 | :------ | :------------------------------ |
@@ -20,7 +22,6 @@ All sectors in BIOS *are counted from 1*
 | mode $  | change video mode to $          |
 | test    | test kernel library             |
 | load $  | Execute program from $th sector |
-| pic     | Draw image.h file               |
 | sec     | Print $th sector                |
 | ls      | Print files and their sizes     |
 ## SYSTEM Interruptions

@@ -51,6 +51,7 @@ void main() {
 		commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters commandSize=-buffor, then just copy buffor
 		if(commandSize < 0) {
 			strcpy(command, buffor);
+			parameter[0] = 0;
 		}
 		else {
 			strncpy(command, buffor, commandSize);
