@@ -12,4 +12,8 @@ typedef unsigned int size_t;
 #define NULL ((void *) 0)
 #endif
 
+#ifndef DEBUG
+#define DEBUG asm("xchg bx,bx");
+#endif
+
 #endif

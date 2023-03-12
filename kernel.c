@@ -18,7 +18,7 @@
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
 #endif
-#define DEBUG asm("xchg bx,bx");
+
 extern int load(char sector, int message);
 
 __attribute__((interrupt))
@@ -39,9 +39,7 @@ void main() {
 	puts(__DATE__);
 	putc(' ');
 	puts(__TIME__);
-	puts("\nMemory size: ");
-	puti(getMemorySize());
-	puts("kB\n>");
+	printf("\nMemory size: %ikB\n>", getMemorySize());
 
 	char buffor[100];
 	int bufforSize = 0;
@@ -80,31 +78,21 @@ void main() {
 		}
 		else if(strcmp(command, POS)) {
 			Position position = getCursorPosition();
-			puti(position.x);
-			putc(':');
-			puti(position.y);
+			printf("%i:%i", position.x, position.y);
 		}
 		else if(strcmp(command, KEY)) {
 			Key key = getc();
-			puti(key.character);
-			putc(':');
-			puti(key.scancode);
+			printf("%i:%i", key.character, key.scancode);
 		}
 		else if(strcmp(command, MODE)) {
 			setVideoMode(stoi(parameter));
-			puts("Mode: ");
-			puti(stoi(parameter));
+			printf("Mode: %i", stoi(parameter));
 		}
 		else if(strcmp(command, TEST)) {
 			asm("int 0x20":
 			    :"a"(0xff00));
 			asm("int 0x21");
-			puts(buffor);
-			putc('\n');
-			puts(command);
-			putc('\n');
-			puts(parameter);
-			putc('\n');
+			printf("%s\n%s\n%s\n", buffor, command, parameter);
 			char L0[8] = "123456";
 			char L1[] = "Napis1\n";
 			puts(L1);
@@ -174,18 +162,13 @@ void main() {
 				size = disk[i * 18 + 17 + 3];
 				puts(name);
 				for(size_t j = 0; j < 16 - strlen(name); j++)putc(' ');
-				puti(sector);
-				puts("     ");
-				puti(size);
-				putc('\n');
+				printf("%i     %i\n", sector, size);
 				i++;
 			}
-			puti(i);
-			puts(" file(s)\n");
+			printf("%i file(s)\n", i);
 		}
 		else {
-			char L0[] = "Error: unknown command!\n";
-			puts(L0);
+			printf("Error: \"%s\" is unknown command!\n", command);
 		}
 		putc('>');
 	}
