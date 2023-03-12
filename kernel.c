@@ -5,7 +5,7 @@
 // https://en.wikipedia.org/wiki/INT_10H
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
-//TODO: cannot give string literal to char* parameter, only int WHY!?
+//BUG: cannot give string literal to char* parameter, only int WHY!?
 //TODO: handle key, shift, ctrl
 //TODO: https://cplusplus.com/reference/cerrno/errno/ https://cplusplus.com/reference/cstring/strerror/ https://cplusplus.com/reference/system_error/errc/
 #include <io.h>
@@ -35,10 +35,7 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	puts("Kernel loaded.\nVersion: ");
-	puts(__DATE__);
-	putc(' ');
-	puts(__TIME__);
+	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
 
 	char buffor[100];
@@ -50,7 +47,7 @@ void main() {
 	char parameter[100];
 
 	for(;;) {
-		bufforSize = gets(buffor);
+		bufforSize = gets(buffor, 98);
 		commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters commandSize=-buffor, then just copy buffor
 		if(commandSize < 0) {
 			strcpy(command, buffor);
@@ -121,7 +118,7 @@ void main() {
 				pos.y = SIZE_Y - i;
 				writePixel(pos, VGA_COLOR_LIGHT_CYAN);
 			}
-			gets(NULL);
+			getc();
 			setVideoMode(0x2);
 			setColorPalette(VGA_COLOR_DARK_GREY);
 		}

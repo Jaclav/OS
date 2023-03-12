@@ -39,7 +39,7 @@ int printf(const int str, ...) {
 			case 'd':
 				puti(va_arg(va, int));
 				break;
-			case 's'://TODO: cannot be string literal why!?
+			case 's'://BUG: cannot be string literal why!?
 				puts(va_arg(va, int));
 				break;
 			default:
@@ -69,18 +69,14 @@ Key getc(void) {
 	return key;
 }
 
-//TODO: may cause memory leak
-int gets(char *str) {
+int gets(char *str, int size) {
 	//TODO: what when arrows are pressed?
 	Key key;
 	int ptr = 0;
-	for(;;) {
+	for(; ptr < size;) {
 		key = getc();
-		if(key.character == 13) {
-			str[ptr] = 0;//end string with null
-			putc('\n');
+		if(key.character == 13)
 			break;
-		}
 		if(key.character == 8 && ptr >= 0) { //backspace
 			if(ptr > 0) {
 				str[ptr] = 0;
@@ -94,6 +90,8 @@ int gets(char *str) {
 		putc(key.character);
 		str[ptr++] = key.character;
 	}
+	str[ptr] = 0;//end string with null
+	putc('\n');
 	return ptr;
 }
 
