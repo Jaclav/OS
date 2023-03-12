@@ -1,7 +1,7 @@
 INTFLAGS=-mgeneral-regs-only -mno-red-zone -mgeneral-regs-only
 WFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
 CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude $(INTFLAGS)
-SRC=$(wildcard kernel.c kernel/*.c kernel/*.asm)
+SRC=$(wildcard kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
 
 BOOT=$(wildcard boot/*.asm)
@@ -18,18 +18,18 @@ run: clean kernel disk
 
 kernel:$(BINS) $(OBJS) disk/table.bin
 	#code loaded to memory by bootloader contains disk table and kernel
-	ld -T kernel.ld -melf_i386 bin/*.o bin/kernel/*.o -o bin/kernel.bin
+	ld -T kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
 	cat bin/boot/boot.bin bin/disk/table.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
 disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1
 	dd if=bin/disk/auto.bin of=bin/OS.img seek=$(DISK_START)
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1
 	dd if=bin/disk/program.bin of=bin/OS.img seek=18
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1
 	dd if=bin/disk/pic.bin of=bin/OS.img seek=21
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1				# create buffor
+	dd if=/dev/zero of=bin/OS.img seek=100 count=1
 	dd if=bin/disk/image.bin of=bin/OS.img seek=24
 
 %.bin: %.asm

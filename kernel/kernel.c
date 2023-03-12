@@ -12,8 +12,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <graphics.h>
-#include "kernel/interrupts.h"
-#include "kernel/fs.h"
+#include "interrupts.h"
+#include "fs.h"
 
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
@@ -37,6 +37,24 @@ void main() {
 	addInterrupt(0x0021, int0x21);
 	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
+
+	struct __FILE {
+		char name[17];
+		Byte sector;
+		Byte size;
+	} files[30];//TODO: update it at every file saving
+
+	Byte *FAT = 0x0;//first 512 Bytes is file table
+	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55) {
+		puts("ERROR: wrong FAT table format!");
+	}
+	size_t numberOfFiles = 0;
+	while((FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512) {
+		strncpy(files[numberOfFiles].name, (char *)FAT + 3 + numberOfFiles * 18, 16);
+		files[numberOfFiles].sector = FAT[numberOfFiles * 18 + 16 + 3];
+		files[numberOfFiles].size = FAT[numberOfFiles * 18 + 17 + 3];
+		numberOfFiles++;
+	}
 
 	char buffor[100];
 	int bufforSize = 0;
@@ -137,29 +155,30 @@ void main() {
 			putc('\n');
 		}
 		else if(strcmp(command, LS)) {
-			Byte *disk = 0x0;//first 512 Bytes is file table
-			if(disk[0] != 0xcf || disk[1] != 0xaa || disk[2] != 0x55) {
-				puts("ERROR: wrong disk table format!");
-				continue;
-			}
-			char name[17];
-			Byte sector;
-			Byte size;
-			puts("NAME          SECTOR  SIZE\n");
 			size_t i = 0;
-			while((disk[i * 18 + 3] != 0) && i * 18 + 3 < 512) {
-				strncpy(name, (char *)disk + 3 + i * 18, 16);
-				sector = disk[i * 18 + 16 + 3];
-				size = disk[i * 18 + 17 + 3];
-				puts(name);
-				for(size_t j = 0; j < 16 - strlen(name); j++)putc(' ');
-				printf("%i     %i\n", sector, size);
-				i++;
+			puts("NAME          SECTOR  SIZE\n");
+			for(; i < numberOfFiles; i++) {
+				puts(files[i].name);
+				for(size_t j = 0; j < 16 - strlen(files[i].name); j++)putc(' ');
+				printf("%i     %i\n", files[i].sector, files[i].size);
 			}
 			printf("%i file(s)\n", i);
 		}
 		else {
-			printf("Error: \"%s\" is unknown command!\n", command);
+			//check if there is program called command+".com"
+			size_t i = 0;
+			char tmp[104];
+			char com[] = ".com";
+			strcpy(tmp, command);
+			strcpy(tmp + strlen(tmp), com);
+			for(; i < numberOfFiles; i++) {
+				if(strcmp(files[i].name, tmp)) {
+					puti(load(files[i].sector, "STARTING PROGRAM:\n"));
+					break;
+				}
+			}
+			if(i == numberOfFiles)
+				printf("Error: \"%s\" is unknown command!\n", tmp);
 		}
 		putc('>');
 	}
