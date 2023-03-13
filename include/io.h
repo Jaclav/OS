@@ -69,30 +69,4 @@ Key getc(void) {
 	return key;
 }
 
-int gets(char *str, int size) {
-	//TODO: what when arrows are pressed?
-	Key key;
-	int ptr = 0;
-	for(; ptr < size;) {
-		key = getc();
-		if(key.character == 13)
-			break;
-		if(key.character == 8 && ptr >= 0) { //backspace
-			if(ptr > 0) {
-				str[ptr] = 0;
-				ptr--;
-				putc(8);
-				putc(' ');
-				putc(8);
-			}
-			continue;
-		}
-		putc(key.character);
-		str[ptr++] = key.character;
-	}
-	str[ptr] = 0;//end string with null
-	putc('\n');
-	return ptr;
-}
-
 #endif

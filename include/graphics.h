@@ -25,6 +25,10 @@ typedef Byte Color;
 #define VGA_COLOR_LIGHT_BROWN 14
 #define VGA_COLOR_WHITE 15
 
+#define MODE_TEXT 2
+#define MODE_TEXT_COLOR 16
+#define MODE_COLOR 19
+
 struct Position {
 	Word x, y;
 };
@@ -64,13 +68,38 @@ void draw(Position begin, Color *data, size_t width, size_t height) {
 	}
 }
 
+//TODO: add color puts putc to printf
+void cputc(char c, Color color, Byte times) {
+	asm("int 0x10"::"a"(0x0900|c), "b"(0x0000|color), "c"(times));
+	//move cursor by 1
+	asm("int 0x10"
+	    :: "a" (0x0300), "b" (0x0));
+	asm("add dl, al\n\
+		int 0x10"
+	    :: "a"(0x0200|times));
+}
+
+void cputs(int str, Color color) {
+	char* ptr = str;
+	while(*ptr != 0) {
+		asm("int 0x10"::"a"(0x0900|*ptr), "b"(0x0000|color), "c"(1));
+		//move cursor by 1
+		asm("int 0x10\n\
+			mov ah,02\n\
+			inc dl\n\
+			int 0x10"
+		    :: "a" (0x0300), "b" (0x0));
+		ptr++;
+	}
+}
+
 Position getCursorPosition(void) {
 	Position position;
 	Word dx;
 
 	asm("int 0x10"
 	    : "=d"(dx)
-	    : "a" (0x03 << 8),
+	    : "a" (0x0300),
 	    "b" (0x0));
 	position.y = dx >> 8;
 	position.x = (Byte)dx;

@@ -20,6 +20,7 @@
 #endif
 
 extern int load(char sector, int message);
+int gets(char *str, int size);
 
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame) {
@@ -100,6 +101,9 @@ void main() {
 			printf("Mode: %i", stoi(parameter));
 		}
 		else if(strcmp(command, TEST)) {
+			for(int j = 1; j < 15; j++)
+				cputc('X', j, 2);
+			putc('\n');
 			asm("int 0x20":
 			    :"a"(0xff00));
 			asm("int 0x21");
@@ -173,11 +177,79 @@ void main() {
 					break;
 				}
 			}
-			if(i == numberOfFiles)
-				printf("Error: \"%s\" is unknown command!\n", tmp);
+			if(i == numberOfFiles) {
+				cputs("Error:", VGA_COLOR_RED);
+				printf(" \"%s\" is unknown command!\n", tmp);
+			}
 		}
 		putc('>');
 	}
 
 	asm("hlt");
+}
+
+int gets(char *str, int size) {
+	Key key;
+	int ptr = 0;
+	int oldPtr = 0;
+	for(; ptr < size;) {
+		key = getc();
+		if(key.character == 13)
+			break;
+		if(key.character == 8 && ptr >= 0) { //backspace
+			if(ptr > 0) {
+				str[ptr] = 0;
+				ptr--;
+				putc(8);
+				putc(' ');
+				putc(8);
+			}
+			continue;
+		}
+		else if(key.character == 0 && key.scancode == 72) {
+			asm("int 0x10"::"a"(0x0601), "b"(0x0000), "c"(0x0000), "d"(0xffff));
+			ptr = 0;
+			continue;
+		}
+		else if(key.character == 0 && key.scancode == 80) {
+			asm("int 0x10"::"a"(0x0701), "b"(0x0000), "c"(0x0000), "d"(0xffff));
+			ptr = 0;
+			continue;
+		}
+		else if(key.character == 0 && key.scancode == 75) {
+			if(ptr > 0) {
+				//move cursor by -1
+				asm("int 0x10\n\
+				mov ah,02\n\
+				dec dl\n\
+				int 0x10"
+				    ::"a" (0x0300), "b" (0x0));
+				if(oldPtr < ptr)
+					oldPtr = ptr;
+				ptr--;
+			}
+			continue;
+		}
+		else if(key.character == 0 && key.scancode == 77) {
+			if(ptr < oldPtr) {
+				//move cursor by 1
+				asm("int 0x10\n\
+				mov ah,02\n\
+				inc dl\n\
+				int 0x10"
+				    ::"a" (0x0300), "b" (0x0));
+				if(ptr < size) {
+					ptr++;
+					if(ptr == oldPtr)
+						oldPtr = 0;
+				}
+			}
+			continue;
+		}
+		putc(key.character);
+		str[ptr++] = key.character;
+	}
+	str[oldPtr < ptr ? ptr : oldPtr] = 0; //end string with null
+	putc('\n');
+	return ptr;
 }
