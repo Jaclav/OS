@@ -45,6 +45,7 @@ load:
 	; set COM header, see header.asm
 	mov 	DWORD[0x0],	0x006a9090
 	mov 	DWORD[0x4],	0xcf00f9e8
+	;TODO: set on end mov 	DWORD[0x200*sizeOfProgram], 0x000002C2;ret 2
 	call	DISK_ADDRESS:0x0		; push flags; push cs; push ip
 	add		sp,		2
 	setSegments 	KERNEL_ADDRESS
