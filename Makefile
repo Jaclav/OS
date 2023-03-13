@@ -14,23 +14,25 @@ MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
 run: clean kernel disk
 	bochs -q
-	#qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
+#qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
-kernel:$(BINS) $(OBJS) disk/table.bin
-	#code loaded to memory by bootloader contains disk table and kernel
+kernel:$(BINS) $(OBJS) disk/fat.bin
+#code loaded to memory by bootloader contains disk table and kernel
 	ld -T kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
-	cat bin/boot/boot.bin bin/disk/table.bin bin/kernel.bin > bin/OS.img
+	cat bin/boot/boot.bin bin/disk/fat.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
 disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
+	dd if=bin/disk/auto.bin of=bin/disk/disk.img seek=0
+	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
+	dd if=bin/disk/program.bin of=bin/disk/disk.img seek=2
+	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
+	dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=5
+	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
+	dd if=bin/disk/image.bin of=bin/disk/disk.img seek=8
+
 	dd if=/dev/zero of=bin/OS.img seek=100 count=1
-	dd if=bin/disk/auto.bin of=bin/OS.img seek=$(DISK_START)
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1
-	dd if=bin/disk/program.bin of=bin/OS.img seek=18
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1
-	dd if=bin/disk/pic.bin of=bin/OS.img seek=21
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1
-	dd if=bin/disk/image.bin of=bin/OS.img seek=24
+	dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)
 
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@
