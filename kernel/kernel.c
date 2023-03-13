@@ -39,21 +39,17 @@ void main() {
 	printf("\nMemory size: %ikB\n>", getMemorySize());
 
 	struct __FILE {
-		char name[17];
+		char name[16];
 		Byte sector;
 		Byte size;
-	} files[30];//TODO: update it at every file saving
+	} files[30];//TODO: update it at every file saving, do it dynamically
 
 	Byte *FAT = 0x0;//first 512 Bytes is file table
-	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55) {
+	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
-	}
 	size_t numberOfFiles = 0;
-	while((FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512) {
-		strncpy(files[numberOfFiles].name, (char *)FAT + 3 + numberOfFiles * 18, 16);
-		files[numberOfFiles].sector = FAT[numberOfFiles * 18 + 16 + 3];
-		files[numberOfFiles].size = FAT[numberOfFiles * 18 + 17 + 3];
-		numberOfFiles++;
+	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
+		strncpy((char *)(files + numberOfFiles), (char *)FAT + 3 + numberOfFiles * 18, 18);
 	}
 
 	char buffor[100];
