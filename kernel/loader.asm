@@ -1,8 +1,6 @@
 bits 16
 %include "lib.asm"
 global load
-extern puts
-extern putc
 ;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD
 ; can also push 0; call func
 ;TODO: add check if in code is 8E - change of sreg or EA - jmpf and then don't execute
@@ -10,10 +8,6 @@ extern putc
 load:
 	push	ebp
 	mov		ebp,	esp
-
-	push	DWORD[ebp+12]
-	call	DWORD puts
-	add		esp,	4
 
 	;;;;;;;;;;;
 	; READ DISK
@@ -30,15 +24,31 @@ load:
 	mov 	cl,		[ebp+8]			; sector (counted from 1)
 	.read_disk:
 		mov		ah,		2        	; BIOS read
-		mov		al,		SECTORS_TO_READ; sectors to read
+		mov		al,		[ebp+16]	; sectors to read
 		int		0x13                ; BIOS disk
 		jc .read_disk               ; CF=1 if error
 	; if not all loaded, try again
-	cmp		al,		SECTORS_TO_READ
+	cmp		al,		[ebp+16]
 	jne		.read_disk
 
 	;;;;;;;;;;;
 	; CALL DISK
+	; load at 0x2000:80 program parameters
+	mov		ax,		DISK_ADDRESS
+	mov		es,		ax
+	mov 	si, 	WORD[ebp+12]	; pointer to parameter string in si
+	mov 	di, 	0x80
+	.loop:
+		mov 	al, 	[si]
+		mov 	[es:di],al
+		inc 	di
+		inc 	si
+		cmp 	di, 	0x100
+		jge 	.after
+		cmp		al, 0
+		jne 	.loop
+	.after:
+
 	setSegments 	DISK_ADDRESS
 	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
@@ -48,12 +58,9 @@ load:
 	;TODO: set on end mov 	DWORD[0x200*sizeOfProgram], 0x000002C2;ret 2
 	call	DISK_ADDRESS:0x0		; push flags; push cs; push ip
 	add		sp,		2
+	mov		dx,		ax				;save return code
 	setSegments 	KERNEL_ADDRESS
 
-	push	WORD 'W'
-	call	DWORD putc
-	add		sp,		2
-
 	pop		ebp
-	mov		eax,	43
+	mov		ax,	dx
 	ret

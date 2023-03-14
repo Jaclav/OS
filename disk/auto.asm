@@ -20,6 +20,7 @@ int		0x20
 
 mov		esp,	ebp
 pop		ebp
+mov 	ax, 	0
 ret 	2
 
 DISK_TEXT db 0x0a,"Disk loaded successfully.",0x0a,0x00

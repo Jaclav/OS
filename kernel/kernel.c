@@ -19,7 +19,7 @@
 #define KERNEL_ADDRESS 0
 #endif
 
-extern int load(char sector, int message);
+extern int load(char beginSector, int parameter, int size);
 int gets(char *str, int size);
 
 __attribute__((interrupt))
@@ -141,7 +141,7 @@ void main() {
 			setColorPalette(VGA_COLOR_DARK_GREY);
 		}
 		else if(strcmp(command, LOAD)) {
-			puti(load(stoi(parameter), "Loading disk:"));
+			puti(load(stoi(parameter), parameter, 3));
 		}
 		else if(strcmp(command, SEC)) {
 			/* read sector to table and display this table*/
@@ -173,7 +173,7 @@ void main() {
 			strcpy(tmp + strlen(tmp), com);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, tmp)) {
-					puti(load(files[i].sector, "STARTING PROGRAM:\n"));
+					puti(load(files[i].sector, parameter, files[i].size));
 					break;
 				}
 			}

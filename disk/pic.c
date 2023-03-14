@@ -3,7 +3,7 @@
 #include "../kernel/fs.h"//! remove, kernel only
 
 __attribute__((section("start")))
-void main() {
+int main() {
 	setVideoMode(0x13);
 	puts("PIC\n");
 	unsigned int image_width = 0x20;
@@ -16,5 +16,5 @@ void main() {
 	draw(pos, image_bmp, image_width, image_height);
 	Key k = getc();//without KEY it would be removed by -Os
 	setVideoMode(0x2);
-	return;
+	return 0;
 }
