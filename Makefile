@@ -18,7 +18,7 @@ run: clean kernel disk
 
 kernel:$(BINS) $(OBJS) disk/fat.bin
 #code loaded to memory by bootloader contains disk table and kernel
-	ld -T kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
+	ld -T kernel/kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
 	cat bin/boot/boot.bin bin/disk/fat.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
@@ -39,7 +39,7 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 
 %.bin: %.c
 	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -Os $< -o bin/$<.o
-	ld -T linker.ld -melf_i386 bin/$<.o -o bin/$@
+	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $< -o bin/$@

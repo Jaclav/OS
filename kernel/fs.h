@@ -92,9 +92,9 @@ size_t readSector (void * ptr, size_t bsector, size_t count) {
 		mov	ch,	0x0\n\
 		mov	ah,	2\n\
 		int	0x13\n\
-		jnc exit\n\
+		jnc exit%=\n\
 		mov	ax,0\n\
-		exit:\n\
+		exit%=:\n\
 		xor ah,ah"
 	    :
 	    :"a"(count), "d"(0), "c"(bsector));
