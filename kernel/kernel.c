@@ -173,7 +173,12 @@ void main() {
 			strcpy(tmp + strlen(tmp), com);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, tmp)) {
-					puti(load(files[i].sector, parameter, files[i].size));
+					int ret = load(files[i].sector, parameter, files[i].size);
+					if(ret != 0) {
+						cputs("Error:", VGA_COLOR_RED);
+						printf(" \"%s\" returned %i\n", tmp, ret);
+					}
+
 					break;
 				}
 			}

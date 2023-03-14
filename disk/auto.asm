@@ -5,9 +5,9 @@ bits 16
 push	ebp
 mov		ebp,	esp
 
-;putc parameter
-mov		ah,		0
-mov		al,		[ebp+14]
+;puts parameter
+mov		ah,		1
+mov		bx,		0x80
 int		0x20
 
 jmp		start

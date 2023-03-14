@@ -33,9 +33,19 @@ load:
 
 	;;;;;;;;;;;
 	; CALL DISK
-	; load at 0x2000:80 program parameters
 	mov		ax,		DISK_ADDRESS
 	mov		es,		ax
+
+	; set automatic return from code that didn't return on itself
+	mov		ax, 	[ebp+16]
+	mov		dx,		0x200
+	mul		dx
+	mov		bx,		ax
+	mov		DWORD[es:bx],0x9001f8b8;mov ax,0xff
+	add		bx,		4
+	mov		DWORD[es:bx],0x900002c2;ret 2
+
+	; load at 0x2000:80 program parameters
 	mov 	si, 	WORD[ebp+12]	; pointer to parameter string in si
 	mov 	di, 	0x80
 	.loop:
@@ -50,14 +60,11 @@ load:
 	.after:
 
 	setSegments 	DISK_ADDRESS
-	push	'Z'						; give a parameter to program
 	push 	0						; set zero as flag register - for iret
 	; set COM header, see header.asm
 	mov 	DWORD[0x0],	0x006a9090
 	mov 	DWORD[0x4],	0xcf00f9e8
-	;TODO: set on end mov 	DWORD[0x200*sizeOfProgram], 0x000002C2;ret 2
 	call	DISK_ADDRESS:0x0		; push flags; push cs; push ip
-	add		sp,		2
 	mov		dx,		ax				;save return code
 	setSegments 	KERNEL_ADDRESS
 
