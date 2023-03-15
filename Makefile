@@ -1,4 +1,4 @@
-INTFLAGS=-mgeneral-regs-only -mno-red-zone -mgeneral-regs-only
+INTFLAGS=-mgeneral-regs-only -mno-red-zone
 WFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
 CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude $(INTFLAGS)
 SRC=$(wildcard kernel/*.c kernel/*.asm)
@@ -8,7 +8,7 @@ BOOT=$(wildcard boot/*.asm)
 BINS=$(BOOT:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=16#counted from 0, so first disk sector will be 17 (counted from 1)
+DISK_START=20#counted from 0, so first disk sector will be 17 (counted from 1)
 KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 

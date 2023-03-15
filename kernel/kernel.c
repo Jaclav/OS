@@ -22,11 +22,50 @@
 extern int load(char beginSector, int parameter, int size);
 int gets(char *str, int size);
 
+FILE files[30];//TODO: update it at every file saving, do it dynamically
+size_t numberOfFiles = 0;
+
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame) {
 	//see interrupts.asm
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
-	puts("INT 0x21!\n");
+
+	int ax = 0, dx = 0;
+	asm("mov ax,[ebp-16]":"=a"(ax));
+	asm("mov bx,[ebp-4]");
+	asm("mov cx,[ebp-8]");
+	asm("mov dx,[ebp-12]":"=d"(dx));
+	switch(ax >> 8) {
+	case 1: {
+		//copy string from dx to fileName
+		char fileName[FILENAME_MAX];
+		memset(fileName, 0, FILENAME_MAX);
+		asm("mov si, dx\n\
+mov di, ax\n\
+loop%=:\n\
+mov ax, ss:[si+bx]\n\
+cmp ax,0\n\
+je after%=\n\
+mov byte ptr ds:[di+bx], al\n\
+inc bx\n\
+cmp bx,cx\n\
+jl loop%=\n\
+after%=:"
+		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
+		for(int i = 0; i < numberOfFiles; i++) {
+			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
+				asm("mov [ebp-16],ax\nmov [ebp-4],bx"::"a"(files[i].beginSector), "b"(files[i].size));
+				asm("pop ds");
+				return;
+			}
+		}
+		asm("mov [ebp-16],ax\nmov [ebp-4],bx"::"a"(0), "b"(0));
+		break;
+	}
+	default:
+		printf("INT 0x21!\n");
+		break;
+	}
 	asm("pop ds");
 }
 
@@ -39,16 +78,9 @@ void main() {
 	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
 
-	struct __FILE {
-		char name[16];
-		Byte sector;
-		Byte size;
-	} files[30];//TODO: update it at every file saving, do it dynamically
-
 	Byte *FAT = 0x0;//first 512 Bytes is file table
 	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
-	size_t numberOfFiles = 0;
 	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
 		strncpy((char *)(files + numberOfFiles), (char *)FAT + 3 + numberOfFiles * 18, 18);
 	}
@@ -159,8 +191,8 @@ void main() {
 			puts("NAME          SECTOR  SIZE\n");
 			for(; i < numberOfFiles; i++) {
 				puts(files[i].name);
-				for(size_t j = 0; j < 16 - strlen(files[i].name); j++)putc(' ');
-				printf("%i     %i\n", files[i].sector, files[i].size);
+				for(size_t j = 0; j < FILENAME_MAX - strlen(files[i].name); j++)putc(' ');
+				printf("%i     %i\n", files[i].beginSector, files[i].size);
 			}
 			printf("%i file(s)\n", i);
 		}
@@ -173,7 +205,7 @@ void main() {
 			strcpy(tmp + strlen(tmp), com);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, tmp)) {
-					int ret = load(files[i].sector, parameter, files[i].size);
+					int ret = load(files[i].beginSector, parameter, files[i].size);
 					if(ret != 0) {
 						cputs("Error:", VGA_COLOR_RED);
 						printf(" \"%s\" returned %i\n", tmp, ret);

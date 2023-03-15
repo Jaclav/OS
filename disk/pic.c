@@ -10,7 +10,7 @@ int main() {
 	unsigned int image_height = 0x20;
 	Color image_bmp[1024];
 	Position pos = {100, 50};
-	if(readSector(image_bmp, 25, 2) == 0) {
+	if(readSector(image_bmp, 29, 2) == 0) {
 		puts("ERROR");
 	}
 	draw(pos, image_bmp, image_width, image_height);

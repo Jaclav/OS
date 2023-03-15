@@ -69,4 +69,33 @@ Key getc(void) {
 	return key;
 }
 
+#define FILESIZE_MAX 4048
+#define FILENAME_MAX 16
+#define EOF -1
+
+typedef struct {
+	char name[16];
+	Byte beginSector;
+	Byte size;
+	Word fpi;
+} FILE;
+
+/**
+ * @brief
+ *
+ * @param name file name
+ * @param mode
+ * @return FILE*
+ */
+FILE *fopen(int name, int mode) {
+	//BUG: IT barely works
+	static FILE file;
+	asm volatile("int 0x21":"=a"(file.beginSector), "=b"(file.size):"a"(0x0100), "d"(name));
+	file.fpi = 0;
+
+	/*if(file.size == 0)
+		return NULL;*/
+	return &file;
+}
+
 #endif

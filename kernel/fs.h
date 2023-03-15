@@ -5,31 +5,6 @@
 
 #include "types.h"
 #include "string.h"
-#define FILESIZE_MAX 4048
-#define EOF -1
-
-typedef struct {
-	Word beginSector;
-	Word size;
-	Word iterator;
-	Byte content[FILESIZE_MAX];//do it dynamically
-} FILE;
-
-/**
- * @brief
- *
- * @param name
- * @param mode
- * @return FILE*
- */
-FILE *fopen(int name, int mode) {
-	static FILE file;
-	file.beginSector = 0;
-	file.size = 0;
-	file.iterator = 0;
-
-	return NULL;
-}
 
 /**
  * @brief
@@ -38,7 +13,6 @@ FILE *fopen(int name, int mode) {
  * @return int
  */
 int fclose(FILE *file) {
-	memset(file->content, 0x90, FILESIZE_MAX);
 	return 0;
 }
 
