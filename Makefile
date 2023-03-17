@@ -27,9 +27,9 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
 	dd if=bin/disk/program.bin of=bin/disk/disk.img seek=2
 	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
-	dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=5
+	dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=6
 	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
-	dd if=bin/disk/image.bin of=bin/disk/disk.img seek=8
+	dd if=bin/disk/image.bin of=bin/disk/disk.img seek=14
 
 	dd if=/dev/zero of=bin/OS.img seek=100 count=1
 	dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)
@@ -37,8 +37,9 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@
 
+#BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
-	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -Os $< -o bin/$<.o
+	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -O0 $< -o bin/$<.o
 	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c

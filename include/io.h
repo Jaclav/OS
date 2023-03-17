@@ -88,13 +88,13 @@ typedef struct {
  * @return FILE*
  */
 FILE *fopen(int name, int mode) {
-	//BUG: IT barely works
+	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
-	asm volatile("int 0x21":"=a"(file.beginSector), "=b"(file.size):"a"(0x0100), "d"(name));
+	asm ("int 0x21":"=a"(file.beginSector), "=b"(file.size):"a"(0x0100), "d"(name));
 	file.fpi = 0;
 
-	/*if(file.size == 0)
-		return NULL;*/
+	if(file.size == 0 && file.beginSector == 0)
+		return NULL;
 	return &file;
 }
 

@@ -7,21 +7,20 @@ __attribute__((section("start")))
 int main() {
 	Byte parameters = 0x80;
 	puts(parameters);
-	//TODO: printf doesn't work
+	//TODO: printf doesn't work printf("%s",a);
 	puts(a);
 	Byte disk[512] = {0};
 	memset(disk, 'X', 512);
 
 	FILE *file;
-	char name[] = "data.txt";
-	file = fopen(name, "");
-	puti(file->size);
-	puti(file->beginSector);
-
+	file = fopen("data.txt", "");
 	if(file == NULL) {
-		puts("ERROR file connot be opened");
+		puts("ERROR file connot be opened\n");
 		return 404;
 	}
+	// BUG: commented lines crashes WHY!?
+	// puti(file->size);
+	// puti(file->beginSector);
 
 	if(readSector(disk, file->beginSector, file->size) == 0) {
 		puts("ERROR");
