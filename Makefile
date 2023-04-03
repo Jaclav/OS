@@ -1,5 +1,5 @@
 INTFLAGS=-mgeneral-regs-only -mno-red-zone
-WFLAGS=-Wno-implicit-function-declaration -Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
+WFLAGS=-Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
 CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude $(INTFLAGS)
 SRC=$(wildcard kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
@@ -8,7 +8,7 @@ BOOT=$(wildcard boot/*.asm)
 BINS=$(BOOT:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=20#counted from 0, so first disk sector will be 17 (counted from 1)
+DISK_START=18#counted from 0, so first disk sector will be 17 (counted from 1)
 KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
@@ -23,16 +23,16 @@ kernel:$(BINS) $(OBJS) disk/fat.bin
 
 #automatize this
 disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
-	dd if=bin/disk/auto.bin of=bin/disk/disk.img seek=0
-	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
-	dd if=bin/disk/program.bin of=bin/disk/disk.img seek=2
-	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
-	dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=6
-	dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1
-	dd if=bin/disk/image.bin of=bin/disk/disk.img seek=14
+	@dd if=bin/disk/auto.bin of=bin/disk/disk.img seek=0	2> /dev/null
+	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
+	@dd if=bin/disk/program.bin of=bin/disk/disk.img seek=2	2> /dev/null
+	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
+	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=6		2> /dev/null
+	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
+	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=11	2> /dev/null
 
-	dd if=/dev/zero of=bin/OS.img seek=100 count=1
-	dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)
+	@dd if=/dev/zero of=bin/OS.img seek=100 count=1			2> /dev/null
+	@dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)	2> /dev/null
 
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@
@@ -40,6 +40,8 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 #BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
 	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -O0 $< -o bin/$<.o
+	objdump -D -M i8086 bin/$<.o -jstart -M intel > test/$<.asm
+	objdump -D -M i8086 bin/$<.o -j.text -M intel >> test/$<.asm
 	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
@@ -54,3 +56,5 @@ clean:
 	@mkdir -p bin/boot
 	@mkdir -p bin/disk
 	@mkdir -p bin/kernel
+
+#objdump -D -M i8086 bin/disk/program.c.o -j.text -M intel > test/a.txt && grep "fopen" -A 20 test/a.txt

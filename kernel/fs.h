@@ -12,9 +12,9 @@
  * @param stream
  * @return int
  */
-int fclose(FILE *file) {
+/*int fclose(FILE *file) {
 	return 0;
-}
+}*/
 
 /**
  * @brief
@@ -25,9 +25,9 @@ int fclose(FILE *file) {
  * @param stream
  * @return size_t
  */
-size_t fread (void *ptr, size_t size, size_t count, FILE * stream) {
+/*size_t fread (void *ptr, size_t size, size_t count, FILE * stream) {
 
-}
+}*/
 
 /**
  * @brief
@@ -35,9 +35,9 @@ size_t fread (void *ptr, size_t size, size_t count, FILE * stream) {
  * @param stream
  * @return int
  */
-int fgetc (FILE *stream) {
+/*int fgetc (FILE *stream) {
 
-}
+}*/
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"

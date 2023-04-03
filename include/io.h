@@ -9,21 +9,25 @@ struct Key {
 };
 typedef struct Key Key;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
 	asm("mov ah,0\n\
-		int 0x20"
-	    :: "a" (character));
+		mov al, [ebp+8]\n\
+		int 0x20");
 }
 
 void puts(const int string) {
-	asm("int 0x20"
-	    ::"a"(0x0100), "b"(string));
+	asm("mov ax,0x100\n\
+		mov bx,[ebp+8]\n\
+		int 0x20");
 }
 
 void puti(int a) {
-	asm("int 0x20"
-	    ::"a"(0x0200), "b"(a));
+	asm("mov ax, 0x200\n\
+		mov bx, [ebp+8]\n\
+		int 0x20");
 }
 
 int printf(const int str, ...) {
@@ -90,12 +94,15 @@ typedef struct {
 FILE *fopen(int name, int mode) {
 	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
-	asm ("int 0x21":"=a"(file.beginSector), "=b"(file.size):"a"(0x0100), "d"(name));
+	asm ("mov ax, 0x100\n\
+		mov dx, [ebp+8]\n\
+		int 0x21":"=a"(file.beginSector), "=b"(file.size));
 	file.fpi = 0;
 
 	if(file.size == 0 && file.beginSector == 0)
 		return NULL;
 	return &file;
 }
+#pragma GCC diagnostic pop
 
 #endif

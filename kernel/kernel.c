@@ -25,6 +25,8 @@ int gets(char *str, int size);
 FILE files[30];//TODO: update it at every file saving, do it dynamically
 size_t numberOfFiles = 0;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame) {
 	//see interrupts.asm
@@ -52,7 +54,7 @@ cmp bx,cx\n\
 jl loop%=\n\
 after%=:"
 		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
-		for(int i = 0; i < numberOfFiles; i++) {
+		for(size_t i = 0; i < numberOfFiles; i++) {
 			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
 				asm("mov [ebp-16],ax\nmov [ebp-4],bx"::"a"(files[i].beginSector), "b"(files[i].size));
 				asm("pop ds");
@@ -68,6 +70,7 @@ after%=:"
 	}
 	asm("pop ds");
 }
+#pragma GCC diagnostic pop
 
 __attribute__((section("start")))
 void main() {
@@ -207,7 +210,7 @@ void main() {
 				if(strcmp(files[i].name, tmp)) {
 					int ret = load(files[i].beginSector, parameter, files[i].size);
 					if(ret != 0) {
-						cputs("Error:", VGA_COLOR_RED);
+						cputs("Error:", VGA_COLOR_RED);//BUG: changes prompt color
 						printf(" \"%s\" returned %i\n", tmp, ret);
 					}
 

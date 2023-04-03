@@ -5,7 +5,7 @@
 __attribute__((section("start")))
 int main() {
 	Byte name = 0x80;//name as parameter
-	setVideoMode(0x13);
+	setVideoMode(MODE_COLOR);
 	puts("PIC\n");
 	unsigned int image_width = 0x20;
 	unsigned int image_height = 0x20;
@@ -14,13 +14,20 @@ int main() {
 
 	FILE *file;
 	file = fopen(name, "");
+	if(file == NULL) {
+		puts("ERROR file connot be opened\n");
+		setVideoMode(MODE_TEXT);
+		return 404;
+	}
 	puts(name);
 
-	if(readSector(image_bmp, file->beginSector, file->size) == 0) {
+	if(readSector(image_bmp, file->beginSector, file->size) != file->size) {
 		puts("ERROR");
+		setVideoMode(MODE_TEXT);
+		return 403;
 	}
 	draw(pos, image_bmp, image_width, image_height);
-	Key k = getc();//without KEY it would be removed by -Os
-	setVideoMode(0x2);
+	getc();//without KEY it would be removed by -Os
+	setVideoMode(MODE_TEXT);
 	return 0;
 }
