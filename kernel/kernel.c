@@ -13,22 +13,17 @@
 #include <stdlib.h>
 #include <graphics.h>
 #include "interrupts.h"
-#include "fs.h"
 
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
 #endif
 
 extern int load(char beginSector, int parameter, int size);
+void int0x21(struct interruptFrame* frame);
 int gets(char *str, int size);
 
-__attribute__((interrupt))
-void int0x21(struct interruptFrame* frame) {
-	//see interrupts.asm
-	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
-	puts("INT 0x21!\n");
-	asm("pop ds");
-}
+FILE files[30];//TODO: update it at every file saving, do it dynamically
+size_t numberOfFiles = 0;
 
 __attribute__((section("start")))
 void main() {
@@ -39,16 +34,9 @@ void main() {
 	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
 
-	struct __FILE {
-		char name[16];
-		Byte sector;
-		Byte size;
-	} files[30];//TODO: update it at every file saving, do it dynamically
-
 	Byte *FAT = 0x0;//first 512 Bytes is file table
 	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
-	size_t numberOfFiles = 0;
 	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
 		strncpy((char *)(files + numberOfFiles), (char *)FAT + 3 + numberOfFiles * 18, 18);
 	}
@@ -94,7 +82,10 @@ void main() {
 		}
 		else if(strcmp(command, KEY)) {
 			Key key = getc();
-			printf("%i:%i", key.character, key.scancode);
+			printf("character=%i,scancode=%i, color=", key.character, key.scancode);
+			int a = 0;
+			asm("int 0x10":"=a"(a):"a"(0x0800), "b"(0x0000));
+			puti(a >> 8);
 		}
 		else if(strcmp(command, MODE)) {
 			setVideoMode(stoi(parameter));
@@ -147,22 +138,25 @@ void main() {
 			/* read sector to table and display this table*/
 			char disk[512];
 			memset(disk, ' ', 512);
-			if(readSector(disk, stoi(parameter), 1) == 0) {
-				puts("ERROR");
-			}
+			FILE f;
+			f.beginSector = stoi(parameter);
+			fread(disk, 512, 1, &f);
 			for(int i = 0; i < 512; i++)
 				putc(disk[i]);
 			putc('\n');
 		}
 		else if(strcmp(command, LS)) {
 			size_t i = 0;
-			puts("NAME          SECTOR  SIZE\n");
+			size_t sum = 0;
+			cputs("NAME          SECTOR     SIZE", VGA_COLOR_CYAN);
+			putc('\n');
 			for(; i < numberOfFiles; i++) {
 				puts(files[i].name);
-				for(size_t j = 0; j < 16 - strlen(files[i].name); j++)putc(' ');
-				printf("%i     %i\n", files[i].sector, files[i].size);
+				for(size_t j = 0; j < FILENAME_MAX - strlen(files[i].name); j++)putc(' ');
+				printf("%s%i        %s%i\n", (files[i].beginSector / 10 >= 1 ? "" : "0"), files[i].beginSector, ((files[i].size / 10) >= 1 ? "" : "0"), files[i].size);
+				sum += files[i].size;
 			}
-			printf("%i file(s)\n", i);
+			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
 		}
 		else {
 			//check if there is program called command+".com"
@@ -173,7 +167,7 @@ void main() {
 			strcpy(tmp + strlen(tmp), com);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, tmp)) {
-					int ret = load(files[i].sector, parameter, files[i].size);
+					int ret = load(files[i].beginSector, parameter, files[i].size);
 					if(ret != 0) {
 						cputs("Error:", VGA_COLOR_RED);
 						printf(" \"%s\" returned %i\n", tmp, ret);
@@ -187,11 +181,89 @@ void main() {
 				printf(" \"%s\" is unknown command!\n", tmp);
 			}
 		}
+		asm("int 0x10"::"a"(0x0900|' '), "b"(0x0000|VGA_COLOR_LIGHT_GREY), "c"(0xff));//clear colors after command
 		putc('>');
 	}
 
 	asm("hlt");
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+__attribute__((interrupt))
+void int0x21(struct interruptFrame* frame) {
+	//see interrupts.asm
+	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+
+	// registers are backed up, after this function, they are restored
+	int ax = 0, bx = 0, cx = 0, dx = 0, di = 0, si = 0;
+	asm("mov ax,[ebp-24]":"=a"(ax));
+	asm("mov dx,[ebp-20]":"=d"(dx));
+	asm("mov cx,[ebp-16]":"=c"(cx));
+	asm("mov bx,[ebp-12]":"=b"(bx));
+	asm("mov si,[ebp-8]":"=S"(si));
+	asm("mov di,[ebp-4]":"=D"(di));
+	switch(ax >> 8) {
+	//Get file size and it's beginning sector
+	case 1: {
+		//copy string from dx to fileName
+		char fileName[FILENAME_MAX];
+		memset(fileName, 0, FILENAME_MAX);
+		asm("mov si, dx\n\
+mov di, ax\n\
+loop%=:\n\
+mov ax, ss:[si+bx]\n\
+cmp ax,0\n\
+je after%=\n\
+mov byte ptr ds:[di+bx], al\n\
+inc bx\n\
+cmp bx,cx\n\
+jl loop%=\n\
+after%=:"
+		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
+		for(size_t i = 0; i < numberOfFiles; i++) {
+			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
+				asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(files[i].beginSector), "b"(files[i].size));
+				asm("pop ds");
+				return;
+			}
+		}
+		asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(0), "b"(0));
+		break;
+	}
+	//Get file data
+	case 2: {
+		/*
+		* ES:BX address to store
+		* AH 2 BIOS read
+		* AL number of sectors to read
+		* CH cylinder
+		* CL number of first sector to store
+		* DH head
+		* DL drive
+		*/
+		asm("mov bx, es\n\
+mov	es,	bx\n\
+mov	bx,	di\n\
+mov	ch,	0x0\n\
+mov	ah,	2\n\
+int	0x13\n\
+jnc exit%=\n\
+mov	ax,0\n\
+exit%=:\n\
+xor ah,ah\n\
+mov [ebp-24],ax"
+		    :
+		    :"a"(cx), "d"(0), "c"(si), "D"(di));
+		break;
+	}
+	default:
+		printf("INT 0x21!\n");
+		break;
+	}
+	asm("pop ds");
+}
+#pragma GCC diagnostic pop
 
 int gets(char *str, int size) {
 	Key key;

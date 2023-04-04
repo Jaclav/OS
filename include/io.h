@@ -9,21 +9,27 @@ struct Key {
 };
 typedef struct Key Key;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
 	asm("mov ah,0\n\
-		int 0x20"
-	    :: "a" (character));
+		mov al, [ebp+8]\n\
+		int 0x20");
 }
 
 void puts(const int string) {
-	asm("int 0x20"
-	    ::"a"(0x0100), "b"(string));
+	asm("mov ax,0x100\n\
+		mov bx,[ebp+8]\n\
+		int 0x20");
 }
 
 void puti(int a) {
-	asm("int 0x20"
-	    ::"a"(0x0200), "b"(a));
+	asm("mov ax, 0x200\n\
+		mov bx, [ebp+8]\n\
+		int 0x20");
 }
 
 int printf(const int str, ...) {
@@ -69,4 +75,52 @@ Key getc(void) {
 	return key;
 }
 
+//TODO https://cplusplus.com/reference/cstdio/FILE/
+//TODO https://cplusplus.com/reference/cstdio/fread/
+#define FILESIZE_MAX 4048
+#define FILENAME_MAX 16
+#define EOF -1
+
+typedef struct {
+	char name[16];
+	Byte beginSector;
+	Byte size;
+	Word fpi;
+} FILE;
+
+/**
+ * @brief
+ *
+ * @param name file name
+ * @param mode
+ * @return FILE*
+ */
+FILE *fopen(int name, int mode) {
+	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
+	static FILE file;
+	asm ("mov ax, 0x100\n\
+		mov dx, [ebp+8]\n\
+		int 0x21":"=a"(file.beginSector), "=b"(file.size));
+	file.fpi = 0;
+
+	if(file.size == 0 && file.beginSector == 0)
+		return NULL;
+	return &file;
+}
+
+/**
+ * @brief Read sectors to memory
+ *
+ * @param ptr pointer to destination memory
+ * @param size by now 512B - 1 sector
+ * @param count number of sectors to read
+ * @param stream FILE
+ * @return size_t readed count
+ */
+size_t fread ( void * ptr, size_t size, size_t count, FILE * stream ) {
+	//TODO make operation size Byte not sector
+	asm("int 0x21"::"a"(0x0200), "c"(count), "S"(stream->beginSector), "D"(ptr));
+}
+
+#pragma GCC diagnostic pop
 #endif

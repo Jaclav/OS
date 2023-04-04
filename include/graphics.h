@@ -3,7 +3,6 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "io.h"
 #include "types.h"
 
 typedef Byte Color;
@@ -45,15 +44,14 @@ void setVideoMode(Byte mode) {
 
 void setColorPalette(Byte color) {
 	asm("int 0x10"
-	    :
-	    :"a"(0x0b << 8),
+	    ::"a"(0x0b00),
 	    "b"(color));
 }
 
 void writePixel(Position pos, Color color) {
 	asm("int 0x10"
 	    :
-	    :"a"(0xc<<8|color), "b"(0), "c"(pos.x), "d"(pos.y));
+	    :"a"(0x0c00|color), "b"(0), "c"(pos.x), "d"(pos.y));
 }
 
 void draw(Position begin, Color *data, size_t width, size_t height) {
@@ -69,6 +67,7 @@ void draw(Position begin, Color *data, size_t width, size_t height) {
 }
 
 //TODO: add color puts putc to printf
+//BUG: how to clear color when window is scrolled!?
 void cputc(char c, Color color, Byte times) {
 	asm("int 0x10"::"a"(0x0900|c), "b"(0x0000|color), "c"(times));
 	//move cursor by 1

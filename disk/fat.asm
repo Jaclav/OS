@@ -8,9 +8,9 @@ db "table.bin",0,"      ",		2,				1
 db "kernel.sys",0,"     ",		3,				KERNEL_SIZE
 db "auto.com",0,"       ",		LOADED_END+1,	1
 db "data.txt",0,"       ",		LOADED_END+2,	1
-db "programC.com",0,"   ",		LOADED_END+3,	3
-db "pic.com",0,"        ",		LOADED_END+6,	3
-db "image.bmp",0,"      ",		LOADED_END+9,	2
+db "c.com",0,"          ",		LOADED_END+3,	4
+db "pic.com",0,"        ",		LOADED_END+7,	5
+db "image.bmp",0,"      ",		LOADED_END+12,	2
 db 0
 
 times 512-($-$$) db 0

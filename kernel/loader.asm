@@ -37,11 +37,13 @@ load:
 	mov		es,		ax
 
 	; set automatic return from code that didn't return on itself
+	; put it on first non program position
 	mov		ax, 	[ebp+16]
 	mov		dx,		0x200
 	mul		dx
+	add		ax,		0x100
 	mov		bx,		ax
-	mov		DWORD[es:bx],0x9001f8b8;mov ax,0xff
+	mov		DWORD[es:bx],0x9001f8b8;mov ax,0x1f8 - 504 is error returned
 	add		bx,		4
 	mov		DWORD[es:bx],0x900002c2;ret 2
 
@@ -53,7 +55,7 @@ load:
 		mov 	[es:di],al
 		inc 	di
 		inc 	si
-		cmp 	di, 	0x100
+		cmp 	di, 	0xff
 		jge 	.after
 		cmp		al, 0
 		jne 	.loop
