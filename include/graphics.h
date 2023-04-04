@@ -45,15 +45,14 @@ void setVideoMode(Byte mode) {
 
 void setColorPalette(Byte color) {
 	asm("int 0x10"
-	    :
-	    :"a"(0x0b << 8),
+	    ::"a"(0x0b00),
 	    "b"(color));
 }
 
 void writePixel(Position pos, Color color) {
 	asm("int 0x10"
 	    :
-	    :"a"(0xc<<8|color), "b"(0), "c"(pos.x), "d"(pos.y));
+	    :"a"(0x0c00|color), "b"(0), "c"(pos.x), "d"(pos.y));
 }
 
 void draw(Position begin, Color *data, size_t width, size_t height) {

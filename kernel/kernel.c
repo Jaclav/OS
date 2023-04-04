@@ -129,7 +129,10 @@ void main() {
 		}
 		else if(strcmp(command, KEY)) {
 			Key key = getc();
-			printf("%i:%i", key.character, key.scancode);
+			printf("character=%i,scancode=%i, color=", key.character, key.scancode);
+			int a = 0;
+			asm("int 0x10":"=a"(a):"a"(0x0800), "b"(0x0000));
+			puti(a >> 8);
 		}
 		else if(strcmp(command, MODE)) {
 			setVideoMode(stoi(parameter));
@@ -210,7 +213,7 @@ void main() {
 				if(strcmp(files[i].name, tmp)) {
 					int ret = load(files[i].beginSector, parameter, files[i].size);
 					if(ret != 0) {
-						cputs("Error:", VGA_COLOR_RED);//BUG: changes prompt color
+						cputs("Error:", VGA_COLOR_RED);
 						printf(" \"%s\" returned %i\n", tmp, ret);
 					}
 
@@ -222,6 +225,7 @@ void main() {
 				printf(" \"%s\" is unknown command!\n", tmp);
 			}
 		}
+		asm("int 0x10"::"a"(0x0900|' '), "b"(0x0000|VGA_COLOR_LIGHT_GREY), "c"(0xff));//clear colors after command
 		putc('>');
 	}
 
