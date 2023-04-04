@@ -1,6 +1,7 @@
-INTFLAGS=-mgeneral-regs-only -mno-red-zone
 WFLAGS=-Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
-CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude $(INTFLAGS)
+CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -c -std=gnu11 -Iinclude
+INTFLAGS=-mgeneral-regs-only -mno-red-zone
+
 SRC=$(wildcard kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
 
@@ -39,13 +40,12 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 
 #BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
-	gcc $(WFLAGS) -fno-pie -ffreestanding -m16 -s -masm=intel -c -std=gnu11 -Iinclude -O0 $< -o bin/$<.o
-	objdump -D -M i8086 bin/$<.o -jstart -M intel > test/$<.asm
-	objdump -D -M i8086 bin/$<.o -j.text -M intel >> test/$<.asm
-	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
+	gcc -ffunction-sections -fdata-sections -fwhole-program $(CFLAGS) $< -o bin/$<.o
+	objdump -D -M i8086 bin/$<.o -M intel > test/$<.asm
+	ld --gc-sections -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
-	gcc $(MACROS) $(CFLAGS) $< -o bin/$@
+	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) $< -o bin/$@
 
 %.o:%.asm
 	nasm $(MACROS) -felf32 $< -o bin/$@
