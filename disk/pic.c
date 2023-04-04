@@ -26,7 +26,7 @@ int main() {
 		return 403;
 	}
 	draw(pos, image_bmp, image_width, image_height);
-	getc();//without KEY it would be removed by -Os
+	getc();
 	setVideoMode(MODE_TEXT);
 	return 0;
 }

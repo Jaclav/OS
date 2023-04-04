@@ -147,13 +147,16 @@ void main() {
 		}
 		else if(strcmp(command, LS)) {
 			size_t i = 0;
-			puts("NAME          SECTOR  SIZE\n");
+			size_t sum = 0;
+			cputs("NAME          SECTOR     SIZE", VGA_COLOR_CYAN);
+			putc('\n');
 			for(; i < numberOfFiles; i++) {
 				puts(files[i].name);
 				for(size_t j = 0; j < FILENAME_MAX - strlen(files[i].name); j++)putc(' ');
-				printf("%i     %i\n", files[i].beginSector, files[i].size);
+				printf("%s%i        %s%i\n", (files[i].beginSector / 10 >= 1 ? "" : "0"), files[i].beginSector, ((files[i].size / 10) >= 1 ? "" : "0"), files[i].size);
+				sum += files[i].size;
 			}
-			printf("%i file(s)\n", i);
+			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
 		}
 		else {
 			//check if there is program called command+".com"

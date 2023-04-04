@@ -23,8 +23,9 @@ Screenshot:\
 | mode $  | change video mode to $           |
 | test    | test kernel library              |
 | load $  | Load 1 $th sector and execute it |
-| sec     | Print $th sector                 |
+| sec $   | Print $th sector                 |
 | ls      | Print files and their sizes      |
+| pic     | Draw bitmap file                 |
 ## SYSTEM Interruptions
 0x20 is system interruption
 | AH   | Description               | Parameters            |
