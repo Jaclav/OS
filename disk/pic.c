@@ -1,6 +1,5 @@
 #include <io.h>
 #include <graphics.h>
-#include "../kernel/fs.h"//! remove, kernel only
 
 __attribute__((section("start")))
 int main() {
@@ -21,7 +20,7 @@ int main() {
 	}
 	puts(name);
 
-	if(readSector(image_bmp, file->beginSector, file->size) != file->size) {
+	if(fread(image_bmp, 512, file->size, file) != file->size) {
 		puts("ERROR");
 		setVideoMode(MODE_TEXT);
 		return 403;

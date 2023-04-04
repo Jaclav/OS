@@ -34,9 +34,10 @@ Screenshot:\
 | 3    | print integer on screen   | BX - number           |
 
 0x21 is system interruption
-| AH   | Description                                         | Parameters     |
-| :--- | :-------------------------------------------------- | :------------- |
-| 1    | Returns  AX - begin sector and BX - size in sectors | DX - file name |
+| AH   | Description                                         | Parameters                                                                    |
+| :--- | :-------------------------------------------------- | :---------------------------------------------------------------------------- |
+| 1    | Returns  AX - begin sector and BX - size in sectors | DX - file name                                                                |
+| 2    | Reads CX sectors to DI                              | CX - count of sectors, SI beginnig sector, DI - pointer do destination memory |
 
 # Program loading and executing
 Program is loaded into address 0x2000:0x100.\

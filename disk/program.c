@@ -1,5 +1,4 @@
 #include <io.h>
-#include "../kernel/fs.h"//! remove, kernel only
 
 char a[] = "\nGreetings from C disk!\n";
 __attribute__((section("start")))
@@ -20,7 +19,7 @@ int main() {
 	putc(':');
 	puti(file->size);
 
-	if(readSector(disk, file->beginSector, file->size) != file->size) {
+	if(fread(disk, 512, file->size, file) != file->size) {
 		puts("ERROR file cannot be readed\n");
 		return 403;
 	}

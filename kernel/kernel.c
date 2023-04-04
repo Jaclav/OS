@@ -13,69 +13,17 @@
 #include <stdlib.h>
 #include <graphics.h>
 #include "interrupts.h"
-#include "fs.h"
 
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
 #endif
 
 extern int load(char beginSector, int parameter, int size);
+void int0x21(struct interruptFrame* frame);
 int gets(char *str, int size);
 
 FILE files[30];//TODO: update it at every file saving, do it dynamically
 size_t numberOfFiles = 0;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-__attribute__((interrupt))
-void int0x21(struct interruptFrame* frame) {
-	//see interrupts.asm
-	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
-
-	int ax = 0, dx = 0;
-	// registers are backed up, after this function, they are restored
-	// AX - [ebp-16]
-	// BX - [ebp-4]
-	// CX - [ebp-8]
-	// DX - [ebp-12]
-	asm("mov ax,[ebp-16]":"=a"(ax));
-	asm("mov bx,[ebp-4]");
-	asm("mov cx,[ebp-8]");
-	asm("mov dx,[ebp-12]":"=d"(dx));
-	switch(ax >> 8) {
-	case 1: {
-		//copy string from dx to fileName
-		char fileName[FILENAME_MAX];
-		memset(fileName, 0, FILENAME_MAX);
-		asm("mov si, dx\n\
-mov di, ax\n\
-loop%=:\n\
-mov ax, ss:[si+bx]\n\
-cmp ax,0\n\
-je after%=\n\
-mov byte ptr ds:[di+bx], al\n\
-inc bx\n\
-cmp bx,cx\n\
-jl loop%=\n\
-after%=:"
-		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
-		for(size_t i = 0; i < numberOfFiles; i++) {
-			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
-				asm("mov [ebp-16],ax\nmov [ebp-4],bx"::"a"(files[i].beginSector), "b"(files[i].size));
-				asm("pop ds");
-				return;
-			}
-		}
-		asm("mov [ebp-16],ax\nmov [ebp-4],bx"::"a"(0), "b"(0));
-		break;
-	}
-	default:
-		printf("INT 0x21!\n");
-		break;
-	}
-	asm("pop ds");
-}
-#pragma GCC diagnostic pop
 
 __attribute__((section("start")))
 void main() {
@@ -190,9 +138,9 @@ void main() {
 			/* read sector to table and display this table*/
 			char disk[512];
 			memset(disk, ' ', 512);
-			if(readSector(disk, stoi(parameter), 1) == 0) {
-				puts("ERROR");
-			}
+			FILE f;
+			f.beginSector = stoi(parameter);
+			fread(disk, 512, 1, &f);
 			for(int i = 0; i < 512; i++)
 				putc(disk[i]);
 			putc('\n');
@@ -236,6 +184,83 @@ void main() {
 
 	asm("hlt");
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+__attribute__((interrupt))
+void int0x21(struct interruptFrame* frame) {
+	//see interrupts.asm
+	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+
+	// registers are backed up, after this function, they are restored
+	int ax = 0, bx = 0, cx = 0, dx = 0, di = 0, si = 0;
+	asm("mov ax,[ebp-24]":"=a"(ax));
+	asm("mov dx,[ebp-20]":"=d"(dx));
+	asm("mov cx,[ebp-16]":"=c"(cx));
+	asm("mov bx,[ebp-12]":"=b"(bx));
+	asm("mov si,[ebp-8]":"=S"(si));
+	asm("mov di,[ebp-4]":"=D"(di));
+	switch(ax >> 8) {
+	//Get file size and it's beginning sector
+	case 1: {
+		//copy string from dx to fileName
+		char fileName[FILENAME_MAX];
+		memset(fileName, 0, FILENAME_MAX);
+		asm("mov si, dx\n\
+mov di, ax\n\
+loop%=:\n\
+mov ax, ss:[si+bx]\n\
+cmp ax,0\n\
+je after%=\n\
+mov byte ptr ds:[di+bx], al\n\
+inc bx\n\
+cmp bx,cx\n\
+jl loop%=\n\
+after%=:"
+		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
+		for(size_t i = 0; i < numberOfFiles; i++) {
+			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
+				asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(files[i].beginSector), "b"(files[i].size));
+				asm("pop ds");
+				return;
+			}
+		}
+		asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(0), "b"(0));
+		break;
+	}
+	//Get file data
+	case 2: {
+		/*
+		* ES:BX address to store
+		* AH 2 BIOS read
+		* AL number of sectors to read
+		* CH cylinder
+		* CL number of first sector to store
+		* DH head
+		* DL drive
+		*/
+		asm("mov bx, es\n\
+mov	es,	bx\n\
+mov	bx,	di\n\
+mov	ch,	0x0\n\
+mov	ah,	2\n\
+int	0x13\n\
+jnc exit%=\n\
+mov	ax,0\n\
+exit%=:\n\
+xor ah,ah\n\
+mov [ebp-24],ax"
+		    :
+		    :"a"(cx), "d"(0), "c"(si), "D"(di));
+		break;
+	}
+	default:
+		printf("INT 0x21!\n");
+		break;
+	}
+	asm("pop ds");
+}
+#pragma GCC diagnostic pop
 
 int gets(char *str, int size) {
 	Key key;

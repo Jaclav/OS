@@ -41,12 +41,12 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 #BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
 	gcc -ffunction-sections -fdata-sections -fwhole-program $(CFLAGS) $< -o bin/$<.o
-	# objdump -D -M i8086 bin/$<.o -M intel > test/$<.asm
+	objdump -D -M i8086 bin/$<.o -M intel > test/$<.asm
 	ld --gc-sections -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) $< -o bin/$@
-	# objdump -D -M i8086 bin/$@ -M intel > test/$<.asm
+	objdump -D -M i8086 bin/$@ -M intel > test/$<.asm
 
 %.o:%.asm
 	nasm $(MACROS) -felf32 $< -o bin/$@
