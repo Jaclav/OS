@@ -3,7 +3,6 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#include "io.h"
 #include "types.h"
 
 typedef Byte Color;

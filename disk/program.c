@@ -1,5 +1,4 @@
 #include <io.h>
-#include <string.h>
 #include "../kernel/fs.h"//! remove, kernel only
 
 char a[] = "\nGreetings from C disk!\n";
@@ -10,7 +9,6 @@ int main() {
 	//TODO: printf doesn't work printf("%s",a);
 	puts(a);
 	Byte disk[512];
-	memset(disk, 'X', 512);
 
 	FILE *file = NULL;
 	file = fopen("data.txt", "");
