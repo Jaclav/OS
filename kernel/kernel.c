@@ -33,6 +33,11 @@ void int0x21(struct interruptFrame* frame) {
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	int ax = 0, dx = 0;
+	// registers are backed up, after this function, they are restored
+	// AX - [ebp-16]
+	// BX - [ebp-4]
+	// CX - [ebp-8]
+	// DX - [ebp-12]
 	asm("mov ax,[ebp-16]":"=a"(ax));
 	asm("mov bx,[ebp-4]");
 	asm("mov cx,[ebp-8]");
