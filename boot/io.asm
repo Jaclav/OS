@@ -29,6 +29,7 @@ putc:
 	int 	0x10			; BIOS screen
 
 	;;clear buffor from colors
+	;TODO make it customizable
 	mov		eax,	0x920
 	mov    	ecx,	0xff
 	mov    	ebx,	0x7		;default color - dark gray

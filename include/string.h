@@ -36,8 +36,6 @@ const char * strchr ( const char * str, int character ) {
 }
 
 size_t strlen(const char *str) {
-	if(*str == 0)
-		return 0;
 	size_t size = 0;
 	for(; str[size] != 0; size++) {}
 	return size;
@@ -72,6 +70,19 @@ char * strcpy ( char * destination, const char * source ) {
 }
 
 char *strncpy ( char * destination, const char * source, size_t num ) {
+	asm("L%=:\n"
+	    "	mov al, byte ptr ss:[si+bx]\n"
+	    "	mov byte ptr cs:[di+bx], al\n"
+	    "	cmp al,0\n"
+	    "	je after%=\n"
+	    "	inc bx\n"
+	    "loop L%=\n"
+	    "after%=:"
+	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
+	return destination;
+}
+
+char *memncpy ( char * destination, const char * source, size_t num ) {
 	for(size_t i = 0; i < num; i++) {
 		destination[i] = source[i];
 	}

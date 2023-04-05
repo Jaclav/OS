@@ -70,7 +70,6 @@ void draw(Position begin, Color *data, size_t width, size_t height) {
 }
 
 //TODO: add color puts putc to printf
-//BUG: how to clear color when window is scrolled!?
 void cputc(char c, Color color, Byte times) {
 	asm("int 0x10"::"a"(0x0900|c), "b"(0x0000|color), "c"(times));
 	//move cursor by 1

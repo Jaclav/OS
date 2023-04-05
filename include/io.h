@@ -64,14 +64,11 @@ int printf(const int str, ...) {
 
 //TODO: add separate getchar and getKey
 Key getc(void) {
-	Word ax;
-	asm("mov ah, 0x00\n\
-    int 0x16"
-	    : "=a" (ax)
-	    :"a" (0x10));
 	Key key;
-	key.character = (Byte) ax;
-	key.scancode = ax >> 8;
+	asm("mov ah, 0x00\n"
+	    "int 0x16"
+	    : "=a" (key)
+	    :"a" (0x10));
 	return key;
 }
 
@@ -120,6 +117,22 @@ FILE *fopen(int name, int mode) {
 size_t fread ( void * ptr, size_t size, size_t count, FILE * stream ) {
 	//TODO make operation size Byte not sector
 	asm("int 0x21"::"a"(0x0200), "c"(count), "S"(stream->beginSector), "D"(ptr));
+}
+
+/**
+ * @brief Save str (< 512B) to sector FILE->beginSector
+ *
+ * @param str string to be saved
+ * @param stream file to save
+ * @return int 0 if succesfull
+ */
+int fputs ( const int str, FILE * stream ) {
+	//max size is one sector
+	asm("int 0x21"::"a"(0x0300), "S"(str), "D"(stream->beginSector));
+}
+
+void create(const int str, int begin, size_t size) {
+	asm("int 0x21"::"a"(0x0400), "c"(size), "S"(str), "D"(begin));
 }
 
 #pragma GCC diagnostic pop

@@ -30,6 +30,9 @@ int main() {
 		putc(disk[i]);
 	putc('\n');
 
+	fputs("Hello!!! data.txt, I've overwritten it!", file);
+	create("HELLO.txt", 36, 2);
+
 	// test graphics
 	for(int j = 1; j < 15; j++)
 		cputc('X', j, 2);

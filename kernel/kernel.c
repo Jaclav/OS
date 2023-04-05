@@ -24,6 +24,7 @@ int gets(char *str, int size);
 
 FILE files[30];//TODO: update it at every file saving, do it dynamically
 size_t numberOfFiles = 0;
+const Byte *FAT = 0x0;//first 512 Bytes is file table
 
 __attribute__((section("start")))
 void main() {
@@ -34,11 +35,12 @@ void main() {
 	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
 
-	Byte *FAT = 0x0;//first 512 Bytes is file table
+	//load files from memory[0:0] to files array
+	numberOfFiles = 0;
 	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
 	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
-		strncpy((char *)(files + numberOfFiles), (char *)FAT + 3 + numberOfFiles * 18, 18);
+		memncpy((files + numberOfFiles), FAT + 3 + numberOfFiles * 18, 18);
 	}
 
 	char buffor[100];
@@ -148,6 +150,7 @@ void main() {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
 __attribute__((interrupt))
 void int0x21(struct interruptFrame* frame) {
 	//see interrupts.asm
@@ -162,19 +165,10 @@ void int0x21(struct interruptFrame* frame) {
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
 	switch(ax >> 8) {
-	//Return AX = beginSector BX = size
+	//Return AX = beginSector BX = size of file from name [DX]
 	case 1: {
-		//copy string from dx to fileName
 		char fileName[FILENAME_MAX];
-		asm("loop%=:\n"
-		    "	mov ax, ss:[si+bx]\n"
-		    "	cmp ax,0\n"
-		    "	je after%=\n"
-		    "	mov byte ptr ds:[di+bx], al\n"
-		    "	inc bx\n"
-		    "loop loop%=\n"
-		    "after%=:"
-		    ::"D"(fileName), "b"(0), "c"(FILENAME_MAX), "S"(dx));
+		strncpy(fileName, dx, FILENAME_MAX);
 
 		for(size_t i = 0; i < numberOfFiles; i++) {
 			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
@@ -186,11 +180,12 @@ void int0x21(struct interruptFrame* frame) {
 			}
 		}
 		// if wasn't found
+		//TODO create file if wasn't found
 		asm("mov word ptr [ebp-24], 0\n"
 		    "mov word ptr [ebp-12], 0");
 		break;
 	}
-	//Set [DI] = disk data
+	//Set [DI] = disk data from SI begin sector and CX size
 	case 2: {
 		/*
 		* ES:BX address to store
@@ -210,6 +205,47 @@ void int0x21(struct interruptFrame* frame) {
 		    "	xor ah,ah\n"
 		    "	mov [ebp-24], ax"
 		    ::"a"(cx), "b"(di), "c"(si), "d"(0));
+		break;
+	}
+	//Save [SI] to sector DI
+	case 3: {
+		Byte toSave[512];
+		memset(toSave, 0, 512);
+		strncpy(toSave, si, 512);
+		/*
+		* AH = 03h
+		* AL = Number of sectors to write
+		* CH = Cylinder number (10 bit value, upper 2 bits in CL)
+		* CL = Starting sector number
+		* DH = Head number
+		* DL = Drive number
+		* ES:BX = Address of memory buffer
+		*/
+		asm("mov es,si\n"
+		    "xor ch, ch\n"
+		    "mov ah, 3\n"
+		    "int 0x13"
+		    ::"a"(1), "d"(0), "c"(di), "b"(toSave), "S"(KERNEL_ADDRESS));
+		break;
+	}
+	//create file
+	//TODO make it safe!!
+	case 4: {
+		files[numberOfFiles].beginSector = di;
+		files[numberOfFiles].size = cx;
+		strncpy(files[numberOfFiles].name, si, 16);
+		numberOfFiles++;
+
+		//copy new files array to memory
+		for(size_t i = 0; i < numberOfFiles; i++) {
+			memncpy(FAT + 3 + i * 18, (files + i), 18);
+		}
+
+		asm("mov es,si\n"
+		    "xor ch, ch\n"
+		    "mov ah, 3\n"
+		    "int 0x13"
+		    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 		break;
 	}
 	default:
