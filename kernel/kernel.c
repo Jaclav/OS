@@ -162,34 +162,35 @@ void int0x21(struct interruptFrame* frame) {
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
 	switch(ax >> 8) {
-	//Get file size and it's beginning sector
+	//Return AX = beginSector BX = size
 	case 1: {
 		//copy string from dx to fileName
 		char fileName[FILENAME_MAX];
-		memset(fileName, 0, FILENAME_MAX);
-		asm("mov si, dx\n\
-mov di, ax\n\
-loop%=:\n\
-mov ax, ss:[si+bx]\n\
-cmp ax,0\n\
-je after%=\n\
-mov byte ptr ds:[di+bx], al\n\
-inc bx\n\
-cmp bx,cx\n\
-jl loop%=\n\
-after%=:"
-		    :: "a"(fileName), "b"(0), "c"(FILENAME_MAX), "d"(dx));
+		asm("loop%=:\n"
+		    "	mov ax, ss:[si+bx]\n"
+		    "	cmp ax,0\n"
+		    "	je after%=\n"
+		    "	mov byte ptr ds:[di+bx], al\n"
+		    "	inc bx\n"
+		    "loop loop%=\n"
+		    "after%=:"
+		    ::"D"(fileName), "b"(0), "c"(FILENAME_MAX), "S"(dx));
+
 		for(size_t i = 0; i < numberOfFiles; i++) {
 			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
-				asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(files[i].beginSector), "b"(files[i].size));
+				asm("mov [ebp-24],	ax\n"
+				    "mov [ebp-12],	bx"
+				    ::"a"(files[i].beginSector), "b"(files[i].size));
 				asm("pop ds");
 				return;
 			}
 		}
-		asm("mov [ebp-24],ax\nmov [ebp-12],bx"::"a"(0), "b"(0));
+		// if wasn't found
+		asm("mov word ptr [ebp-24], 0\n"
+		    "mov word ptr [ebp-12], 0");
 		break;
 	}
-	//Get file data
+	//Set [DI] = disk data
 	case 2: {
 		/*
 		* ES:BX address to store
@@ -200,19 +201,15 @@ after%=:"
 		* DH head
 		* DL drive
 		*/
-		asm("mov bx, es\n\
-mov	es,	bx\n\
-mov	bx,	di\n\
-mov	ch,	0x0\n\
-mov	ah,	2\n\
-int	0x13\n\
-jnc exit%=\n\
-mov	ax,0\n\
-exit%=:\n\
-xor ah,ah\n\
-mov [ebp-24],ax"
-		    :
-		    :"a"(cx), "d"(0), "c"(si), "D"(di));
+		asm("xor ch, ch\n"
+		    "mov ah, 2\n"
+		    "int 0x13\n"
+		    "jnc exit%=\n"
+		    "mov ax, 0\n"
+		    "exit%=:\n"
+		    "	xor ah,ah\n"
+		    "	mov [ebp-24], ax"
+		    ::"a"(cx), "b"(di), "c"(si), "d"(0));
 		break;
 	}
 	default:
@@ -255,9 +252,9 @@ int gets(char *str, int size) {
 			if(ptr > 0) {
 				//move cursor by -1
 				asm("int 0x10\n\
-				mov ah,02\n\
-				dec dl\n\
-				int 0x10"
+		    mov ah,02\n\
+		    dec dl\n\
+		    int 0x10"
 				    ::"a" (0x0300), "b" (0x0));
 				if(oldPtr < ptr)
 					oldPtr = ptr;
@@ -269,9 +266,9 @@ int gets(char *str, int size) {
 			if(ptr < oldPtr) {
 				//move cursor by 1
 				asm("int 0x10\n\
-				mov ah,02\n\
-				inc dl\n\
-				int 0x10"
+		    mov ah,02\n\
+		    inc dl\n\
+		    int 0x10"
 				    ::"a" (0x0300), "b" (0x0));
 				if(ptr < size) {
 					ptr++;
