@@ -66,7 +66,6 @@ void main() {
 		char POS[] = "pos";
 		char KEY[] = "key";
 		char MODE[] = "mode";
-		char TEST[] = "test";
 		char LOAD[] = "load";
 		char SEC[] = "sec";
 		char LS[] = "ls";
@@ -77,8 +76,8 @@ void main() {
 			cls();
 		}
 		else if(strcmp(command, POS)) {
-			Position position = getCursorPosition();
-			printf("%i:%i", position.x, position.y);
+			Cursor cursor = getCursorPosition();
+			printf("%i:%i", cursor.x, cursor.y);
 		}
 		else if(strcmp(command, KEY)) {
 			Key key = getc();
@@ -90,46 +89,6 @@ void main() {
 		else if(strcmp(command, MODE)) {
 			setVideoMode(stoi(parameter));
 			printf("Mode: %i", stoi(parameter));
-		}
-		else if(strcmp(command, TEST)) {
-			for(int j = 1; j < 15; j++)
-				cputc('X', j, 2);
-			putc('\n');
-			asm("int 0x20":
-			    :"a"(0xff00));
-			asm("int 0x21");
-			printf("%s\n%s\n%s\n", buffor, command, parameter);
-			char L0[8] = "123456";
-			char L1[] = "Napis1\n";
-			puts(L1);
-			puts("Napis2\n");
-			puts(strncpy(L0, strchr(L1, 'p'), 3));
-
-			putc('\n');
-			char test2[] = "cdYou shouldn't see this";
-			char test1[] = "ab";
-			strcpy(test2, test1);
-			puts(test2);
-
-			getc();
-			setVideoMode(0x10);
-			Position pos = {0, 0};
-
-			for(int i = 0; i < 10000; i++) {
-				pos.x += i;
-				pos.y = i % 250;
-				pos.x %= 250;
-				writePixel(pos, VGA_COLOR_GREEN);
-			}
-
-			for(size_t i = 0; i < SIZE_X; i++) {
-				pos.x = i;
-				pos.y = SIZE_Y - i;
-				writePixel(pos, VGA_COLOR_LIGHT_CYAN);
-			}
-			getc();
-			setVideoMode(0x2);
-			setColorPalette(VGA_COLOR_DARK_GREY);
 		}
 		else if(strcmp(command, LOAD)) {
 			puti(load(stoi(parameter), parameter, 3));

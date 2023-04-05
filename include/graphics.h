@@ -33,6 +33,11 @@ struct Position {
 };
 typedef struct Position Position;
 
+struct Cursor {
+	Byte x, y;
+};
+typedef struct Cursor Cursor;
+
 const size_t SIZE_X = 640;
 const size_t SIZE_Y = 350;
 
@@ -44,14 +49,12 @@ void setVideoMode(Byte mode) {
 
 void setColorPalette(Byte color) {
 	asm("int 0x10"
-	    ::"a"(0x0b00),
-	    "b"(color));
+	    ::"a"(0x0b00), "b"(color));
 }
 
 void writePixel(Position pos, Color color) {
 	asm("int 0x10"
-	    :
-	    :"a"(0x0c00|color), "b"(0), "c"(pos.x), "d"(pos.y));
+	    ::"a"(0x0c00|color), "b"(0), "c"(pos.x), "d"(pos.y));
 }
 
 void draw(Position begin, Color *data, size_t width, size_t height) {
@@ -79,7 +82,7 @@ void cputc(char c, Color color, Byte times) {
 }
 
 void cputs(int str, Color color) {
-	char* ptr = str;
+	char* ptr = (char *)str;
 	while(*ptr != 0) {
 		asm("int 0x10"::"a"(0x0900|*ptr), "b"(0x0000|color), "c"(1));
 		//move cursor by 1
@@ -92,26 +95,21 @@ void cputs(int str, Color color) {
 	}
 }
 
-Position getCursorPosition(void) {
-	Position position;
-	Word dx;
-
+Cursor getCursorPosition(void) {
+	/*
+	DH = row
+	DL = column
+	*/
+	Cursor cursor;
 	asm("int 0x10"
-	    : "=d"(dx)
-	    : "a" (0x0300),
-	    "b" (0x0));
-	position.y = dx >> 8;
-	position.x = (Byte)dx;
-
-	return position;
+	    : "=d"(cursor)
+	    : "a"(0x0300), "b"(0x0));
+	return cursor;
 }
 
-void setCursorPosition(Position position) {
+void setCursorPosition(Cursor cursor) {
 	asm("int 0x10"
-	    :
-	    : "a" (0x0200),
-	    "b" (0x0),
-	    "d" ((position.y << 8) | position.x));
+	    :: "a"(0x0200), "b"(0x0), "d"(cursor));
 }
 
 #endif

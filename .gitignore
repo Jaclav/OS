@@ -1,5 +1,4 @@
 bin/*
-test/*
 !bin/.gitignore
 .gdb_history
 .vscode/

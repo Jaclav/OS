@@ -23,14 +23,14 @@ kernel:$(BINS) $(OBJS) disk/fat.bin
 	cat bin/boot/boot.bin bin/disk/fat.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
-disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
+disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
 	@dd if=bin/disk/auto.bin of=bin/disk/disk.img seek=0	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/program.bin of=bin/disk/disk.img seek=2	2> /dev/null
+	@dd if=bin/disk/test.bin of=bin/disk/disk.img seek=2	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=6		2> /dev/null
+	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=9		2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=11	2> /dev/null
+	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=14	2> /dev/null
 
 	@dd if=/dev/zero of=bin/OS.img seek=100 count=1			2> /dev/null
 	@dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)	2> /dev/null
@@ -41,12 +41,12 @@ disk: disk/auto.bin disk/program.bin disk/pic.bin disk/image.bin
 #BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
 	gcc -ffunction-sections -fdata-sections -fwhole-program $(CFLAGS) $< -o bin/$<.o
-	objdump -D -M i8086 bin/$<.o -M intel > test/$<.asm
+	objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm
 	ld --gc-sections -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) $< -o bin/$@
-	objdump -D -M i8086 bin/$@ -M intel > test/$<.asm
+	objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm
 
 %.o:%.asm
 	nasm $(MACROS) -felf32 $< -o bin/$@
@@ -57,5 +57,6 @@ clean:
 	@mkdir -p bin/boot
 	@mkdir -p bin/disk
 	@mkdir -p bin/kernel
-
-#objdump -D -M i8086 bin/disk/program.c.o -j.text -M intel > test/a.txt && grep "fopen" -A 20 test/a.txt
+	@mkdir -p bin/debug
+	@mkdir -p bin/debug/kernel
+	@mkdir -p bin/debug/disk
