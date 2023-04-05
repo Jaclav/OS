@@ -140,7 +140,6 @@ void main() {
 				printf(" \"%s\" is unknown command!\n", tmp);
 			}
 		}
-		asm("int 0x10"::"a"(0x0900|' '), "b"(0x0000|VGA_COLOR_LIGHT_GREY), "c"(0xff));//clear colors after command
 		putc('>');
 	}
 

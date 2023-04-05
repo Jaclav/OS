@@ -15,19 +15,34 @@ putc:
 	push	bx
 
 	cmp		al,		0x0a	; \n = \r\n
-	jne		.after
+	jne		.normal
 	mov		al,		0x0d	; character
 	mov		ah,		0x0e	; TELETYPE OUTPUT
 	mov		bh,		0x00	; page
 	mov 	bl,		0x0f	; color = white
 	int 	0x10			; BIOS screen
-	.after:
+
+	mov		al,		0x0a	; character
+	mov		ah,		0x0e	; TELETYPE OUTPUT
+	mov		bh,		0x00	; page
+	mov 	bl,		0x0f	; color = white
+	int 	0x10			; BIOS screen
+
+	;;clear buffor from colors
+	mov		eax,	0x920
+	mov    	ecx,	0xff
+	mov    	ebx,	0x7		;default color - dark gray
+	int    	0x10
+	jmp 	.end
+
+	.normal:
 	mov		al,		[bp + 4]; character
 	mov		ah,		0x0e	; TELETYPE OUTPUT
 	mov		bh,		0x00	; page
 	mov 	bl,		0x0f	; color = white
 	int 	0x10			; BIOS screen
 
+	.end:
 	pop 	bx
 	pop 	ax
 	mov		sp,		bp
