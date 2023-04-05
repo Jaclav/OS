@@ -73,7 +73,6 @@ Key getc(void) {
 }
 
 //TODO https://cplusplus.com/reference/cstdio/FILE/
-//TODO https://cplusplus.com/reference/cstdio/fread/
 #define FILESIZE_MAX 4048
 #define FILENAME_MAX 16
 #define EOF -1

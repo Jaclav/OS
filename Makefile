@@ -38,7 +38,6 @@ disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@
 
-#BUG: should be optimalized with -Os but then i doesn't work
 %.bin: %.c
 	gcc -ffunction-sections -fdata-sections -fwhole-program $(CFLAGS) $< -o bin/$<.o
 	objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm
