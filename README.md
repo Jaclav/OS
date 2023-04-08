@@ -22,7 +22,6 @@ Screenshot:\
 | key            | get keycode                                                    |
 | mode $         | change video mode to $                                         |
 | test           | test kernel library                                            |
-| load $1 $2 $3  | Load $3 size from $1th sector and execute it with parameter $2 |
 | sec $          | Print $th sector                                               |
 | ls             | Print files and their sizes                                    |
 | pic            | Draw bitmap file                                               |

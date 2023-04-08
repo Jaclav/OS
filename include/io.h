@@ -131,7 +131,15 @@ int fputs ( const int str, FILE * stream ) {
 	asm("int 0x21"::"a"(0x0300), "S"(str), "D"(stream->beginSector));
 }
 
-void create(const int str, int begin, size_t size) {
+/**
+ * @brief Create file
+ *
+ * @param str file name
+ * @param begin begin sector
+ * @param size size
+ * @return int 1 if error 0 if OK
+ */
+int create(const int str, int begin, size_t size) {
 	asm("int 0x21"::"a"(0x0400), "c"(size), "S"(str), "D"(begin));
 }
 

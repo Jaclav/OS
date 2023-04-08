@@ -17,6 +17,7 @@
 #endif
 
 #include <types.h>
+#include <io.h>
 #include <string.h>
 
 #ifndef KERNEL_ADDRESS
@@ -24,12 +25,16 @@
 #endif
 
 #define FILENAME_MAX 16
+#define FILES_MAX 38
 
+//do it static - only this file should be able to use this
 struct {
 	char name[FILENAME_MAX];
 	Byte beginSector;
 	Byte size;
-} files[30];
+} files[FILES_MAX];
+
+bool map[FILES_MAX];
 
 size_t numberOfFiles = 0;
 const Byte *FAT = 0x0;//first 512 Bytes is file table
@@ -43,6 +48,9 @@ void loadFAT() {
 		puts("ERROR: wrong FAT table format!");
 	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
 		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 18), 18);
+		for(int i = 0; i < files[numberOfFiles].size; i++) {
+			map[files[numberOfFiles].beginSector + i] = true;
+		}
 	}
 }
 
@@ -124,8 +132,16 @@ void int0x21(struct interruptFrame * frame) {
 		break;
 	}
 	//create file
-	//TODO make it safe!!
 	case 4: {
+		//if sector is occupied, don't use it
+		for(int i = di; i < di + cx && i < FILES_MAX; i++) {
+			if(map[i] == true) {
+				asm("mov word ptr [ebp-24], 1");
+				asm("pop ds");
+				return;
+			}
+		}
+
 		files[numberOfFiles].beginSector = di;
 		files[numberOfFiles].size = cx;
 		strncpy(files[numberOfFiles].name, si, 16);
@@ -141,10 +157,12 @@ void int0x21(struct interruptFrame * frame) {
 		    "mov ah, 3\n"
 		    "int 0x13"
 		    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+		asm("mov word ptr [ebp-24], 0");
 		break;
 	}
 	default:
 		printf("INT 0x21!\n");
+		asm("pop ds");
 		break;
 	}
 	asm("pop ds");

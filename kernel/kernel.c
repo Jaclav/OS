@@ -20,7 +20,6 @@
 #endif
 
 extern int load(char beginSector, int parameter, int size);
-void int0x21(struct interruptFrame* frame);
 int gets(char *str, int size);
 
 __attribute__((section("start")))
@@ -29,9 +28,9 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
+	loadFAT();
 	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
 	printf("\nMemory size: %ikB\n>", getMemorySize());
-	loadFAT();
 
 	int bufforSize = 0;
 	char command[100];
@@ -50,7 +49,6 @@ void main() {
 		char POS[] = "pos";
 		char KEY[] = "key";
 		char MODE[] = "mode";
-		char LOAD[] = "load";
 		char SEC[] = "sec";
 		char LS[] = "ls";
 		char TOUCH[] = "touch";
@@ -74,25 +72,6 @@ void main() {
 		else if(strcmp(command, MODE)) {
 			setVideoMode(stoi(parameter));
 			printf("Mode: %i", stoi(parameter));
-		}
-		else if(strcmp(command, LOAD)) {
-			if(strchr(parameter, ' ') != NULL) {
-				char param[2][16];
-				memset(param, 0, 2 * 16);
-				strncpy(param[0], parameter, strchr(parameter, ' ') - parameter);
-				char *ptr = (char *)strchr(parameter, ' ');
-				*ptr = 0;
-				ptr++;
-				if(strchr(ptr, ' ') != NULL) {
-					strncpy(param[1], ptr, strchr(ptr, ' ') - ptr);
-
-					ptr = (char *)strchr(ptr, ' ');
-					*ptr = 0;
-					ptr++;
-					printf("%i:%s:%i", stoi(param[0]), param[1], stoi(ptr));
-					puti(load(stoi(param[0]), param[1], stoi(ptr)));
-				}
-			}
 		}
 		else if(strcmp(command, SEC)) {
 			/* read sector to table and display this table*/
@@ -132,7 +111,12 @@ void main() {
 					ptr = (char *)strchr(ptr, ' ');
 					*ptr = 0;
 					ptr++;
-					create(param[0], stoi(param[1]), stoi(ptr));
+					int ret = create(param[0], stoi(param[1]), stoi(ptr));
+
+					if(ret != 0) {
+						cputs("Error:", VGA_COLOR_RED);
+						printf(" \"touch\" returned %i\n", ret);
+					}
 				}
 			}
 		}
