@@ -39,28 +39,20 @@ void main() {
 	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
 	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
-		memncpy((files + numberOfFiles), FAT + 3 + numberOfFiles * 18, 18);
+		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 18), 18);
 	}
 
-	char buffor[100];
 	int bufforSize = 0;
-
 	char command[100];
-	int commandSize = 0;
-
 	char parameter[100];
 
 	for(;;) {
-		bufforSize = gets(buffor, 98);
-		commandSize = (int)strchr(buffor, ' ') - (int)buffor;//when no parameters commandSize=-buffor, then just copy buffor
-		if(commandSize < 0) {
-			strcpy(command, buffor);
+		bufforSize = gets(command, 98);
+		if(strchr(command, ' ') == NULL)
 			parameter[0] = 0;
-		}
 		else {
-			strncpy(command, buffor, commandSize);
-			command[commandSize] = 0;//set null character
-			strcpy(parameter, strchr(buffor, ' ') + 1);//copies also null
+			strcpy(parameter, strchr(command, ' ') + 1);
+			*(char *)strchr(command, ' ') = 0;
 		}
 
 		char CLS[] = "cls";
@@ -70,6 +62,7 @@ void main() {
 		char LOAD[] = "load";
 		char SEC[] = "sec";
 		char LS[] = "ls";
+		char TOUCH[] = "touch";
 		if(bufforSize == 0) {
 
 		}
@@ -117,6 +110,24 @@ void main() {
 				sum += files[i].size;
 			}
 			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
+		}
+		else if(strcmp(command, TOUCH)) {
+			if(strchr(parameter, ' ') != NULL) {
+				char param[2][16];
+				memset(param, 0, 2 * 16);
+				strncpy(param[0], parameter, strchr(parameter, ' ') - parameter);
+				char *ptr = (char *)strchr(parameter, ' ');
+				*ptr = 0;
+				ptr++;
+				if(strchr(ptr, ' ') != NULL) {
+					strncpy(param[1], ptr, strchr(ptr, ' ') - ptr);
+
+					ptr = (char *)strchr(ptr, ' ');
+					*ptr = 0;
+					ptr++;
+					create(param[0], stoi(param[1]), stoi(ptr));
+				}
+			}
 		}
 		else {
 			//check if there is program called command+".com"
@@ -210,7 +221,7 @@ void int0x21(struct interruptFrame* frame) {
 	case 3: {
 		Byte toSave[512];
 		memset(toSave, 0, 512);
-		strncpy(toSave, si, 512);
+		strncpy((char *)toSave, si, 512);
 		/*
 		* AH = 03h
 		* AL = Number of sectors to write
@@ -237,7 +248,7 @@ void int0x21(struct interruptFrame* frame) {
 
 		//copy new files array to memory
 		for(size_t i = 0; i < numberOfFiles; i++) {
-			memncpy(FAT + 3 + i * 18, (files + i), 18);
+			memncpy((char *)(FAT + 3 + i * 18), (char *)(files + i), 18);
 		}
 
 		asm("mov es,si\n"
@@ -261,8 +272,10 @@ int gets(char *str, int size) {
 	int oldPtr = 0;
 	for(; ptr < size;) {
 		key = getc();
-		if(key.character == 13)
+		if(key.character == 13) {
+			str[ptr] = 0;
 			break;
+		}
 		if(key.character == 8 && ptr >= 0) { //backspace
 			if(ptr > 0) {
 				str[ptr] = 0;

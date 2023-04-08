@@ -45,6 +45,9 @@ int printf(const int str, ...) {
 			case 'd':
 				puti(va_arg(va, int));
 				break;
+			case 'c':
+				putc(va_arg(va, int));
+				break;
 			case 's'://BUG: cannot be string literal why!?
 				puts(va_arg(va, int));
 				break;
