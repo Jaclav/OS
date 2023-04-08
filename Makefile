@@ -46,7 +46,7 @@ disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
 INTFLAGS=-mgeneral-regs-only -mno-red-zone
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -c $< -o bin/$@
-	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@
+	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@.S
 	objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm
 
 %.o:%.asm
