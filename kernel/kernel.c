@@ -85,7 +85,23 @@ void main() {
 			printf("Mode: %i", stoi(parameter));
 		}
 		else if(strcmp(command, LOAD)) {
-			puti(load(stoi(parameter), parameter, 3));
+			if(strchr(parameter, ' ') != NULL) {
+				char param[2][16];
+				memset(param, 0, 2 * 16);
+				strncpy(param[0], parameter, strchr(parameter, ' ') - parameter);
+				char *ptr = (char *)strchr(parameter, ' ');
+				*ptr = 0;
+				ptr++;
+				if(strchr(ptr, ' ') != NULL) {
+					strncpy(param[1], ptr, strchr(ptr, ' ') - ptr);
+
+					ptr = (char *)strchr(ptr, ' ');
+					*ptr = 0;
+					ptr++;
+					printf("%i:%s:%i", stoi(param[0]), param[1], stoi(ptr));
+					puti(load(stoi(param[0]), param[1], stoi(ptr)));
+				}
+			}
 		}
 		else if(strcmp(command, SEC)) {
 			/* read sector to table and display this table*/
@@ -162,7 +178,7 @@ void main() {
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 __attribute__((interrupt))
-void int0x21(struct interruptFrame* frame) {
+void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 

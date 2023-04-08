@@ -2,13 +2,11 @@
 #include <graphics.h>
 #include <string.h>
 
-char a[] = "\nGreetings from C disk!\n";
 __attribute__((section("start")))
 int main() {
-	//TODO: printf doesn't work printf("%s",a);
+	char a[] = "Greetings from C disk! Parameters:";
 	Byte parameters = 0x80;
-	puts(parameters);
-	puts(a);
+	printf("%s %s\n", a, parameters);
 	Byte disk[512];
 
 	//read and print file data.txt
@@ -18,9 +16,7 @@ int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
-	puti(file->beginSector);
-	putc(':');
-	puti(file->size);
+	printf("%i:%i\n", file->beginSector, file->size);
 
 	if(fread(disk, 512, file->size, file) != file->size) {
 		puts("ERROR file cannot be readed\n");
