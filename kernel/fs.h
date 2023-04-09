@@ -25,7 +25,7 @@
 #endif
 
 #define FILENAME_MAX 16
-#define FILES_MAX 38
+#define FILES_MAX 37
 
 //do it static - only this file should be able to use this
 struct {

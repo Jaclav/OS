@@ -115,7 +115,7 @@ void main() {
 			}
 		}
 		else if(strcmp(command, MAP)) {
-			for(int i = 0; i < FILES_MAX; i++) {
+			for(int i = 1; i < FILES_MAX; i++) {
 				puti(map[i]);
 			}
 		}
