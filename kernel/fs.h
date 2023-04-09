@@ -141,6 +141,10 @@ void int0x21(struct interruptFrame * frame) {
 				return;
 			}
 		}
+		//lock sectors
+		for(int i = di; i < di + cx && i < FILES_MAX; i++) {
+			map[i] = true;
+		}
 
 		files[numberOfFiles].beginSector = di;
 		files[numberOfFiles].size = cx;
@@ -162,7 +166,6 @@ void int0x21(struct interruptFrame * frame) {
 	}
 	default:
 		printf("INT 0x21!\n");
-		asm("pop ds");
 		break;
 	}
 	asm("pop ds");

@@ -29,26 +29,29 @@ int main() {
 	fputs("Hello!!! data.txt, I've overwritten it!", file);
 	create("HELLO.txt", 36, 2);
 
-	// test graphics
+	// test colors
 	for(int j = 1; j < 15; j++)
 		cputc('X', j, 2);
 	putc('\n');
-	asm("int 0x20":
-	    :"a"(0xff00));
-	asm("int 0x21");
 
+	//test interrupts
+	asm("int 0x20"
+	    ::"a"(0xff00));
+	asm("int 0x21"
+	    ::"a"(0xff00));
+
+	//test string operations
 	char L0[8] = "123456";
 	char L1[] = "Napis1\n";
 	puts(L1);
-	puts("Napis2\n");
-	puts(strncpy(L0, strchr(L1, 'p'), 3));
+	printf("Napis2\npis456=%s\n", strncpy(L0, strchr(L1, 'p'), 3));
 
-	putc('\n');
 	char test2[] = "cdYou shouldn't see this";
 	char test1[] = "ab";
 	strcpy(test2, test1);
-	puts(test2);
+	printf("ab=%s", test2);
 
+	//test graphics
 	getc();
 	setVideoMode(0x10);
 	Position pos = {0, 0};
