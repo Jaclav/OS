@@ -14,18 +14,18 @@ All sectors in BIOS **are counted from 1**\
 Screenshot:\
 ![Screenshot](screenshot.png)
 ## Commands
-| Command        | Description                                                    |
-| :------------- | :------------------------------------------------------------- |
-| $              | Execute program $.com                                          |
-| cls            | clear screen                                                   |
-| pos            | print cursor position                                          |
-| key            | get keycode                                                    |
-| mode $         | change video mode to $                                         |
-| test           | test kernel library                                            |
-| sec $          | Print $th sector                                               |
-| ls             | Print files and their sizes                                    |
-| pic            | Draw bitmap file                                               |
-| touch $1 $2 $3 | Create $1 file at $2 sector with size $3                       |
+| Command     | Description                 |
+| :---------- | :-------------------------- |
+| $           | Execute program $.com       |
+| cls         | clear screen                |
+| pos         | print cursor position       |
+| key         | get keycode                 |
+| mode $      | change video mode to $      |
+| test        | test kernel library         |
+| sec $       | Print $th sector            |
+| ls          | Print files and their sizes |
+| pic         | Draw bitmap file            |
+| touch $1 $2 | Create $1 file with size $3 |
 ## SYSTEM Interruptions
 0x20 is system interruption
 | AH   | Description               | Parameters            |

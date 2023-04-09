@@ -27,7 +27,7 @@ int main() {
 	putc('\n');
 
 	fputs("Hello!!! data.txt, I've overwritten it!", file);
-	create("HELLO.txt", 36, 2);
+	create("HELLO.txt", 2);
 
 	// test colors
 	for(int j = 1; j < 15; j++)

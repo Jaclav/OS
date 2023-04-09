@@ -57,6 +57,7 @@ void loadFAT() {
 __attribute__((interrupt))
 void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
+	//DS and CS are on kernel
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	// registers are backed up, after this function, they are restored
@@ -78,8 +79,7 @@ void int0x21(struct interruptFrame * frame) {
 				asm("mov [ebp-24],	ax\n"
 				    "mov [ebp-12],	bx"
 				    ::"a"(files[i].beginSector), "b"(files[i].size));
-				asm("pop ds");
-				return;
+				goto intend;
 			}
 		}
 		// if wasn't found
@@ -124,29 +124,41 @@ void int0x21(struct interruptFrame * frame) {
 		* DL = Drive number
 		* ES:BX = Address of memory buffer
 		*/
-		asm("mov es,si\n"
+		asm("mov es, si\n"
 		    "xor ch, ch\n"
 		    "mov ah, 3\n"
 		    "int 0x13"
 		    ::"a"(1), "d"(0), "c"(di), "b"(toSave), "S"(KERNEL_ADDRESS));
 		break;
 	}
-	//create file
+	//create file cx = size SI = name
 	case 4: {
-		//if sector is occupied, don't use it
-		for(int i = di; i < di + cx && i < FILES_MAX; i++) {
-			if(map[i] == true) {
-				asm("mov word ptr [ebp-24], 1");
-				asm("pop ds");
-				return;
+		Byte beginSector = 0;//store first sector of unused cx sectors
+		for(int i = 1; i < FILES_MAX; i++) {
+			if(strcmp(files[i].name, si)) {
+				beginSector = 0;
+				break;
 			}
+			beginSector = i;
+			for(int j = 0; j < cx; j++) {
+				if(map[j + i] == true) {
+					beginSector = 0;
+					break;
+				}
+			}
+			if(beginSector != 0)
+				break;
 		}
-		//lock sectors
-		for(int i = di; i < di + cx && i < FILES_MAX; i++) {
+		//unused space wasn't found or filename repeats
+		if(beginSector == 0) {
+			asm("mov word ptr [ebp-24], 1");
+			break;
+		}
+		//set file's sectors as used
+		for(int i = beginSector; i < cx + beginSector; i++)
 			map[i] = true;
-		}
 
-		files[numberOfFiles].beginSector = di;
+		files[numberOfFiles].beginSector = beginSector;
 		files[numberOfFiles].size = cx;
 		strncpy(files[numberOfFiles].name, si, 16);
 		numberOfFiles++;
@@ -156,6 +168,7 @@ void int0x21(struct interruptFrame * frame) {
 			memncpy((char *)(FAT + 3 + i * 18), (char *)(files + i), 18);
 		}
 
+		//save it
 		asm("mov es,si\n"
 		    "xor ch, ch\n"
 		    "mov ah, 3\n"
@@ -168,6 +181,7 @@ void int0x21(struct interruptFrame * frame) {
 		printf("INT 0x21!\n");
 		break;
 	}
+intend:
 	asm("pop ds");
 }
 #pragma GCC diagnostic pop

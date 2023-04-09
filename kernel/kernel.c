@@ -52,6 +52,7 @@ void main() {
 		char SEC[] = "sec";
 		char LS[] = "ls";
 		char TOUCH[] = "touch";
+		char MAP[] = "map";
 		if(bufforSize == 0) {
 
 		}
@@ -102,22 +103,20 @@ void main() {
 				char param[2][16];
 				memset(param, 0, 2 * 16);
 				strncpy(param[0], parameter, strchr(parameter, ' ') - parameter);
-				char *ptr = (char *)strchr(parameter, ' ');
-				*ptr = 0;
-				ptr++;
-				if(strchr(ptr, ' ') != NULL) {
-					strncpy(param[1], ptr, strchr(ptr, ' ') - ptr);
+				char *ptr = (char *)strchr(parameter, ' ') + 1;
 
-					ptr = (char *)strchr(ptr, ' ');
-					*ptr = 0;
-					ptr++;
-					int ret = create(param[0], stoi(param[1]), stoi(ptr));
-
+				if(*ptr != '\0') {
+					int ret = create(param[0], stoi(ptr));
 					if(ret != 0) {
 						cputs("Error:", VGA_COLOR_RED);
 						printf(" \"touch\" returned %i\n", ret);
 					}
 				}
+			}
+		}
+		else if(strcmp(command, MAP)) {
+			for(int i = 0; i < FILES_MAX; i++) {
+				puti(map[i]);
 			}
 		}
 		else {

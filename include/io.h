@@ -135,12 +135,11 @@ int fputs ( const int str, FILE * stream ) {
  * @brief Create file
  *
  * @param str file name
- * @param begin begin sector
- * @param size size
- * @return int 1 if error 0 if OK
+ * @param size file size
+ * @return int 0 if succsesfull 1 if not
  */
-int create(const int str, int begin, size_t size) {
-	asm("int 0x21"::"a"(0x0400), "c"(size), "S"(str), "D"(begin));
+int create(const int str, size_t size) {
+	asm("int 0x21"::"a"(0x0400), "c"(size), "S"(str));
 }
 
 #pragma GCC diagnostic pop

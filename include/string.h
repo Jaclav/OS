@@ -4,17 +4,34 @@
 #include "types.h"
 #include "math.h"
 
-bool strcmp(char *str1, char *str2) {
-	while(*str1 != 0 && *str2 != 0) {
-		if(*str1 != *str2)
-			return false;
-		str1++;
-		str2++;
-	}
-	if(*str1 != *str2)
-		return false;
-	return true;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+/**
+ * @brief Compare two strings
+ *
+ * @param str1 cs:str1
+ * @param str2 ss:str2
+ * @return true if are equal
+ * @return false if are not equal
+ */
+bool strcmp(int str1, int str2) {
+	asm("L%=:\n"
+	    "	mov al, cs:[si+bx]\n"
+	    "	cmp al, ss:[di+bx]\n"
+	    "	jne neq%=\n"
+	    "	cmp al,0\n"
+	    "	je eq%=\n"
+	    "	inc bx\n"
+	    "jmp L%=\n"
+	    "eq%=:\n"
+	    "	mov ax, 1\n"
+	    "	jmp end%=\n"
+	    "neq%=:\n"
+	    "	mov ax, 0\n"
+	    "end%=:"
+	    ::"b"(0), "S"(str1), "D"(str2));
 }
+#pragma GCC diagnostic pop
 
 bool strncmp ( const char * str1, const char * str2, size_t num ) {
 	for(size_t i = 0; i < num; i++) {
@@ -44,7 +61,7 @@ size_t strlen(const char *str) {
 int stoi(const char *str) {
 	int num = 0;
 	size_t size = strlen(str) - 1;
-	for(size_t i = 0; i <= size; i++) {
+	for(size_t i = 0; str[i] != 0; i++) {
 		num += pow(10, (size - i)) * (str[i] - '0');
 	}
 	return num;
@@ -69,6 +86,14 @@ char * strcpy ( char * destination, const char * source ) {
 	return destination;
 }
 
+/**
+ * @brief Copy n chars from source to destination
+ *
+ * @param destination ss:destination
+ * @param source cs:source
+ * @param num number of chars to copy
+ * @return char* destination
+ */
 char *strncpy ( char * destination, const char * source, size_t num ) {
 	asm("L%=:\n"
 	    "	mov al, byte ptr ss:[si+bx]\n"

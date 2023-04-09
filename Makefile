@@ -29,7 +29,7 @@ disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
 	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=9		2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=14	2> /dev/null
+	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=13	2> /dev/null
 
 	@dd if=/dev/zero of=bin/OS.img seek=100 count=1			2> /dev/null
 	@dd if=bin/disk/disk.img of=bin/OS.img seek=$(DISK_START)	2> /dev/null
