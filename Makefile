@@ -22,7 +22,7 @@ kernel:$(BINS) $(OBJS) disk/fat.bin
 	cat bin/boot/boot.bin bin/disk/fat.bin bin/kernel.bin > bin/OS.img
 
 #automatize this
-disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
+disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin disk/touch.bin
 	@dd if=bin/disk/auto.bin of=bin/disk/disk.img seek=0	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
 	@dd if=bin/disk/test.bin of=bin/disk/disk.img seek=2	2> /dev/null
@@ -30,6 +30,10 @@ disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin
 	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=9		2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
 	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=13	2> /dev/null
+	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
+	@dd if=bin/disk/touch.bin of=bin/disk/disk.img seek=15	2> /dev/null
+	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
+
 	# dd if=./kernel/kernel.c of=bin/disk/disk.img seek=54 count=2
 
 	@dd if=/dev/zero of=bin/OS.img seek=100 count=1			2> /dev/null

@@ -55,10 +55,31 @@ void loadFAT() {
 	}
 }
 
+static void sys_fputs(const int str, Byte beginSector) {
+	Byte toSave[512];
+	memset(toSave, 0, 512);
+	strncpy((char *)toSave, str, 512);
+	/*
+	* AH = 03h
+	* AL = Number of sectors to write
+	* CH = Cylinder number (10 bit value, upper 2 bits in CL)
+	* CL = Starting sector number
+	* DH = Head number
+	* DL = Drive number
+	* ES:BX = Address of memory buffer
+	*/
+	asm("mov es, si\n"
+	    "xor ch, ch\n"
+	    "mov ah, 3\n"
+	    "int 0x13"
+	    ::"a"(1), "d"(0), "c"(beginSector), "b"(toSave), "S"(KERNEL_ADDRESS));
+}
+
 __attribute__((interrupt))
 void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
 	//DS and CS are on kernel
+	//TODO: standarize error returns
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	// registers are backed up, after this function, they are restored
@@ -113,27 +134,15 @@ void int0x21(struct interruptFrame * frame) {
 	}
 	//Save [SI] to sector DI
 	case 3: {
-		Byte toSave[512];
-		memset(toSave, 0, 512);
-		strncpy((char *)toSave, si, 512);
-		/*
-		* AH = 03h
-		* AL = Number of sectors to write
-		* CH = Cylinder number (10 bit value, upper 2 bits in CL)
-		* CL = Starting sector number
-		* DH = Head number
-		* DL = Drive number
-		* ES:BX = Address of memory buffer
-		*/
-		asm("mov es, si\n"
-		    "xor ch, ch\n"
-		    "mov ah, 3\n"
-		    "int 0x13"
-		    ::"a"(1), "d"(0), "c"(di), "b"(toSave), "S"(KERNEL_ADDRESS));
+		sys_fputs(si, di);
 		break;
 	}
 	//create file cx = size SI = name
 	case 4: {
+		if(cx == 0) {
+			asm("mov word ptr [ebp-24], 1");
+			break;
+		}
 		Byte beginSector = 0;//store first sector of unused cx sectors
 		for(int i = 1; i < FILES_MAX; i++) {
 			if(strcmp(files[i].name, si)) {
@@ -161,12 +170,13 @@ void int0x21(struct interruptFrame * frame) {
 
 		files[numberOfFiles].beginSector = beginSector;
 		files[numberOfFiles].size = cx;
+		files[numberOfFiles].track = 0;
 		strncpy(files[numberOfFiles].name, si, 16);
 		numberOfFiles++;
 
 		//copy new files array to memory
 		for(size_t i = 0; i < numberOfFiles; i++) {
-			memncpy((char *)(FAT + 3 + i * 18), (char *)(files + i), 18);
+			memncpy((char *)(FAT + 3 + i * 19), (char *)(files + i), 19);
 		}
 
 		//save it

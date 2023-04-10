@@ -29,8 +29,7 @@ void main() {
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
 	loadFAT();
-	puts("Kernel loaded.\nVersion: "__DATE__" "__TIME__);
-	printf("\nMemory size: %ikB\n>", getMemorySize());
+	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\n>", getMemorySize());
 
 	int bufforSize = 0;
 	char command[100];
@@ -45,36 +44,28 @@ void main() {
 			*(char *)strchr(command, ' ') = 0;
 		}
 
-		char CLS[] = "cls";
-		char POS[] = "pos";
-		char KEY[] = "key";
-		char MODE[] = "mode";
-		char SEC[] = "sec";
-		char LS[] = "ls";
-		char TOUCH[] = "touch";
-		char MAP[] = "map";
 		if(bufforSize == 0) {
 
 		}
-		else if(strcmp(command, CLS)) {
+		else if(strcmp(command, "cls")) {
 			cls();
 		}
-		else if(strcmp(command, POS)) {
+		else if(strcmp(command, "pos")) {
 			Cursor cursor = getCursorPosition();
 			printf("%i:%i", cursor.x, cursor.y);
 		}
-		else if(strcmp(command, KEY)) {
+		else if(strcmp(command, "key")) {
 			Key key = getc();
 			printf("character=%i,scancode=%i, color=", key.character, key.scancode);
 			int a = 0;
 			asm("int 0x10":"=a"(a):"a"(0x0800), "b"(0x0000));
 			puti(a >> 8);
 		}
-		else if(strcmp(command, MODE)) {
+		else if(strcmp(command, "mode")) {
 			setVideoMode(stoi(parameter));
 			printf("Mode: %i", stoi(parameter));
 		}
-		else if(strcmp(command, SEC)) {
+		else if(strcmp(command, "sec")) {
 			// read sector to table and display this table
 			char disk[512];
 			memset(disk, ' ', 512);
@@ -85,36 +76,20 @@ void main() {
 				putc(disk[i]);
 			putc('\n');
 		}
-		else if(strcmp(command, LS)) {
+		else if(strcmp(command, "ls")) {
 			size_t i = 0;
 			size_t sum = 0;
-			cputs("NAME          SECTOR     SIZE", VGA_COLOR_CYAN);
+			cputs("NAME         TRACK:SECTOR   SIZE", VGA_COLOR_CYAN);
 			putc('\n');
 			for(; i < numberOfFiles; i++) {
 				puts(files[i].name);
 				for(size_t j = 0; j < FILENAME_MAX - strlen(files[i].name); j++)putc(' ');
-				printf("%s%i        %s%i\n", (files[i].beginSector / 10 >= 1 ? "" : "0"), files[i].beginSector, ((files[i].size / 10) >= 1 ? "" : "0"), files[i].size);
+				printf("%s%i:%s%i        %s%i\n", (files[i].track / 10 >= 1 ? "" : "0"), files[i].track, (files[i].beginSector / 10 >= 1 ? "" : "0"), files[i].beginSector, ((files[i].size / 10) >= 1 ? "" : "0"), files[i].size);
 				sum += files[i].size;
 			}
 			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
 		}
-		else if(strcmp(command, TOUCH)) {
-			if(strchr(parameter, ' ') != NULL) {
-				char param[2][16];
-				memset(param, 0, 2 * 16);
-				strncpy(param[0], parameter, strchr(parameter, ' ') - parameter);
-				char *ptr = (char *)strchr(parameter, ' ') + 1;
-
-				if(*ptr != '\0') {
-					int ret = create(param[0], stoi(ptr));
-					if(ret != 0) {
-						cputs("Error:", VGA_COLOR_RED);
-						printf(" \"touch\" returned %i\n", ret);
-					}
-				}
-			}
-		}
-		else if(strcmp(command, MAP)) {
+		else if(strcmp(command, "map")) {
 			for(int i = 1; i < FILES_MAX; i++) {
 				puti(map[i]);
 			}

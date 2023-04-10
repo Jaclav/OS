@@ -11,6 +11,7 @@ db "data.txt",0,"       ",		0,		LOADED_END+2,	1
 db "test.com",0,"       ",		0,		LOADED_END+3,	7
 db "pic.com",0,"        ",		0,		LOADED_END+10,	4
 db "image.bmp",0,"      ",		0,		LOADED_END+14,	2
+db "touch.com",0,"      ",		0,		LOADED_END+16,	1
 db 0
 
 times 512-($-$$) db 0
