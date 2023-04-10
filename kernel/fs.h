@@ -30,6 +30,7 @@
 //do it static - only this file should be able to use this
 struct {
 	char name[FILENAME_MAX];
+	Byte track;
 	Byte beginSector;
 	Byte size;
 } files[FILES_MAX];
@@ -46,8 +47,8 @@ void loadFAT() {
 	numberOfFiles = 0;
 	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
 		puts("ERROR: wrong FAT table format!");
-	for(; (FAT[numberOfFiles * 18 + 3] != 0) && numberOfFiles * 18 + 3 < 512; numberOfFiles++) {
-		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 18), 18);
+	for(; (FAT[numberOfFiles * 19 + 3] != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++) {
+		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 19), 19);
 		for(int i = 0; i < files[numberOfFiles].size; i++) {
 			map[files[numberOfFiles].beginSector + i] = true;
 		}

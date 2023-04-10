@@ -75,7 +75,7 @@ void main() {
 			printf("Mode: %i", stoi(parameter));
 		}
 		else if(strcmp(command, SEC)) {
-			/* read sector to table and display this table*/
+			// read sector to table and display this table
 			char disk[512];
 			memset(disk, ' ', 512);
 			FILE f;
