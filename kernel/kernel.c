@@ -19,7 +19,7 @@
 #define KERNEL_ADDRESS 0
 #endif
 
-extern int load(char beginSector, int parameter, int size);
+extern int load(Byte beginSector, Byte track, int parameter, int size);
 int gets(char *str, int size);
 
 __attribute__((section("start")))
@@ -104,7 +104,7 @@ void main() {
 			strcpy(tmp + strlen(tmp), com);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, tmp)) {
-					int ret = load(files[i].beginSector, parameter, files[i].size);
+					int ret = load(files[i].beginSector, files[i].track, parameter, files[i].size);
 					if(ret != 0) {
 						cputs("Error:", VGA_COLOR_RED);
 						printf(" \"%s\" returned %i\n", tmp, ret);

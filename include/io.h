@@ -13,7 +13,6 @@ typedef struct Key Key;
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-void putc(Byte character);
 void putc(Byte character) {
 	//TODO: add cursorColor and setCursorColor(Color color)
 	asm("mov al, [ebp+8]\n"
@@ -81,6 +80,7 @@ Key getc(void) {
 typedef struct {
 	char name[16];
 	Byte beginSector;
+	Byte track;
 	Byte size;
 	Word fpi;
 } FILE;
@@ -95,12 +95,11 @@ typedef struct {
 FILE *fopen(int name, int mode) {
 	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
-	asm ("mov ax, 0x100\n\
-	    mov dx, [ebp+8]\n\
-	    int 0x21":"=a"(file.beginSector), "=b"(file.size));
 	file.fpi = 0;
-
-	if(file.size == 0 && file.beginSector == 0)
+	asm ("int 0x21\n"
+	     "mov bl, ah\n"
+	     "xor ah, ah":"=a"(file.beginSector), "=b"(file.size):"a"(0x100), "d"(name));
+	if(file.beginSector == 0 && file.size == 0)
 		return NULL;
 	return &file;
 }

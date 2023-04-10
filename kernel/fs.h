@@ -41,6 +41,7 @@ size_t numberOfFiles = 0;
 const Byte *FAT = 0x0;//first 512 Bytes is file table
 
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 void loadFAT() {
@@ -75,6 +76,88 @@ static void sys_fputs(const int str, Byte beginSector) {
 	    ::"a"(1), "d"(0), "c"(beginSector), "b"(toSave), "S"(KERNEL_ADDRESS));
 }
 
+static int sys_fopen(const int name) {
+	char fileName[FILENAME_MAX];
+	strncpy(fileName, name, FILENAME_MAX);
+
+	for(size_t i = 0; i < numberOfFiles; i++) {
+		if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
+			return files[i].beginSector | files[i].size << 8;
+		}
+	}
+	//TODO create file if wasn't found
+	return 0;
+}
+
+static int sys_fread(void *ptr, int count, int bsector) {
+	/*
+	* ES:BX address to store
+	* AH 2 BIOS read
+	* AL number of sectors to read
+	* CH cylinder
+	* CL number of first sector to store
+	* DH head
+	* DL drive
+	*/
+	asm("xor ch, ch\n"
+	    "mov ah, 2\n"
+	    "int 0x13\n"
+	    "jnc exit%=\n"
+	    "mov ax, 0\n"
+	    "exit%=:\n"
+	    "	xor ah,ah\n"
+	    "	mov [ebp-24], ax"
+	    ::"a"(count), "b"(ptr), "c"(bsector), "d"(0));
+}
+
+static int sys_create(const int str, size_t size) {
+	if(size == 0) {
+		return 1;
+	}
+	Byte beginSector = 0;//store first sector of unused cx sectors
+	for(int i = 1; i < FILES_MAX; i++) {
+		if(strcmp(files[i].name, str)) {
+			beginSector = 0;
+			break;
+		}
+		beginSector = i;
+		for(size_t j = 0; j < size; j++) {
+			if(map[j + i] == true) {
+				beginSector = 0;
+				break;
+			}
+		}
+		if(beginSector != 0)
+			break;
+	}
+	//unused space wasn't found or filename repeats
+	if(beginSector == 0) {
+		return 1;
+	}
+	//set file's sectors as used
+	for(size_t i = beginSector; i < size + beginSector; i++)
+		map[i] = true;
+
+	files[numberOfFiles].beginSector = beginSector;
+	files[numberOfFiles].size = size;
+	files[numberOfFiles].track = 0;
+	strncpy(files[numberOfFiles].name, str, 16);
+	numberOfFiles++;
+
+	//copy new files array to memory
+	for(size_t i = 0; i < numberOfFiles; i++) {
+		memncpy((char *)(FAT + 3 + i * 19), (char *)(files + i), 19);
+	}
+
+	//save it
+	asm("mov es,si\n"
+	    "xor ch, ch\n"
+	    "mov ah, 3\n"
+	    "int 0x13"
+	    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+	return 0;
+}
+
 __attribute__((interrupt))
 void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
@@ -91,108 +174,22 @@ void int0x21(struct interruptFrame * frame) {
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
 	switch(ax >> 8) {
-	//Return AX = beginSector BX = size of file from name [DX]
-	case 1: {
-		char fileName[FILENAME_MAX];
-		strncpy(fileName, dx, FILENAME_MAX);
-
-		for(size_t i = 0; i < numberOfFiles; i++) {
-			if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
-				asm("mov [ebp-24],	ax\n"
-				    "mov [ebp-12],	bx"
-				    ::"a"(files[i].beginSector), "b"(files[i].size));
-				goto intend;
-			}
-		}
-		// if wasn't found
-		//TODO create file if wasn't found
-		asm("mov word ptr [ebp-24], 0\n"
-		    "mov word ptr [ebp-12], 0");
+	case 1:
+		asm("mov [ebp-24], ax"::"a"(sys_fopen(dx)));
 		break;
-	}
-	//Set [DI] = disk data from SI begin sector and CX size
-	case 2: {
-		/*
-		* ES:BX address to store
-		* AH 2 BIOS read
-		* AL number of sectors to read
-		* CH cylinder
-		* CL number of first sector to store
-		* DH head
-		* DL drive
-		*/
-		asm("xor ch, ch\n"
-		    "mov ah, 2\n"
-		    "int 0x13\n"
-		    "jnc exit%=\n"
-		    "mov ax, 0\n"
-		    "exit%=:\n"
-		    "	xor ah,ah\n"
-		    "	mov [ebp-24], ax"
-		    ::"a"(cx), "b"(di), "c"(si), "d"(0));
+	case 2:
+		asm("mov [ebp-24], ax"::"a"(sys_fread(di, cx, si)));
 		break;
-	}
-	//Save [SI] to sector DI
-	case 3: {
+	case 3:
 		sys_fputs(si, di);
 		break;
-	}
-	//create file cx = size SI = name
-	case 4: {
-		if(cx == 0) {
-			asm("mov word ptr [ebp-24], 1");
-			break;
-		}
-		Byte beginSector = 0;//store first sector of unused cx sectors
-		for(int i = 1; i < FILES_MAX; i++) {
-			if(strcmp(files[i].name, si)) {
-				beginSector = 0;
-				break;
-			}
-			beginSector = i;
-			for(int j = 0; j < cx; j++) {
-				if(map[j + i] == true) {
-					beginSector = 0;
-					break;
-				}
-			}
-			if(beginSector != 0)
-				break;
-		}
-		//unused space wasn't found or filename repeats
-		if(beginSector == 0) {
-			asm("mov word ptr [ebp-24], 1");
-			break;
-		}
-		//set file's sectors as used
-		for(int i = beginSector; i < cx + beginSector; i++)
-			map[i] = true;
-
-		files[numberOfFiles].beginSector = beginSector;
-		files[numberOfFiles].size = cx;
-		files[numberOfFiles].track = 0;
-		strncpy(files[numberOfFiles].name, si, 16);
-		numberOfFiles++;
-
-		//copy new files array to memory
-		for(size_t i = 0; i < numberOfFiles; i++) {
-			memncpy((char *)(FAT + 3 + i * 19), (char *)(files + i), 19);
-		}
-
-		//save it
-		asm("mov es,si\n"
-		    "xor ch, ch\n"
-		    "mov ah, 3\n"
-		    "int 0x13"
-		    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
-		asm("mov word ptr [ebp-24], 0");
+	case 4:
+		asm("mov [ebp-24], ax"::"a"(sys_create(si, cx)));
 		break;
-	}
 	default:
 		printf("INT 0x21!\n");
 		break;
 	}
-intend:
 	asm("pop ds");
 }
 #pragma GCC diagnostic pop
