@@ -56,7 +56,38 @@ void loadFAT() {
 	}
 }
 
-static void sys_fputs(const int str, Byte beginSector) {
+static int sys_fopen(const int filename) {
+	for(size_t i = 0; i < numberOfFiles; i++) {
+		if(strcmp(files[i].name, filename)) {
+			return files[i].size << 8 | i;
+		}
+	}
+	return 0;
+}
+
+static int sys_read(int id, void *ptr, int count) {
+	/*
+	* ES:BX address to store
+	* AH 2 BIOS read
+	* AL number of sectors to read
+	* CH cylinder
+	* CL number of first sector to store
+	* DH head
+	* DL drive
+	*/
+	asm("xor ch, ch\n"
+	    "xor dh, dh\n"
+	    "mov ah, 2\n"
+	    "int 0x13\n"
+	    "jnc exit%=\n"
+	    "mov ax, 0\n"
+	    "exit%=:\n"
+	    "	xor ah,ah\n"
+	    "	mov [ebp-24], ax"
+	    ::"a"(count), "b"(ptr), "c"(files[id].beginSector), "d"(files[id].track));
+}
+
+static void sys_write(const Byte id, const int str) {
 	Byte toSave[512];
 	memset(toSave, 0, 512);
 	strncpy((char *)toSave, str, 512);
@@ -71,43 +102,10 @@ static void sys_fputs(const int str, Byte beginSector) {
 	*/
 	asm("mov es, si\n"
 	    "xor ch, ch\n"
+	    "xor dh, dh\n"
 	    "mov ah, 3\n"
 	    "int 0x13"
-	    ::"a"(1), "d"(0), "c"(beginSector), "b"(toSave), "S"(KERNEL_ADDRESS));
-}
-
-static int sys_fopen(const int name) {
-	char fileName[FILENAME_MAX];
-	strncpy(fileName, name, FILENAME_MAX);
-
-	for(size_t i = 0; i < numberOfFiles; i++) {
-		if(strncmp(files[i].name, fileName, FILENAME_MAX)) {
-			return files[i].beginSector | files[i].size << 8;
-		}
-	}
-	//TODO create file if wasn't found
-	return 0;
-}
-
-static int sys_fread(void *ptr, int count, int bsector) {
-	/*
-	* ES:BX address to store
-	* AH 2 BIOS read
-	* AL number of sectors to read
-	* CH cylinder
-	* CL number of first sector to store
-	* DH head
-	* DL drive
-	*/
-	asm("xor ch, ch\n"
-	    "mov ah, 2\n"
-	    "int 0x13\n"
-	    "jnc exit%=\n"
-	    "mov ax, 0\n"
-	    "exit%=:\n"
-	    "	xor ah,ah\n"
-	    "	mov [ebp-24], ax"
-	    ::"a"(count), "b"(ptr), "c"(bsector), "d"(0));
+	    ::"a"(1), "b"(toSave), "c"(files[id].beginSector), "d"(files[id].track), "S"(KERNEL_ADDRESS));
 }
 
 static int sys_create(const int str, size_t size) {
@@ -175,16 +173,16 @@ void int0x21(struct interruptFrame * frame) {
 	asm("mov di,[ebp-4]":"=D"(di));
 	switch(ax >> 8) {
 	case 1:
-		asm("mov [ebp-24], ax"::"a"(sys_fopen(dx)));
+		asm("mov [ebp-24], ax"::"a"(sys_fopen(bx)));
 		break;
 	case 2:
-		asm("mov [ebp-24], ax"::"a"(sys_fread(di, cx, si)));
+		asm("mov [ebp-24], ax"::"a"(sys_read(bx, cx, dx)));
 		break;
 	case 3:
-		sys_fputs(si, di);
+		sys_write(bx, cx);
 		break;
 	case 4:
-		asm("mov [ebp-24], ax"::"a"(sys_create(si, cx)));
+		asm("mov [ebp-24], ax"::"a"(sys_create(bx, cx)));
 		break;
 	default:
 		printf("INT 0x21!\n");

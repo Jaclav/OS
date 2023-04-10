@@ -69,9 +69,10 @@ void main() {
 			// read sector to table and display this table
 			char disk[512];
 			memset(disk, ' ', 512);
-			FILE f;
-			f.beginSector = stoi(parameter);
-			fread(disk, 512, 1, &f);
+			asm("xor ch, ch\n"
+			    "mov ah, 2\n"
+			    "int 0x13\n"
+			    ::"a"(1), "b"(disk), "c"(stoi(parameter)), "d"(0));
 			for(int i = 0; i < 512; i++)
 				putc(disk[i]);
 			putc('\n');

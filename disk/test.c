@@ -16,7 +16,7 @@ int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
-	printf("%i:%i\n", file->beginSector, file->size);
+	printf("Size: %i; %i\n", file->size, file->id);
 
 	if(fread(disk, 512, file->size, file) != file->size) {
 		puts("ERROR file cannot be readed\n");

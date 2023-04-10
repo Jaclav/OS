@@ -78,9 +78,7 @@ Key getc(void) {
 #define EOF -1
 
 typedef struct {
-	char name[16];
-	Byte beginSector;
-	Byte track;
+	Byte id;
 	Byte size;
 	Word fpi;
 } FILE;
@@ -98,8 +96,8 @@ FILE *fopen(int name, int mode) {
 	file.fpi = 0;
 	asm ("int 0x21\n"
 	     "mov bl, ah\n"
-	     "xor ah, ah":"=a"(file.beginSector), "=b"(file.size):"a"(0x100), "d"(name));
-	if(file.beginSector == 0 && file.size == 0)
+	     "xor ah, ah":"=a"(file.id), "=b"(file.size):"a"(0x100), "b"(name));
+	if(file.size == 0)
 		return NULL;
 	return &file;
 }
@@ -115,7 +113,7 @@ FILE *fopen(int name, int mode) {
 */
 size_t fread ( void * ptr, size_t size, size_t count, FILE * stream ) {
 	//TODO make operation size Byte not sector
-	asm("int 0x21"::"a"(0x0200), "c"(count), "S"(stream->beginSector), "D"(ptr));
+	asm("int 0x21"::"a"(0x0200), "b"(stream->id), "c"(ptr), "d"(count));
 }
 
 /**
@@ -127,7 +125,7 @@ size_t fread ( void * ptr, size_t size, size_t count, FILE * stream ) {
 */
 int fputs ( const int str, FILE * stream ) {
 	//max size is one sector
-	asm("int 0x21"::"a"(0x0300), "S"(str), "D"(stream->beginSector));
+	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(str));
 }
 
 /**
