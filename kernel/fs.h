@@ -107,7 +107,7 @@ static void sys_write(const Byte id, const int str) {
 	asm("mov es, si\n"
 	    "mov ah, 3\n"
 	    "int 0x13"
-	    ::"a"(1), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
+	    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
 }
 
 static int sys_create(const int str, size_t size) {
@@ -160,9 +160,8 @@ end:
 
 	//save it
 	asm("mov es, si\n"
-	    "mov ah, 3\n"
 	    "int 0x13"
-	    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 	return 0;
 }
 

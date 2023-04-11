@@ -29,24 +29,18 @@ int main() {
 			break;
 		}
 	}
-	if(param2 == NULL)
+	if(param2 == NULL)//if provided less than 2 parameters
 		return -1;
 
 	int track = stoi(param1);
 	int sector = stoi(param2);
 
-	if(param2 != NULL) {
-		char disk[512];
-		asm("mov ah, 2\n"
-		    "int 0x13\n"
-		    ::"a"(1), "b"(disk), "c"(track<<8 | sector), "d"(0));
-		for(int i = 0; i < 512; i++)
-			asm("xor ah, ah\n"
-			    "int 0x20"::"a"(disk[i]));
+	char disk[512];
+	asm("int 0x13\n"::"a"(0x0201), "b"(disk), "c"(track<<8 | sector), "d"(0));
+	for(int i = 0; i < 512; i++)
+		asm("int 0x20"::"a"(disk[i]));//putc
 
-		asm("mov al, 10 \n"
-		    "int 0x20"::"a"(0));
-	}
+	asm("int 0x20"::"a"('\n'));//newline
 
 	return 0;
 }
