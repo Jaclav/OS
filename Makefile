@@ -27,13 +27,13 @@ disk: disk/auto.bin disk/test.bin disk/pic.bin disk/image.bin disk/touch.bin dis
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
 	@dd if=bin/disk/test.bin of=bin/disk/disk.img seek=2	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=9		2> /dev/null
+	@dd if=bin/disk/pic.bin of=bin/disk/disk.img seek=10		2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=13	2> /dev/null
+	@dd if=bin/disk/image.bin of=bin/disk/disk.img seek=14	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/touch.bin of=bin/disk/disk.img seek=15	2> /dev/null
+	@dd if=bin/disk/touch.bin of=bin/disk/disk.img seek=16	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
-	@dd if=bin/disk/sec.bin of=bin/disk/disk.img seek=16	2> /dev/null
+	@dd if=bin/disk/sec.bin of=bin/disk/disk.img seek=17	2> /dev/null
 	@dd if=/dev/zero of=bin/disk/disk.img seek=100 count=1	2> /dev/null
 
 	@dd if=bin/disk/disk.img of=bin/OS.img seek=72	2> /dev/null

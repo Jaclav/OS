@@ -30,7 +30,7 @@ int main() {
 		}
 	}
 	if(param2 == NULL)
-		return 1;
+		return -1;
 
 	int track = stoi(param1);
 	int sector = stoi(param2);

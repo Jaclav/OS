@@ -18,8 +18,9 @@ int main() {
 			break;
 		}
 	}
+	if(param2 == NULL)
+		return -1;
 
-	int ret = 1;
 	char pows[] = {1, 10, 100};
 	size_t num = 0;
 	size_t size = 0;
@@ -29,8 +30,8 @@ int main() {
 	for(size_t i = 0; param2[i] != 0; i++)
 		num += pows[size - i] * (param2[i] - '0');
 
-	if(param2 != NULL)
-		asm("int 0x21":"=a"(ret):"a"(0x0400), "c"(num), "S"(param1));
+	int ret = 1;
+	asm("int 0x21":"=a"(ret):"a"(0x0400), "c"(num), "S"(param1));
 
 	return ret;
 }

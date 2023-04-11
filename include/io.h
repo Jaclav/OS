@@ -25,6 +25,10 @@ void puts(const int string) {
 }
 
 void puti(int a) {
+	if(a < 0) {
+		putc('-');
+		a *= -1;
+	}
 	asm("mov bx, [ebp+8]\n"
 	    "int 0x20"::"a"(0x200));
 }
@@ -39,7 +43,16 @@ int printf(const int str, ...) {
 		if(*ptr == '%') {
 			switch(*(ptr + 1)) {
 			case 'i':
-			case 'd':
+			case 'd': {
+				int a = va_arg(va, int);
+				if(a < 0) {
+					putc('-');
+					a *= -1;
+				}
+				asm("int 0x20"::"a"(0x200), "b"(a));
+				break;
+			}
+			case 'u':
 				asm("int 0x20"::"a"(0x200), "b"(va_arg(va, int)));
 				break;
 			case 'c':

@@ -16,7 +16,7 @@ int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
-	printf("Size: %i; %i\n", file->size, file->id);
+	printf("Size: %i; ID: %i\n", file->size, file->id);
 
 	if(fread(disk, 512, file->size, file) != file->size) {
 		puts("ERROR file cannot be readed\n");
@@ -72,6 +72,6 @@ int main() {
 	setVideoMode(0x2);
 	setColorPalette(VGA_COLOR_DARK_GREY);
 
-	return 1519;
+	return -1234;
 }
 char b[] = "DISK 1234567890";
