@@ -25,7 +25,8 @@
 #endif
 
 #define FILENAME_MAX 16
-#define FILES_MAX 37
+#define SECTORS_PER_TRACK 37
+#define TRACKS_MAX 3
 
 //do it static - only this file should be able to use this
 struct {
@@ -33,9 +34,9 @@ struct {
 	Byte track;
 	Byte beginSector;
 	Byte size;
-} files[FILES_MAX];
+} files[SECTORS_PER_TRACK * TRACKS_MAX];
 
-bool map[FILES_MAX];
+bool map[TRACKS_MAX][SECTORS_PER_TRACK];
 
 size_t numberOfFiles = 0;
 const Byte *FAT = 0x0;//first 512 Bytes is file table
@@ -51,7 +52,7 @@ void loadFAT() {
 	for(; (FAT[numberOfFiles * 19 + 3] != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++) {
 		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 19), 19);
 		for(int i = 0; i < files[numberOfFiles].size; i++) {
-			map[files[numberOfFiles].beginSector + i] = true;
+			map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = true;
 		}
 	}
 }
@@ -75,16 +76,14 @@ static int sys_read(int id, void *ptr, int count) {
 	* DH head
 	* DL drive
 	*/
-	asm("xor ch, ch\n"
-	    "xor dh, dh\n"
-	    "mov ah, 2\n"
+	asm("mov ah, 2\n"
 	    "int 0x13\n"
 	    "jnc exit%=\n"
 	    "mov ax, 0\n"
 	    "exit%=:\n"
 	    "	xor ah,ah\n"
 	    "	mov [ebp-24], ax"
-	    ::"a"(count), "b"(ptr), "c"(files[id].beginSector), "d"(files[id].track));
+	    ::"a"(count), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
 }
 
 static void sys_write(const Byte id, const int str) {
@@ -101,44 +100,51 @@ static void sys_write(const Byte id, const int str) {
 	* ES:BX = Address of memory buffer
 	*/
 	asm("mov es, si\n"
-	    "xor ch, ch\n"
-	    "xor dh, dh\n"
 	    "mov ah, 3\n"
 	    "int 0x13"
-	    ::"a"(1), "b"(toSave), "c"(files[id].beginSector), "d"(files[id].track), "S"(KERNEL_ADDRESS));
+	    ::"a"(1), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
 }
 
 static int sys_create(const int str, size_t size) {
-	if(size == 0) {
+	if(size == 0)
 		return 1;
-	}
+	//search for free space
 	Byte beginSector = 0;//store first sector of unused cx sectors
-	for(int i = 1; i < FILES_MAX; i++) {
-		if(strcmp(files[i].name, str)) {
-			beginSector = 0;
-			break;
-		}
-		beginSector = i;
-		for(size_t j = 0; j < size; j++) {
-			if(map[j + i] == true) {
+	Byte track = 0;
+	for(track = 0; track < TRACKS_MAX; track++) {
+		for(int i = 1; i < SECTORS_PER_TRACK; i++) {
+			if(strcmp(files[i].name, str)) {
 				beginSector = 0;
-				break;
+				goto end;
 			}
+			beginSector = i;
+			size_t j;
+			for(j = 0; j < size && j + i < SECTORS_PER_TRACK; j++) {
+				if(map[track][j + i] == true) {
+					beginSector = 0;
+					break;
+				}
+			}
+			//TODO: file must be all in one track, change it
+			if(j < size) {
+				beginSector = 0;
+			}
+			if(beginSector != 0)
+				goto end;
 		}
-		if(beginSector != 0)
-			break;
 	}
+end:
 	//unused space wasn't found or filename repeats
 	if(beginSector == 0) {
 		return 1;
 	}
 	//set file's sectors as used
 	for(size_t i = beginSector; i < size + beginSector; i++)
-		map[i] = true;
+		map[track][i] = true;
 
 	files[numberOfFiles].beginSector = beginSector;
 	files[numberOfFiles].size = size;
-	files[numberOfFiles].track = 0;
+	files[numberOfFiles].track = track;
 	strncpy(files[numberOfFiles].name, str, 16);
 	numberOfFiles++;
 
@@ -148,8 +154,7 @@ static int sys_create(const int str, size_t size) {
 	}
 
 	//save it
-	asm("mov es,si\n"
-	    "xor ch, ch\n"
+	asm("mov es, si\n"
 	    "mov ah, 3\n"
 	    "int 0x13"
 	    ::"a"(1), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));

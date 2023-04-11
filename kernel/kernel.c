@@ -65,18 +65,6 @@ void main() {
 			setVideoMode(stoi(parameter));
 			printf("Mode: %i", stoi(parameter));
 		}
-		else if(strcmp(command, "sec")) {
-			// read sector to table and display this table
-			char disk[512];
-			memset(disk, ' ', 512);
-			asm("xor ch, ch\n"
-			    "mov ah, 2\n"
-			    "int 0x13\n"
-			    ::"a"(1), "b"(disk), "c"(stoi(parameter)), "d"(0));
-			for(int i = 0; i < 512; i++)
-				putc(disk[i]);
-			putc('\n');
-		}
 		else if(strcmp(command, "ls")) {
 			size_t i = 0;
 			size_t sum = 0;
@@ -91,8 +79,11 @@ void main() {
 			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
 		}
 		else if(strcmp(command, "map")) {
-			for(int i = 1; i < FILES_MAX; i++) {
-				puti(map[i]);
+			for(int j = 0; j < TRACKS_MAX; j++) {
+				for(int i = 1; i < SECTORS_PER_TRACK; i++) {
+					puti(map[j][i]);
+				}
+				putc('\n');
 			}
 		}
 		else {

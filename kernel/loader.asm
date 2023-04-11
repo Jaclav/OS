@@ -20,8 +20,8 @@ load:
 	mov 	bx,		0x100
 
 	mov 	dh,		0x0             ; head
-	mov 	dl,		[ebp+12]		; track
-	mov 	ch,		0x0             ; cylinder
+	mov 	dl,		0				; drive
+	mov 	ch,		[ebp+12]        ; track
 	mov 	cl,		[ebp+8]			; sector (counted from 1)
 	.read_disk:
 		mov		ah,		2        	; BIOS read
