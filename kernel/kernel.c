@@ -28,7 +28,7 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	loadFAT();
+	asm("int 0x21"::"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\n>", getMemorySize());
 
 	int bufforSize = 0;

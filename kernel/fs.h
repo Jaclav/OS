@@ -46,24 +46,28 @@ const Byte *FAT = 0x0;//first 512 Bytes is file table
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-void loadFAT() {
+static int sys_setup() {
 	numberOfFiles = 0;
-	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55)
+	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55) {
 		puts("ERROR: wrong FAT table format!");
+		return -1;
+	}
 	for(; (FAT[numberOfFiles * 19 + 3] != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++) {
 		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 19), 19);
 		for(int i = 0; i < files[numberOfFiles].size; i++) {
 			map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = true;
 		}
 	}
+	return 0;
 }
 
 static int sys_fopen(const int filename) {
-	for(size_t i = 0; i < numberOfFiles; i++) {
-		if(strcmp(files[i].name, filename)) {
-			return files[i].size << 8 | i;
+	for(size_t id = 0; id < numberOfFiles; id++) {
+		if(strcmp(files[id].name, filename)) {
+			return files[id].size << 8 | id;
 		}
 	}
+	//file doesn't exist
 	return 0;
 }
 
@@ -107,8 +111,8 @@ static void sys_write(const Byte id, const int str) {
 }
 
 static int sys_create(const int str, size_t size) {
-	if(size == 0)
-		return ECANCELED;
+	if(size == 0)//must be at least 1 sector
+		size = 1;
 	if(size > SECTORS_PER_TRACK)
 		return EFBIG;
 
@@ -146,7 +150,7 @@ end:
 	files[numberOfFiles].beginSector = beginSector;
 	files[numberOfFiles].size = size;
 	files[numberOfFiles].track = track;
-	strncpy(files[numberOfFiles].name, str, 16);
+	strncpy(files[numberOfFiles].name, str, FILENAME_MAX);
 	numberOfFiles++;
 
 	//copy new files array to memory
@@ -177,6 +181,9 @@ void int0x21(struct interruptFrame * frame) {
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
 	switch(ax >> 8) {
+	case 0:
+		asm("mov [ebp-24], ax"::"a"(sys_setup()));
+		break;
 	case 1:
 		asm("mov [ebp-24], ax"::"a"(sys_fopen(bx)));
 		break;
@@ -191,7 +198,7 @@ void int0x21(struct interruptFrame * frame) {
 		break;
 	default:
 		printf("INT 0x21!\n");
-		asm("mov [ebp-24],ax"::"a"(EOPNOTSUPP));
+		asm("mov [ebp-24],ax"::"a"(ENOSYS));
 		break;
 	}
 	asm("pop ds");
