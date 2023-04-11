@@ -17,6 +17,7 @@
 #endif
 
 #include <types.h>
+#include <errno.h>
 #include <io.h>
 #include <string.h>
 
@@ -107,15 +108,17 @@ static void sys_write(const Byte id, const int str) {
 
 static int sys_create(const int str, size_t size) {
 	if(size == 0)
-		return 1;
+		return ECANCELED;
+	if(size > SECTORS_PER_TRACK)
+		return EFBIG;
+
 	//search for free space
 	Byte beginSector = 0;//store first sector of unused cx sectors
 	Byte track = 0;
 	for(track = 0; track < TRACKS_MAX; track++) {
 		for(int i = 1; i < SECTORS_PER_TRACK; i++) {
 			if(strcmp(files[i].name, str)) {
-				beginSector = 0;
-				goto end;
+				return EEXIST;
 			}
 			beginSector = i;
 			size_t j;
@@ -126,17 +129,15 @@ static int sys_create(const int str, size_t size) {
 				}
 			}
 			//TODO: file must be all in one track, change it
-			if(j < size) {
+			if(j < size)
 				beginSector = 0;
-			}
 			if(beginSector != 0)
 				goto end;
 		}
 	}
 end:
-	//unused space wasn't found or filename repeats
 	if(beginSector == 0) {
-		return 1;
+		return ENOSPC;
 	}
 	//set file's sectors as used
 	for(size_t i = beginSector; i < size + beginSector; i++)
@@ -165,7 +166,6 @@ __attribute__((interrupt))
 void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
 	//DS and CS are on kernel
-	//TODO: standarize error returns
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	// registers are backed up, after this function, they are restored
@@ -191,6 +191,7 @@ void int0x21(struct interruptFrame * frame) {
 		break;
 	default:
 		printf("INT 0x21!\n");
+		asm("mov [ebp-24],ax"::"a"(EOPNOTSUPP));
 		break;
 	}
 	asm("pop ds");

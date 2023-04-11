@@ -132,7 +132,7 @@ int fputs ( const int str, FILE * stream ) {
  * @brief Create file
  *
  * @param str file name
- * @param size file size (in sectors)
+ * @param size file size (in sectors) cannot be 0
  * @return int 0 if succsesfull 1 if not
  */
 int create(const int str, size_t size) {
