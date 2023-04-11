@@ -64,7 +64,11 @@ load:
 
 	setSegments 	DISK_ADDRESS
 	push 	0						; set zero as flag register - for iret
-	; set COM header, see header.asm
+	; set COM header like in https://en.wikipedia.org/wiki/Program_Segment_Prefix
+	;00000000  9090              nop nop
+	;00000002  6A00              push byte 0x0 ; because C uses 32 bit return, assembly must return ret 2 to pop this
+	;00000004  E8F900            call 0x100
+	;00000007  CF                iret
 	mov 	DWORD[0x0],	0x006a9090
 	mov 	DWORD[0x4],	0xcf00f9e8
 	mov 	DWORD[0x8],	end			; for exit function
