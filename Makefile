@@ -1,7 +1,7 @@
 WFLAGS=-Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
 CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -std=gnu11 -Iinclude
 
-SRC=$(wildcard kernel/*.c kernel/*.asm)
+SRC=$(wildcard kernel/*.c kernel/*[^f][^a][^t].asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
 
 BOOT=$(wildcard boot/*.asm)
@@ -15,17 +15,19 @@ DISK_START=18#counted from 0, so first disk sector will be 17 (counted from 1)
 KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
-run: clean kernel disk
+run: clean disk kernel
 	bochs -q
 	# qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
-kernel:$(BINS) $(OBJS) fat.bin
+kernel:$(BINS) $(OBJS)
 #code loaded to memory by bootloader contains disk table and kernel
 	ld -T kernel/kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
 	cat bin/boot/boot.bin bin/fat.bin bin/kernel.bin > bin/OS.img
+	dd if=bin/disk/disk.img of=bin/OS.img seek=72	2> /dev/null
 
 disk: $(DISKBIN)
 	./disk/disk.sh
+	nasm $(MACROS) -fbin bin/fat.asm -o bin/fat.bin
 
 %.bin: %.asm
 	nasm $(MACROS) -fbin $< -o bin/$@
