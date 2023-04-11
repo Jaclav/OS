@@ -132,7 +132,7 @@ static int sys_create(const int str, size_t size) {
 					break;
 				}
 			}
-			//TODO: file must be all in one track, change it
+			//FIXME: file must be all in one track, change it
 			if(j < size)
 				beginSector = 0;
 			if(beginSector != 0)

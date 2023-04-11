@@ -6,7 +6,6 @@
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
 //BUG: cannot give string literal to char* parameter, only int WHY!?
-//TODO: handle key, shift, ctrl
 #define KERNEL 1
 #include <io.h>
 #include <string.h>
@@ -90,16 +89,14 @@ void main() {
 			//check if there is program called command+".com"
 			//TODO do it by chcecking if file exists by FILE fopen
 			size_t i = 0;
-			char tmp[104];
 			char com[] = ".com";
-			strcpy(tmp, command);
-			strcpy(tmp + strlen(tmp), com);
+			strncpy(command + strlen(command), com, 5);
 			for(; i < numberOfFiles; i++) {
-				if(strcmp(files[i].name, tmp)) {
+				if(strcmp(files[i].name, command)) {
 					int ret = load(files[i].beginSector, files[i].track, parameter, files[i].size);
 					if(ret != 0) {
 						cputs("Error:", VGA_COLOR_RED);
-						printf(" \"%s\" returned %i\n", tmp, ret);
+						printf(" \"%s\" returned %i\n", command, ret);
 					}
 
 					break;
@@ -107,7 +104,7 @@ void main() {
 			}
 			if(i == numberOfFiles) {
 				cputs("Error:", VGA_COLOR_RED);
-				printf(" \"%s\" is unknown command!\n", tmp);
+				printf(" \"%s\" is unknown command!\n", command);
 			}
 		}
 		putc('>');

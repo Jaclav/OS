@@ -1,5 +1,5 @@
 //TODO: add .bmp pl.wikipedia.org/wiki/Windows_Bitmap
-//TODO https://cplusplus.com/forum/general/19079/
+//TODO add get window height aget window length
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
@@ -69,7 +69,6 @@ void draw(Position begin, Color *data, size_t width, size_t height) {
 	}
 }
 
-//TODO: add color puts putc to printf
 void cputc(char c, Color color, Byte times) {
 	asm("int 0x10"::"a"(0x0900|c), "b"(0x0000|color), "c"(times));
 	//move cursor by 1

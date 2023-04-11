@@ -34,7 +34,7 @@ void puti(int a) {
 }
 
 int printf(const int str, ...) {
-//TODO: add more specifiers https://cplusplus.com/reference/cstdio/printf/
+//https://cplusplus.com/reference/cstdio/printf/
 	va_list va;
 	va_start(va, str);
 
@@ -82,7 +82,7 @@ Key getc(void) {
 	return key;
 }
 
-//TODO https://cplusplus.com/reference/cstdio/FILE/
+//https://cplusplus.com/reference/cstdio/FILE/
 #define EOF -1
 
 typedef struct {
