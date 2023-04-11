@@ -32,15 +32,15 @@ disk: $(DISKBIN)
 
 %.bin: %.c
 	gcc $(CFLAGS) -c $< -o bin/$<.o
-	gcc $(CFLAGS) -S $< -o bin/debug/$<.S
-	objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm
+	@gcc $(CFLAGS) -S $< -o bin/debug/$<.S
+	@objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm
 	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 INTFLAGS=-mgeneral-regs-only -mno-red-zone
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -c $< -o bin/$@
-	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@.S
-	objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm
+	@gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@.S
+	@objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm
 
 %.o:%.asm
 	nasm $(MACROS) -felf32 $< -o bin/$@

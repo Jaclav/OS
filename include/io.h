@@ -44,16 +44,11 @@ int printf(const int str, ...) {
 			switch(*(ptr + 1)) {
 			case 'i':
 			case 'd': {
-				int a = va_arg(va, int);
-				if(a < 0) {
-					putc('-');
-					a *= -1;
-				}
-				asm("int 0x20"::"a"(0x200), "b"(a));
+				puti(va_arg(va, int));
 				break;
 			}
 			case 'u':
-				asm("int 0x20"::"a"(0x200), "b"(va_arg(va, int)));
+				asm("int 0x20"::"a"(0x200), "b"(va_arg(va, unsigned int)));
 				break;
 			case 'c':
 				asm("xor ah, ah\n"
