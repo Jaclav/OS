@@ -33,4 +33,11 @@ void cls(void) {
 	    "d" (0x0));
 }
 
+void exit(int val) {
+	asm("push cx\n"
+	    "push bx\n"
+	    "push dx\n"
+	    "iret"::"a"(val), "d"(*(int*)(0x8)), "b"(0x1000), "c"(0));
+}
+
 #endif

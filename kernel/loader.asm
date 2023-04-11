@@ -4,7 +4,7 @@ global load
 ;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD
 ; can also push 0; call func
 ;TODO: add check if in code is 8E - change of sreg or EA - jmpf and then don't execute
-;TODO: how to return if program didn't clean stack!? - add exit function
+;TODO: make subprogram that exits
 
 load:
 	push	ebp
@@ -20,16 +20,16 @@ load:
 	mov 	bx,		0x100
 
 	mov 	dh,		0x0             ; head
-	mov 	dl,		0x0             ; drive
-	mov 	ch,		0x0             ; cylinder
+	mov 	dl,		0				; drive
+	mov 	ch,		[ebp+12]        ; track
 	mov 	cl,		[ebp+8]			; sector (counted from 1)
 	.read_disk:
 		mov		ah,		2        	; BIOS read
-		mov		al,		[ebp+16]	; sectors to read
+		mov		al,		[ebp+20]	; sectors to read
 		int		0x13                ; BIOS disk
 		jc .read_disk               ; CF=1 if error
 	; if not all loaded, try again
-	cmp		al,		[ebp+16]
+	cmp		al,		[ebp+20]
 	jne		.read_disk
 
 	;;;;;;;;;;;
@@ -39,7 +39,7 @@ load:
 
 	; set automatic return from code that didn't return on itself
 	; put it on first non program position
-	mov		ax, 	[ebp+16]
+	mov		ax, 	[ebp+20]
 	mov		dx,		0x200
 	mul		dx
 	add		ax,		0x100
@@ -49,7 +49,7 @@ load:
 	mov		DWORD[es:bx],0x900002c2;ret 2
 
 	; load at 0x2000:80 program parameters
-	mov 	si, 	WORD[ebp+12]	; pointer to parameter string in si
+	mov 	si, 	WORD[ebp+16]	; pointer to parameter string in si
 	mov 	di, 	0x80
 	.loop:
 		mov 	al, 	[si]
@@ -64,11 +64,19 @@ load:
 
 	setSegments 	DISK_ADDRESS
 	push 	0						; set zero as flag register - for iret
-	; set COM header, see header.asm
+	; set COM header like in https://en.wikipedia.org/wiki/Program_Segment_Prefix
+	;00000000  9090              nop nop
+	;00000002  6A00              push byte 0x0 ; because C uses 32 bit return, assembly must return ret 2 to pop this
+	;00000004  E8F900            call 0x100
+	;00000007  CF                iret
 	mov 	DWORD[0x0],	0x006a9090
 	mov 	DWORD[0x4],	0xcf00f9e8
+	mov 	DWORD[0x8],	end			; for exit function
+	mov 	DWORD[0x12],ebp
 	call	DISK_ADDRESS:0x0		; push flags; push cs; push ip
+end:
 	mov		dx,		ax				;save return code
+	mov 	esp,	[0x12]
 	setSegments 	KERNEL_ADDRESS
 
 	pop		ebp
