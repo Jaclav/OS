@@ -35,30 +35,27 @@ struct {
 	Byte track;
 	Byte beginSector;
 	Byte size;
-} files[SECTORS_PER_TRACK * TRACKS_MAX];
+} *files;
 
-bool map[TRACKS_MAX][SECTORS_PER_TRACK];
+bool map[TRACKS_MAX][SECTORS_PER_TRACK];//map[0] = 0 because there is no 0th sector, they are counted from 1
 
 size_t numberOfFiles = 0;
-const Byte *FAT = 0x0;//first 512 Bytes is file table
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 static int sys_setup() {
 	numberOfFiles = 0;
-	if(FAT[0] != 0xcf || FAT[1] != 0xaa || FAT[2] != 0x55) {
-		puts("ERROR: wrong FAT table format!");
-		return -1;
-	}
-	for(; (FAT[numberOfFiles * 19 + 3] != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++) {
-		memncpy((char *)(files + numberOfFiles), (char *)(FAT + 3 + numberOfFiles * 19), 19);
-		for(int i = 0; i < files[numberOfFiles].size; i++) {
-			map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = true;
-		}
-	}
-	return 0;
+	if(*(Byte *)0 != 0xcf || *(Byte *)1 != 0xaa || *(Byte *)2 != 0x55)
+		return 0;
+	files = 3;
+	for(; (*(int *)(numberOfFiles * 19 + 3) != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++)
+		for(int i = 0; i < files[numberOfFiles].size; i++)
+			map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = 1;//reserve space
+
+	return numberOfFiles;
 }
 
 static int sys_fopen(const int filename) {
@@ -104,7 +101,7 @@ static void sys_write(const Byte id, const int str) {
 	* DL = Drive number
 	* ES:BX = Address of memory buffer
 	*/
-	asm("mov es, si\n"
+	asm("mov es, si\n"//FIXME: may cause errors
 	    "mov ah, 3\n"
 	    "int 0x13"
 	    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
@@ -113,21 +110,23 @@ static void sys_write(const Byte id, const int str) {
 static int sys_create(const int str, size_t size) {
 	if(size == 0)//must be at least 1 sector
 		size = 1;
+
 	if(size > SECTORS_PER_TRACK)
 		return EFBIG;
+
+	for(size_t i = 0; i < numberOfFiles; i++)
+		if(strcmp(files[i].name, str))
+			return EEXIST;
 
 	//search for free space
 	Byte beginSector = 0;//store first sector of unused cx sectors
 	Byte track = 0;
 	for(track = 0; track < TRACKS_MAX; track++) {
 		for(int i = 1; i < SECTORS_PER_TRACK; i++) {
-			if(strcmp(files[i].name, str)) {
-				return EEXIST;
-			}
 			beginSector = i;
 			size_t j;
 			for(j = 0; j < size && j + i < SECTORS_PER_TRACK; j++) {
-				if(map[track][j + i] == true) {
+				if(map[track][j + i]) {
 					beginSector = 0;
 					break;
 				}
@@ -145,7 +144,7 @@ end:
 	}
 	//set file's sectors as used
 	for(size_t i = beginSector; i < size + beginSector; i++)
-		map[track][i] = true;
+		map[track][i] = 1;
 
 	files[numberOfFiles].beginSector = beginSector;
 	files[numberOfFiles].size = size;
@@ -153,15 +152,39 @@ end:
 	strncpy(files[numberOfFiles].name, str, FILENAME_MAX);
 	numberOfFiles++;
 
-	//copy new files array to memory
-	for(size_t i = 0; i < numberOfFiles; i++) {
-		memncpy((char *)(FAT + 3 + i * 19), (char *)(files + i), 19);
-	}
-
-	//save it
+	//save FATable
 	asm("mov es, si\n"
 	    "int 0x13"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+	return 0;
+}
+
+static int sys_remove(const int str) {
+	int data = sys_fopen(str);
+	if(data == 0)
+		return ENOENT;
+
+	int id = (Byte)data;
+	int track = files[id].track;
+
+	//free space;
+	for(int j = files[id].beginSector; j < files[id].beginSector + files[id].size; j++)
+		map[files[id].track][j] = 0;
+
+	//concat file table
+	for(int i = id; files[i].track == track; i++) {
+		files[i].beginSector = files[i + 1].beginSector;
+		files[i].size = files[i + 1].size;
+		files[i].track = files[i + 1].track;
+		strcpy(files[i].name, files[i + 1].name);
+	}
+	numberOfFiles--;
+
+	//save FATable
+	asm("mov es, si\n"
+	    "int 0x13"
+	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+
 	return 0;
 }
 
@@ -179,6 +202,7 @@ void int0x21(struct interruptFrame * frame) {
 	asm("mov bx,[ebp-12]":"=b"(bx));
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
+	//change ah to ax
 	switch(ax >> 8) {
 	case 0:
 		asm("mov [ebp-24], ax"::"a"(sys_setup()));
@@ -194,6 +218,9 @@ void int0x21(struct interruptFrame * frame) {
 		break;
 	case 4:
 		asm("mov [ebp-24], ax"::"a"(sys_create(bx, cx)));
+		break;
+	case 5:
+		asm("mov [ebp-24], ax"::"a"(sys_remove(bx)));
 		break;
 	default:
 		printf("INT 0x21!\n");

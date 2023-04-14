@@ -107,11 +107,4 @@ char *strncpy ( char * destination, const char * source, size_t num ) {
 	return destination;
 }
 
-char *memncpy ( char * destination, const char * source, size_t num ) {
-	for(size_t i = 0; i < num; i++) {
-		destination[i] = source[i];
-	}
-	return destination;
-}
-
 #endif

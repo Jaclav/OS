@@ -20,7 +20,7 @@ wc -c *.[^i][^a^\.][^a] | while read a b;
 do
 	if [ "$b" != "razem" ]; then
 		size=`python3 <<< "import math; print(math.ceil($a/512))"`
-		echo "Size: $size; begin: $begin" $b
+		printf "$b\tSize: $size sec = $a B\tbegin: $begin\n"
 		fill=`python3 <<< "print(' '*$((15-${#b})))"`
 		echo "db \"$b\",0,\"$fill\", 1, $((begin+1)), $size" >> ../fat.asm
 

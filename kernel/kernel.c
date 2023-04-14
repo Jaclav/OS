@@ -27,10 +27,10 @@ void main() {
 	setColorPalette(VGA_COLOR_DARK_GREY);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	asm("int 0x21"::"a"(0));
-	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\n>", getMemorySize());
-
 	int bufforSize = 0;
+	asm("int 0x21":"=a"(bufforSize):"a"(0));
+	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
+
 	char command[100];
 	char parameter[100];
 
@@ -78,6 +78,8 @@ void main() {
 			printf("\n%i file(s)       %s%i sector(s)\n", i, (sum / 10 >= 1 ? "" : "0"), sum);
 		}
 		else if(strcmp(command, "map")) {
+			for(int i = 1; i  < SECTORS_PER_TRACK; i++)putc((i % 10 + '0'));
+			putc('\n');
 			for(int j = 0; j < TRACKS_MAX; j++) {
 				for(int i = 1; i < SECTORS_PER_TRACK; i++) {
 					puti(map[j][i]);
