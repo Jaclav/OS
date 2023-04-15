@@ -46,6 +46,14 @@ size_t numberOfFiles = 0;
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
+static void saveFATable() {
+	asm("push es\n"
+	    "mov es, si\n"
+	    "int 0x13\n"
+	    "pop es"
+	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+}
+
 static int sys_setup() {
 	numberOfFiles = 0;
 	if(*(Byte *)0 != 0xcf || *(Byte *)1 != 0xaa || *(Byte *)2 != 0x55)
@@ -74,7 +82,7 @@ static int sys_read(const Byte id, int ptr, int count) {
 
 	int sectors = (count - (count % 512)) / 512;
 	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
-		return EFBIG;
+		return -EFBIG;
 
 	//read whole sectors
 	if(sectors > 0) {
@@ -113,7 +121,7 @@ static int sys_write(const Byte id, int ptr, int count) {
 	//TODO: resize if not enough space
 	int sectors = (count - (count % 512)) / 512;
 	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
-		return EFBIG;
+		return -EFBIG;
 
 	//save whole sectors
 	if(sectors > 0) {
@@ -150,11 +158,11 @@ static int sys_create(const int str, size_t size) {
 		size = 1;
 
 	if(size > SECTORS_PER_TRACK)
-		return EFBIG;
+		return -EFBIG;
 
 	for(size_t i = 0; i < numberOfFiles; i++)
 		if(strcmp(files[i].name, str))
-			return EEXIST;
+			return -EEXIST;
 
 	//search for free space
 	Byte beginSector = 0;//store first sector of unused cx sectors
@@ -177,9 +185,8 @@ static int sys_create(const int str, size_t size) {
 		}
 	}
 end:
-	if(beginSector == 0) {
-		return ENOSPC;
-	}
+	if(beginSector == 0)
+		return -ENOSPC;
 	//set file's sectors as used
 	for(size_t i = beginSector; i < size + beginSector; i++)
 		map[track][i] = 1;
@@ -189,20 +196,14 @@ end:
 	files[numberOfFiles].track = track;
 	strncpy(files[numberOfFiles].name, str, FILENAME_MAX);
 	numberOfFiles++;
-
-	//save FATable
-	asm("push es\n"
-	    "mov es, si\n"
-	    "int 0x13\n"
-	    "pop es"
-	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+	saveFATable();
 	return 0;
 }
 
 static int sys_remove(const int str) {
 	int data = sys_open(str);
 	if(data == 0)
-		return ENOENT;
+		return -ENOENT;
 
 	int id = (Byte)data;
 	int track = files[id].track;
@@ -219,21 +220,14 @@ static int sys_remove(const int str) {
 		strcpy(files[i].name, files[i + 1].name);
 	}
 	numberOfFiles--;
-
-	//save FATable
-	asm("push es\n"
-		"mov es, si\n"
-	    "int 0x13\n"
-	    "pop es"
-	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
-
+	saveFATable();
 	return 0;
 }
 
 __attribute__((interrupt))
 void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
-	//DS and CS are on kernel
+	//DS and CS are on kernel address
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	// registers are backed up, after this function, they are restored

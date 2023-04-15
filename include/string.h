@@ -116,6 +116,7 @@ char *strncpy ( char * destination, const char * source, size_t num ) {
  * @return void* destination
  */
 void *memncpy ( int destination, const int source, int num ) {
+	//TODO: do it better
 	if(num >= 0) {
 		asm("L%=:\n"
 		    "	mov al, byte ptr ss:[si+bx]\n"

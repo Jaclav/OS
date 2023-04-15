@@ -41,10 +41,20 @@ int write ( int ptr, size_t count, FILE * stream ) {
  *
  * @param str file name
  * @param size file size >= 0
- * @return int 0 if succsesfull 1 if not
+ * @return int 0 if succsesfull
  */
 int create(const int str, size_t size) {
 	asm("int 0x21"::"a"(0x0400), "b"(str), "c"(size));
+}
+
+/**
+ * @brief Remove file
+ *
+ * @param str file name
+ * @return int 0 if success
+ */
+int remove(const int str) {
+	asm("int 0x21"::"a"(0x0500), "b"(str));
 }
 
 #pragma GCC diagnostic pop
