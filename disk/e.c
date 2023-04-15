@@ -54,12 +54,13 @@ int main() {
 		}
 		setCursorPosition(crsr);
 		key = getc();
-		if(key.character == 0 && key.scancode == 72) {
+		if(key.character == 0 && key.scancode == 72) {//UP
 			crsr = getCursorPosition();
-			crsr.y--;
+			if(crsr.y > 0)
+				crsr.y--;
 			setCursorPosition(crsr);
 		}
-		else if(key.character == 0 && key.scancode == 80 ) {
+		else if(key.character == 0 && key.scancode == 80 ) {//DOWN
 			crsr = getCursorPosition();
 			if(crsr.y < sizeY)
 				crsr.y++;
@@ -67,12 +68,12 @@ int main() {
 				crsr.x = 0;
 			setCursorPosition(crsr);
 		}
-		else if(key.character == 0 && key.scancode == 77) {
+		else if(key.character == 0 && key.scancode == 77) {//RIGHT
 			crsr = getCursorPosition();
 			crsr.x++;
 			setCursorPosition(crsr);
 		}
-		else if(key.character == 0 && key.scancode == 75) {
+		else if(key.character == 0 && key.scancode == 75) {//LEFT
 			crsr = getCursorPosition();
 			crsr.x--;
 			setCursorPosition(crsr);
@@ -83,12 +84,14 @@ int main() {
 			crsr.x--;
 			setCursorPosition(crsr);
 		}
-		else if(key.character == 13 && key.scancode == 28) {
+		else if(key.character == 13 && key.scancode == 28) {//enter
+			crsr = getCursorPosition();
 			if(crsr.y < sizeY)
 				crsr.y++;
 			crsr.x = 0;
+			setCursorPosition(crsr);
 		}
-		else if(key.character == 19 && key.scancode == 31) {
+		else if(key.character == 19 && key.scancode == 31) {//save
 			int n = 0;
 			bool isEmpty = true;
 			cls();
@@ -110,13 +113,14 @@ int main() {
 				n--;
 
 			printf("Saved %iB = %i sectors and %i Bytes\n", n, n / 512, n % 512);
-			return write(data, n, file);
+			return (write(data, n, file) > 0 ? 0 : -2);
 		}
 		else {
 			view[crsr.x][crsr.y] = key.character;//TODO: edit in data, not in view!!!
 			crsr.x++;
 		}
 	}
-	while(key.character != 27 && key.scancode != 1);
+	while(key.character != 27 && key.scancode != 1);//escape
+	cls();
 	return 0;
 }

@@ -17,9 +17,12 @@ int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
-	printf("Size: %i; ID: %i\n", file->size, file->id);
+	printf("Readed: %iB: ", read(disk, 10, file));
+	for(int i = 0; i < 10; i++)
+		putc(disk[i]);
+	printf("\nSize: %i; ID: %i\n", file->size, file->id);
 
-	if(read(disk, 512 * file->size, file) != file->size) {
+	if(read(disk, 512, file) != 512) {
 		puts("ERROR file cannot be readed\n");
 		return 403;
 	}

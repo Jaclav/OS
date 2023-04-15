@@ -3,7 +3,7 @@ bits 16
 global load
 ;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD
 ; can also push 0; call func
-;TODO: add check if in code is 8E - change of sreg or EA - jmpf and then don't execute
+;TODO: add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
 ;TODO: make subprogram that exits
 
 load:
@@ -44,7 +44,7 @@ load:
 	mul		dx
 	add		ax,		0x100
 	mov		bx,		ax
-	mov		DWORD[es:bx],0x9001f8b8;mov ax,0x1f8 - 504 is error returned
+	mov		DWORD[es:bx],0x900008b8;mov ax,0x8 - ENOEXEC
 	add		bx,		4
 	mov		DWORD[es:bx],0x900002c2;ret 2
 

@@ -21,7 +21,7 @@ int main() {
 	}
 	puts(name);
 
-	if(read(image_bmp, 1024, file) != file->size) {
+	if(read(image_bmp, 1024, file) != 1024) {
 		puts("ERROR");
 		setVideoMode(MODE_TEXT);
 		return 403;

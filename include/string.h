@@ -110,18 +110,29 @@ char *strncpy ( char * destination, const char * source, size_t num ) {
 /**
  * @brief Copy n bytes from source to destination
  *
- * @param destination ss:destination
- * @param source cs:source
- * @param num number of bytes to copy
+ * @param destination cs:destination
+ * @param source ss:source
+ * @param num number of bytes to copy if negative ss:destination and cs:source are used
  * @return void* destination
  */
-void *memncpy ( void * destination, const void * source, size_t num ) {
-	asm("L%=:\n"
-	    "	mov al, byte ptr ss:[si+bx]\n"
-	    "	mov byte ptr cs:[di+bx], al\n"
-	    "	inc bx\n"
-	    "loop L%="
-	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
+void *memncpy ( int destination, const int source, int num ) {
+	if(num >= 0) {
+		asm("L%=:\n"
+		    "	mov al, byte ptr ss:[si+bx]\n"
+		    "	mov byte ptr cs:[di+bx], al\n"
+		    "	inc bx\n"
+		    "loop L%="
+		    ::"D"(destination), "S"(source), "b"(0), "c"(num));
+	}
+	else {
+		num *= - 1;
+		asm("L%=:\n"
+		    "	mov al, byte ptr cs:[si+bx]\n"
+		    "	mov byte ptr ss:[di+bx], al\n"
+		    "	inc bx\n"
+		    "loop L%="
+		    ::"D"(destination), "S"(source), "b"(0), "c"(num));
+	}
 	return destination;
 }
 

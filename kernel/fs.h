@@ -68,33 +68,49 @@ static int sys_open(const int filename) {
 	return -ENOENT;
 }
 
-static int sys_read(const Byte id, void *ptr, int count) {
+static int sys_read(const Byte id, int ptr, int count) {
 	if(id > numberOfFiles)
 		return -ENOENT;
-	/*
-	* ES:BX address to store
-	* AH 2 BIOS read
-	* AL number of sectors to read
-	* CH cylinder
-	* CL number of first sector to store
-	* DH head
-	* DL drive
-	*/
-	asm("mov ah, 2\n"
-	    "int 0x13\n"
-	    "jnc exit%=\n"
-	    "mov eax, -1\n"
-	    "exit%=:\n"
-	    "	xor ah,ah\n"
-	    "	mov [ebp-24], ax"
-	    ::"a"(count / 512), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
-	//TODO make operation size Byte not sector
+
+	int sectors = (count - (count % 512)) / 512;
+	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
+		return EFBIG;
+
+	//read whole sectors
+	if(sectors > 0) {
+		asm("int 0x13\n"
+		    "jnc exit%=\n"
+		    "mov eax, -1\n"
+		    "exit%=:\n"
+		    "	xor ah,ah\n"
+		    "	mov [ebp-24], ax"
+		    ::"a"(0x0200|sectors), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
+	}
+	//save rest
+	if(count % 512 != 0) {
+		Byte toSave[512];
+		memset(toSave, 'X', 512);
+
+		asm("push es\n"
+		    "mov es, si\n"
+		    "int 0x13\n"
+		    "pop es\n"
+		    "jnc exit%=\n"
+		    "mov eax, -1\n"
+		    "exit%=:\n"
+		    "	xor ah,ah\n"
+		    "	mov [ebp-24], ax"
+		    ::"a"(0x0201), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
+		memncpy(ptr, toSave, -(count % 512));
+	}
+	return count;
 }
 
-static int sys_write(const Byte id, void *ptr, int count) {
+static int sys_write(const Byte id, int ptr, int count) {
 	if(id > numberOfFiles)
 		return -ENOENT;
 
+	//TODO: resize if not enough space
 	int sectors = (count - (count % 512)) / 512;
 	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
 		return EFBIG;
@@ -109,7 +125,7 @@ static int sys_write(const Byte id, void *ptr, int count) {
 	if(count % 512 != 0) {
 		Byte toSave[512];
 		memset(toSave, 0, 512);
-		strncpy((char *)toSave, ptr + (count - (count % 512)), count % 512);
+		memncpy((char *)toSave, ptr + (count - (count % 512)), count % 512);
 		/*
 		* AH = 03h
 		* AL = Number of sectors to write
@@ -119,9 +135,11 @@ static int sys_write(const Byte id, void *ptr, int count) {
 		* DL = Drive number
 		* ES:BX = Address of memory buffer
 		*/
-		asm("mov es, si\n"//FIXME: may cause errors
+		asm("push es\n"
+		    "mov es, si\n"
 		    "mov ah, 3\n"
-		    "int 0x13"
+		    "int 0x13\n"
+		    "pop es"
 		    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|(files[id].beginSector+sectors)), "d"(0), "S"(KERNEL_ADDRESS));
 	}
 	return count;
@@ -151,7 +169,7 @@ static int sys_create(const int str, size_t size) {
 					break;
 				}
 			}
-			//FIXME: file must be all in one track, change it
+			//TODO: file must be all in one track, change it
 			if(j < size)
 				beginSector = 0;
 			if(beginSector != 0)
@@ -173,8 +191,10 @@ end:
 	numberOfFiles++;
 
 	//save FATable
-	asm("mov es, si\n"//FIXME: may cause errors
-	    "int 0x13"
+	asm("push es\n"
+	    "mov es, si\n"
+	    "int 0x13\n"
+	    "pop es"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 	return 0;
 }
@@ -201,8 +221,10 @@ static int sys_remove(const int str) {
 	numberOfFiles--;
 
 	//save FATable
-	asm("mov es, si\n"//FIXME: may cause errors
-	    "int 0x13"
+	asm("push es\n"
+		"mov es, si\n"
+	    "int 0x13\n"
+	    "pop es"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 
 	return 0;

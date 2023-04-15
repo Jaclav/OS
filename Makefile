@@ -11,7 +11,7 @@ DISK=$(wildcard disk/*.c disk/*.asm)
 DISKBIN=$(DISK:.c=.bin) $(DISK:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=20#counted from 0, so first disk sector will be 17 (counted from 1)
+DISK_START=22#counted from 0, so first disk sector will be 17 (counted from 1)
 KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
@@ -24,7 +24,9 @@ kernel:$(BINS) $(OBJS)
 	ld -T kernel/kernel.ld -melf_i386 bin/kernel/*.o -o bin/kernel.bin
 	nasm $(MACROS) -fbin bin/fat.asm -o bin/fat.bin
 	cat bin/boot/boot.bin bin/fat.bin bin/kernel.bin > bin/OS.img
+#might by seek=72 for 2_88 or seek=36 for 1_44
 	dd if=bin/disk/disk.img of=bin/OS.img seek=72	2> /dev/null
+	dd if=/dev/null of=bin/OS.img seek=200 bs=14k
 
 disk: $(DISKBIN)
 	@./disk/disk.sh
