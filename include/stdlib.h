@@ -18,21 +18,6 @@ void udelay(unsigned long usecs) {
 	    :"a"(0x8600), "c"(usecs>>16), "d"((Word)usecs));
 }
 
-void cls(void) {
-	asm("int 0x10\n\
-        cls_l:\n\
-        mov ax,0\n\
-        int 0x20\n\
-        loop cls_l\n\
-        mov ax,0x0200\n\
-        int 0x10"
-	    :
-	    : "a" (0x0200),
-	    "b" (0x0),
-	    "c" (0xffff),
-	    "d" (0x0));
-}
-
 void exit(int val) {
 	asm("push cx\n"
 	    "push bx\n"

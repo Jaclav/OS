@@ -1,4 +1,5 @@
 #include <io.h>
+#include <file.h>
 #include <graphics.h>
 
 __attribute__((section("start")))
@@ -12,7 +13,7 @@ int main() {
 	Position pos = {100, 50};
 
 	FILE *file;
-	file = fopen(name, "");
+	file = open(name, "");
 	if(file == NULL) {
 		puts("ERROR file connot be opened\n");
 		setVideoMode(MODE_TEXT);
@@ -20,7 +21,7 @@ int main() {
 	}
 	puts(name);
 
-	if(fread(image_bmp, 512, file->size, file) != file->size) {
+	if(read(image_bmp, 1024, file) != file->size) {
 		puts("ERROR");
 		setVideoMode(MODE_TEXT);
 		return 403;

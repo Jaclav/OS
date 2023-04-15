@@ -1,4 +1,5 @@
 #include <io.h>
+#include <file.h>
 #include <graphics.h>
 #include <string.h>
 
@@ -11,14 +12,14 @@ int main() {
 
 	//read and print file data.txt
 	FILE *file = NULL;
-	file = fopen("data.txt", "");
+	file = open("data.txt", "");
 	if(file == NULL) {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
 	printf("Size: %i; ID: %i\n", file->size, file->id);
 
-	if(fread(disk, 512, file->size, file) != file->size) {
+	if(read(disk, 512 * file->size, file) != file->size) {
 		puts("ERROR file cannot be readed\n");
 		return 403;
 	}
@@ -26,7 +27,7 @@ int main() {
 		putc(disk[i]);
 	putc('\n');
 
-	fputs("Hello!!! data.txt, I've overwritten it!", file);
+	write("Hello!!! data.txt, I've overwritten it!", 40, file);
 	create("HELLO.txt", 2);
 
 	// test colors

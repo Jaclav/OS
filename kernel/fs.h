@@ -49,7 +49,7 @@ size_t numberOfFiles = 0;
 static int sys_setup() {
 	numberOfFiles = 0;
 	if(*(Byte *)0 != 0xcf || *(Byte *)1 != 0xaa || *(Byte *)2 != 0x55)
-		return 0;
+		return -1;
 	files = 3;
 	for(; (*(int *)(numberOfFiles * 19 + 3) != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++)
 		for(int i = 0; i < files[numberOfFiles].size; i++)
@@ -58,17 +58,19 @@ static int sys_setup() {
 	return numberOfFiles;
 }
 
-static int sys_fopen(const int filename) {
+static int sys_open(const int filename) {
 	for(size_t id = 0; id < numberOfFiles; id++) {
 		if(strcmp(files[id].name, filename)) {
 			return files[id].size << 8 | id;
 		}
 	}
 	//file doesn't exist
-	return 0;
+	return -ENOENT;
 }
 
-static int sys_read(int id, void *ptr, int count) {
+static int sys_read(const Byte id, void *ptr, int count) {
+	if(id > numberOfFiles)
+		return -ENOENT;
 	/*
 	* ES:BX address to store
 	* AH 2 BIOS read
@@ -81,34 +83,52 @@ static int sys_read(int id, void *ptr, int count) {
 	asm("mov ah, 2\n"
 	    "int 0x13\n"
 	    "jnc exit%=\n"
-	    "mov ax, 0\n"
+	    "mov eax, -1\n"
 	    "exit%=:\n"
 	    "	xor ah,ah\n"
 	    "	mov [ebp-24], ax"
-	    ::"a"(count), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
+	    ::"a"(count / 512), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
+	//TODO make operation size Byte not sector
 }
 
-static void sys_write(const Byte id, const int str) {
-	Byte toSave[512];
-	memset(toSave, 0, 512);
-	strncpy((char *)toSave, str, 512);
-	/*
-	* AH = 03h
-	* AL = Number of sectors to write
-	* CH = Cylinder number (10 bit value, upper 2 bits in CL)
-	* CL = Starting sector number
-	* DH = Head number
-	* DL = Drive number
-	* ES:BX = Address of memory buffer
-	*/
-	asm("mov es, si\n"//FIXME: may cause errors
-	    "mov ah, 3\n"
-	    "int 0x13"
-	    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
+static int sys_write(const Byte id, void *ptr, int count) {
+	if(id > numberOfFiles)
+		return -ENOENT;
+
+	int sectors = (count - (count % 512)) / 512;
+	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
+		return EFBIG;
+
+	//save whole sectors
+	if(sectors > 0) {
+		asm("mov ah, 3\n"
+		    "int 0x13"
+		    ::"a"(0x0300|sectors), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
+	}
+	//save rest
+	if(count % 512 != 0) {
+		Byte toSave[512];
+		memset(toSave, 0, 512);
+		strncpy((char *)toSave, ptr + (count - (count % 512)), count % 512);
+		/*
+		* AH = 03h
+		* AL = Number of sectors to write
+		* CH = Cylinder number (10 bit value, upper 2 bits in CL)
+		* CL = Starting sector number
+		* DH = Head number
+		* DL = Drive number
+		* ES:BX = Address of memory buffer
+		*/
+		asm("mov es, si\n"//FIXME: may cause errors
+		    "mov ah, 3\n"
+		    "int 0x13"
+		    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|(files[id].beginSector+sectors)), "d"(0), "S"(KERNEL_ADDRESS));
+	}
+	return count;
 }
 
 static int sys_create(const int str, size_t size) {
-	if(size == 0)//must be at least 1 sector
+	if(size <= 0)//must be at least 1 sector
 		size = 1;
 
 	if(size > SECTORS_PER_TRACK)
@@ -153,14 +173,14 @@ end:
 	numberOfFiles++;
 
 	//save FATable
-	asm("mov es, si\n"
+	asm("mov es, si\n"//FIXME: may cause errors
 	    "int 0x13"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 	return 0;
 }
 
 static int sys_remove(const int str) {
-	int data = sys_fopen(str);
+	int data = sys_open(str);
 	if(data == 0)
 		return ENOENT;
 
@@ -181,7 +201,7 @@ static int sys_remove(const int str) {
 	numberOfFiles--;
 
 	//save FATable
-	asm("mov es, si\n"
+	asm("mov es, si\n"//FIXME: may cause errors
 	    "int 0x13"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 
@@ -205,26 +225,26 @@ void int0x21(struct interruptFrame * frame) {
 	//change ah to ax
 	switch(ax >> 8) {
 	case 0:
-		asm("mov [ebp-24], ax"::"a"(sys_setup()));
+		asm("mov [ebp-24], eax"::"a"(sys_setup()));
 		break;
 	case 1:
-		asm("mov [ebp-24], ax"::"a"(sys_fopen(bx)));
+		asm("mov [ebp-24], eax"::"a"(sys_open(bx)));
 		break;
 	case 2:
-		asm("mov [ebp-24], ax"::"a"(sys_read(bx, cx, dx)));
+		asm("mov [ebp-24], eax"::"a"(sys_read(bx, cx, dx)));
 		break;
 	case 3:
-		sys_write(bx, cx);
+		asm("mov [ebp-24], eax"::"a"(sys_write(bx, cx, dx)));
 		break;
 	case 4:
-		asm("mov [ebp-24], ax"::"a"(sys_create(bx, cx)));
+		asm("mov [ebp-24], eax"::"a"(sys_create(bx, cx)));
 		break;
 	case 5:
-		asm("mov [ebp-24], ax"::"a"(sys_remove(bx)));
+		asm("mov [ebp-24], eax"::"a"(sys_remove(bx)));
 		break;
 	default:
 		printf("INT 0x21!\n");
-		asm("mov [ebp-24],ax"::"a"(ENOSYS));
+		asm("mov [ebp-24],eax"::"a"(ENOSYS));
 		break;
 	}
 	asm("pop ds");

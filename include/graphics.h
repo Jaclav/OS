@@ -110,4 +110,19 @@ void setCursorPosition(Cursor cursor) {
 	    :: "a"(0x0200), "b"(0x0), "d"(cursor));
 }
 
+void cls(void) {
+	asm("int 0x10\n\
+        cls_l:\n\
+        mov ax,0\n\
+        int 0x20\n\
+        loop cls_l\n\
+        mov ax,0x0200\n\
+        int 0x10"
+	    :
+	    : "a" (0x0200),
+	    "b" (0x0),
+	    "c" (0xffff),
+	    "d" (0x0));
+}
+
 #endif

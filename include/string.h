@@ -87,7 +87,7 @@ char * strcpy ( char * destination, const char * source ) {
 }
 
 /**
- * @brief Copy n chars from source to destination
+ * @brief Copy n chars from source to destination until \0
  *
  * @param destination ss:destination
  * @param source cs:source
@@ -103,6 +103,24 @@ char *strncpy ( char * destination, const char * source, size_t num ) {
 	    "	inc bx\n"
 	    "loop L%=\n"
 	    "after%=:"
+	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
+	return destination;
+}
+
+/**
+ * @brief Copy n bytes from source to destination
+ *
+ * @param destination ss:destination
+ * @param source cs:source
+ * @param num number of bytes to copy
+ * @return void* destination
+ */
+void *memncpy ( void * destination, const void * source, size_t num ) {
+	asm("L%=:\n"
+	    "	mov al, byte ptr ss:[si+bx]\n"
+	    "	mov byte ptr cs:[di+bx], al\n"
+	    "	inc bx\n"
+	    "loop L%="
 	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
 	return destination;
 }
