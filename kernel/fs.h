@@ -9,6 +9,7 @@
  *
  */
 
+//TODO: better handle disk errors
 #ifndef FS_H
 #define FS_H
 
@@ -46,12 +47,30 @@ size_t numberOfFiles = 0;
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
+static int sys_create(const int filename, size_t size);
+static int sys_remove(const int filename);
+
 static void saveFATable() {
 	asm("push es\n"
 	    "mov es, si\n"
 	    "int 0x13\n"
 	    "pop es"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
+}
+
+/**
+ * @brief Copy from ss:source to cs:destination
+ */
+void __strncpy ( char * destination, const char * source, size_t num ) {
+	asm("L%=:\n"
+	    "	mov al, byte ptr ss:[si+bx]\n"
+	    "	mov byte ptr cs:[di+bx], al\n"
+	    "	cmp al,0\n"
+	    "	je after%=\n"
+	    "	inc bx\n"
+	    "loop L%=\n"
+	    "after%=:"
+	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
 }
 
 static int sys_setup() {
@@ -82,7 +101,7 @@ static int sys_read(const Byte id, int ptr, int count) {
 
 	int sectors = (count - (count % 512)) / 512;
 	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
-		return -EFBIG;
+		return -EFBIG;//TODO: copy how much is possible, set error somewhere(?)
 
 	//read whole sectors
 	if(sectors > 0) {
@@ -94,10 +113,10 @@ static int sys_read(const Byte id, int ptr, int count) {
 		    "	mov [ebp-24], ax"
 		    ::"a"(0x0200|sectors), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
 	}
-	//save rest
+	//read rest
 	if(count % 512 != 0) {
-		Byte toSave[512];
-		memset(toSave, 'X', 512);
+		Byte readed[512];
+		memset(readed, 0, 512);
 
 		asm("push es\n"
 		    "mov es, si\n"
@@ -108,20 +127,38 @@ static int sys_read(const Byte id, int ptr, int count) {
 		    "exit%=:\n"
 		    "	xor ah,ah\n"
 		    "	mov [ebp-24], ax"
-		    ::"a"(0x0201), "b"(toSave), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
-		memncpy(ptr, toSave, -(count % 512));
+		    ::"a"(0x0201), "b"(readed), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
+
+		//copy from cs:readed to ss:ptr
+		asm("L%=:\n"
+		    "	mov al, byte ptr cs:[si+bx]\n"
+		    "	mov byte ptr ss:[di+bx], al\n"
+		    "	inc bx\n"
+		    "loop L%="
+		    ::"D"(ptr), "S"(readed), "b"(0), "c"(count%512));
 	}
 	return count;
 }
 
-static int sys_write(const Byte id, int ptr, int count) {
+static int sys_write(Byte id, int ptr, int count) {
 	if(id > numberOfFiles)
 		return -ENOENT;
 
-	//TODO: resize if not enough space
 	int sectors = (count - (count % 512)) / 512;
-	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
-		return -EFBIG;
+	//if not enough space try resizing
+	if(files[id].size < sectors + (count % 512 != 0 ? 1 : 0)) {
+		char filename[FILENAME_MAX];
+		strcpy(filename, files[id].name);
+		int ret = sys_remove(filename);
+		if(ret < 0)return ret;
+
+		ret = sys_create(filename, sectors + (count % 512 != 0 ? 1 : 0));
+		if(ret < 0)return ret;
+
+		ret = sys_open(filename);
+		if(ret < 0)return ret;
+		id = ret;
+	}
 
 	//save whole sectors
 	if(sectors > 0) {
@@ -133,16 +170,15 @@ static int sys_write(const Byte id, int ptr, int count) {
 	if(count % 512 != 0) {
 		Byte toSave[512];
 		memset(toSave, 0, 512);
-		memncpy((char *)toSave, ptr + (count - (count % 512)), count % 512);
-		/*
-		* AH = 03h
-		* AL = Number of sectors to write
-		* CH = Cylinder number (10 bit value, upper 2 bits in CL)
-		* CL = Starting sector number
-		* DH = Head number
-		* DL = Drive number
-		* ES:BX = Address of memory buffer
-		*/
+
+		//copy from ss:ptr to cs:toSave
+		asm("L%=:\n"
+		    "	mov al, byte ptr ss:[si+bx]\n"
+		    "	mov byte ptr cs:[di+bx], al\n"
+		    "	inc bx\n"
+		    "loop L%="
+		    ::"D"(toSave), "S"(ptr + (count - (count % 512))), "b"(0), "c"(count % 512));
+
 		asm("push es\n"
 		    "mov es, si\n"
 		    "mov ah, 3\n"
@@ -153,16 +189,16 @@ static int sys_write(const Byte id, int ptr, int count) {
 	return count;
 }
 
-static int sys_create(const int str, size_t size) {
+static int sys_create(const int filename, size_t size) {
+	//TODO: move it to sys_open when file wasn't found
 	if(size <= 0)//must be at least 1 sector
 		size = 1;
 
 	if(size > SECTORS_PER_TRACK)
 		return -EFBIG;
 
-	for(size_t i = 0; i < numberOfFiles; i++)
-		if(strcmp(files[i].name, str))
-			return -EEXIST;
+	if(sys_open(filename) != -ENOENT)
+		return -EEXIST;
 
 	//search for free space
 	Byte beginSector = 0;//store first sector of unused cx sectors
@@ -194,15 +230,15 @@ end:
 	files[numberOfFiles].beginSector = beginSector;
 	files[numberOfFiles].size = size;
 	files[numberOfFiles].track = track;
-	strncpy(files[numberOfFiles].name, str, FILENAME_MAX);
+	strncpy(files[numberOfFiles].name, filename, FILENAME_MAX);
 	numberOfFiles++;
 	saveFATable();
 	return 0;
 }
 
-static int sys_remove(const int str) {
-	int data = sys_open(str);
-	if(data == 0)
+static int sys_remove(const int filename) {
+	int data = sys_open(filename);
+	if(data == -ENOENT)
 		return -ENOENT;
 
 	int id = (Byte)data;
@@ -239,12 +275,14 @@ void int0x21(struct interruptFrame * frame) {
 	asm("mov si,[ebp-8]":"=S"(si));
 	asm("mov di,[ebp-4]":"=D"(di));
 	//change ah to ax
+	char fileName[FILENAME_MAX];
 	switch(ax >> 8) {
 	case 0:
 		asm("mov [ebp-24], eax"::"a"(sys_setup()));
 		break;
 	case 1:
-		asm("mov [ebp-24], eax"::"a"(sys_open(bx)));
+		__strncpy(fileName, bx, FILENAME_MAX);
+		asm("mov [ebp-24], eax"::"a"(sys_open(fileName)));
 		break;
 	case 2:
 		asm("mov [ebp-24], eax"::"a"(sys_read(bx, cx, dx)));
@@ -253,10 +291,12 @@ void int0x21(struct interruptFrame * frame) {
 		asm("mov [ebp-24], eax"::"a"(sys_write(bx, cx, dx)));
 		break;
 	case 4:
-		asm("mov [ebp-24], eax"::"a"(sys_create(bx, cx)));
+		__strncpy(fileName, bx, FILENAME_MAX);
+		asm("mov [ebp-24], eax"::"a"(sys_create(fileName, cx)));
 		break;
 	case 5:
-		asm("mov [ebp-24], eax"::"a"(sys_remove(bx)));
+		__strncpy(fileName, bx, FILENAME_MAX);
+		asm("mov [ebp-24], eax"::"a"(sys_remove(fileName)));
 		break;
 	default:
 		printf("INT 0x21!\n");

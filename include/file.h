@@ -16,45 +16,45 @@ typedef struct {
 	Word fpi;
 } FILE;
 
-FILE *open(int name, int mode) {
+FILE *open(int filename, int mode) {
 	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
 	file.fpi = 0;
 	asm ("int 0x21\n"
 	     "mov bl, ah\n"
-	     "xor ah, ah":"=a"(file.id), "=b"(file.size):"a"(0x100), "b"(name));
+	     "xor ah, ah":"=a"(file.id), "=b"(file.size):"a"(0x100), "b"(filename));
 	if((char)file.size < 0)
 		return NULL;
 	return &file;
 }
 
-int read ( void * ptr, size_t count, FILE * stream ) {
-	asm("int 0x21"::"a"(0x0200), "b"(stream->id), "c"(ptr), "d"(count));
+int read ( int buf, size_t count, FILE * stream ) {
+	asm("int 0x21"::"a"(0x0200), "b"(stream->id), "c"(buf), "d"(count));
 }
 
-int write ( int ptr, size_t count, FILE * stream ) {
-	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(ptr), "d"(count));
+int write ( int buf, size_t count, FILE * stream ) {
+	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(buf), "d"(count));
 }
 
 /**
  * @brief Create file
  *
- * @param str file name
+ * @param filename file name
  * @param size file size >= 0
  * @return int 0 if succsesfull
  */
-int create(const int str, size_t size) {
-	asm("int 0x21"::"a"(0x0400), "b"(str), "c"(size));
+int create(const int filename, size_t size) {
+	asm("int 0x21"::"a"(0x0400), "b"(filename), "c"(size));
 }
 
 /**
  * @brief Remove file
  *
- * @param str file name
+ * @param filename file name
  * @return int 0 if success
  */
-int remove(const int str) {
-	asm("int 0x21"::"a"(0x0500), "b"(str));
+int remove(const int filename) {
+	asm("int 0x21"::"a"(0x0500), "b"(filename));
 }
 
 #pragma GCC diagnostic pop

@@ -33,6 +33,7 @@ void main() {
 
 	char command[100];
 	char parameter[100];
+	int retVal;
 
 	for(;;) {
 		bufforSize = gets(command, 98);
@@ -87,6 +88,14 @@ void main() {
 				putc('\n');
 			}
 		}
+		else if(strcmp(command, "rm")) {
+			if(parameter[0] == 0) {
+				retVal = -1;
+				goto afterCOM;//simulate rm as com command
+			}
+			asm("int 0x21":"=a"(retVal):"a"(0x0500), "b"(parameter));
+			goto afterCOM;
+		}
 		else {
 			//check if there is program called command+".com"
 			//TODO do it by chcecking if file exists by FILE fopen
@@ -95,13 +104,14 @@ void main() {
 			strncpy(command + strlen(command), com, 5);
 			for(; i < numberOfFiles; i++) {
 				if(strcmp(files[i].name, command)) {
-					int ret = load(files[i].beginSector, files[i].track, parameter, files[i].size);
-					if(ret != 0) {
+					retVal = load(files[i].beginSector, files[i].track, parameter, files[i].size);
+afterCOM:
+					if(retVal != 0) {
 						cputs("Error:", VGA_COLOR_RED);
-						printf(" \"%s\" returned %i\n", command, ret);
+						printf(" \"%s\" returned %i\n", command, retVal);
 					}
 
-					break;
+					goto mainLoop;
 				}
 			}
 			if(i == numberOfFiles) {
@@ -109,6 +119,7 @@ void main() {
 				printf(" \"%s\" is unknown command!\n", command);
 			}
 		}
+mainLoop:
 		putc('>');
 	}
 

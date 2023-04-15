@@ -12,6 +12,7 @@ int main() {
 	FILE* file = open(0x80, "");
 	if(file == NULL)
 		return -1;
+
 	int size = read(data, 512 * file->size, file) * 512;
 
 	cls();
@@ -113,15 +114,8 @@ int main() {
 				n--;
 
 			printf("Saved %iB = %i sectors and %i Bytes\n", n, n / 512, n % 512);
-			//TODO: do it in sys_write
-			if(n > file->size) {
-				char fileName[16];
-				strcpy(fileName, 0x80);
-				remove(fileName);
-				create(fileName, n / 512 + (n % 512 > 0 ? 1 : 0));
-				file = open(fileName, "");
-			}
-			return (write(data, n, file) > 0 ? 0 : -2);
+			int ret = write(data, n, file);
+			return (ret > 0 ? 0 : ret);
 		}
 		else {
 			view[crsr.x][crsr.y] = key.character;//TODO: edit in data, not in view!!!

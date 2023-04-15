@@ -6,18 +6,10 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
-/**
- * @brief Compare two strings
- *
- * @param str1 cs:str1
- * @param str2 ss:str2
- * @return true if are equal
- * @return false if are not equal
- */
 bool strcmp(int str1, int str2) {
 	asm("L%=:\n"
-	    "	mov al, cs:[si+bx]\n"
-	    "	cmp al, ss:[di+bx]\n"
+	    "	mov al, [si+bx]\n"
+	    "	cmp al, [di+bx]\n"
 	    "	jne neq%=\n"
 	    "	cmp al,0\n"
 	    "	je eq%=\n"
@@ -32,16 +24,6 @@ bool strcmp(int str1, int str2) {
 	    ::"b"(0), "S"(str1), "D"(str2));
 }
 #pragma GCC diagnostic pop
-
-bool strncmp ( const char * str1, const char * str2, size_t num ) {
-	for(size_t i = 0; i < num; i++) {
-		if(str1[i] != str2[i])
-			return false;
-		if(str1[i] == 0)
-			break;
-	}
-	return true;
-}
 
 const char * strchr ( const char * str, int character ) {
 	while(*str != 0) {
@@ -86,54 +68,16 @@ char * strcpy ( char * destination, const char * source ) {
 	return destination;
 }
 
-/**
- * @brief Copy n chars from source to destination until \0
- *
- * @param destination ss:destination
- * @param source cs:source
- * @param num number of chars to copy
- * @return char* destination
- */
 char *strncpy ( char * destination, const char * source, size_t num ) {
 	asm("L%=:\n"
-	    "	mov al, byte ptr ss:[si+bx]\n"
-	    "	mov byte ptr cs:[di+bx], al\n"
+	    "	mov al, byte ptr [si+bx]\n"
+	    "	mov byte ptr [di+bx], al\n"
 	    "	cmp al,0\n"
 	    "	je after%=\n"
 	    "	inc bx\n"
 	    "loop L%=\n"
 	    "after%=:"
 	    ::"D"(destination), "S"(source), "b"(0), "c"(num));
-	return destination;
-}
-
-/**
- * @brief Copy n bytes from source to destination
- *
- * @param destination cs:destination
- * @param source ss:source
- * @param num number of bytes to copy if negative ss:destination and cs:source are used
- * @return void* destination
- */
-void *memncpy ( int destination, const int source, int num ) {
-	//TODO: do it better
-	if(num >= 0) {
-		asm("L%=:\n"
-		    "	mov al, byte ptr ss:[si+bx]\n"
-		    "	mov byte ptr cs:[di+bx], al\n"
-		    "	inc bx\n"
-		    "loop L%="
-		    ::"D"(destination), "S"(source), "b"(0), "c"(num));
-	}
-	else {
-		num *= - 1;
-		asm("L%=:\n"
-		    "	mov al, byte ptr cs:[si+bx]\n"
-		    "	mov byte ptr ss:[di+bx], al\n"
-		    "	inc bx\n"
-		    "loop L%="
-		    ::"D"(destination), "S"(source), "b"(0), "c"(num));
-	}
 	return destination;
 }
 
