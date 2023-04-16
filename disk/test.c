@@ -33,11 +33,13 @@ int main() {
 	write("Hello!!! data.txt, I've overwritten it!", 40, file);
 	create("HELLO.txt", 2);
 
+	getc();
 	// test colors
-	for(int j = 1; j < 15; j++)
-		cputc('X', j, 2);
-	putc('\n');
-
+	for(int i = 0; i < 16; i++) {
+		for(int j = 0; j < 16; j++)
+			cputc('X', j + i * 16, 2);
+		putc('\n');
+	}
 	//test interrupts
 	asm("int 0x20"
 	    ::"a"(0xff00));

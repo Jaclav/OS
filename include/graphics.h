@@ -8,6 +8,15 @@
 enum Color {Black = 0, Blue, Green, Cyan, Red, Magenta, Brown, LightGrey, DarkGrey, LightBlue, LightGreen, LightCyan, LightRed, LightMagenta, LightBrown, White};
 typedef Byte Color;
 
+typedef union {
+	struct {
+		unsigned int foreground: 4;
+		unsigned int background: 3;
+		unsigned int blink: 1;
+	};
+	Byte attributes;
+} Attributes;
+
 #define MODE_TEXT 2
 #define MODE_TEXT_COLOR 16
 #define MODE_COLOR 19

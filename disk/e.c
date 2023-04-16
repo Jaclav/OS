@@ -35,6 +35,9 @@ int main() {
 	Cursor crsr;
 	Cursor def = getCursorPosition();
 	int sizeY = 0;
+	Attributes underCursor;
+	underCursor.foreground = Black;
+	underCursor.background = LightGrey;
 	do {
 		setCursorPosition(def);
 		bool wasNewline;
@@ -43,8 +46,16 @@ int main() {
 			wasNewline = false;
 			for(int i = 0; i < 79; i++) {
 				if(view[i][j] != 0) {
-					putc(view[i][j]);
+					if(i == crsr.x && j == crsr.y)
+						cputc(view[i][j], underCursor.attributes, 1);
+					else
+						cputc(view[i][j], LightGrey, 1);
 					wasNewline = true;
+				}
+				else if(i == crsr.x && j == crsr.y) {
+					if(i != 0)
+						while(crsr.x > 0 && view[crsr.x - 1][crsr.y] == 0)crsr.x--;
+					cputc(view[i][j], underCursor.attributes, 1);
 				}
 			}
 			if(!wasNewline)

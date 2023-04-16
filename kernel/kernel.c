@@ -4,6 +4,7 @@
 // https://en.wikipedia.org/wiki/INT_13H
 // http://www.brackeen.com/vga/basics.html#3
 //BUG: cannot give string literal to char* parameter, only int WHY!?
+//TODO:https://stackoverflow.com/questions/34420076/how-to-get-realtime-key-presses-in-assembly
 #define KERNEL 1
 #include <io.h>
 #include <string.h>
@@ -22,16 +23,34 @@ int gets(char *str, int size);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 __int void timer(struct interruptFrame * frame) {
+//https://wiki.osdev.org/Processes_and_Threads
 	static int a = 0;
-	// if(a % 1000 == 0)
-	// puti(a);
+	/*int ax = 0, bx;
+	asm("mov ax,es\n"
+	    "mov bx,ss":"=a"(ax), "=b"(bx));
+	if(bx == 0x2000 && ax == 0x2000 && a % 1000 == 0) {
+		// puti(a / 1000); why does it matter
+		asm("mov		ax,		0x2000");
+		asm("mov		ds,		ax");
+		asm("mov		ss,		ax");
+		asm("mov		es,		ax");
+		asm("mov		fs,		ax");
+		asm("mov		gs,		ax");
+
+		DEBUG;
+		exit(-1);
+		asm("push cx\n"
+		    "push bx\n"
+		    "push dx\n"
+		    "iret"::"a"(-1), "d"(*(int*)(0x8)), "b"(0x1000), "c"(0));
+	}*/
 	a++;
 }
 #pragma GCC diagnostic pop
 
 __attribute__((section("start")))
 void main() {
-	setVideoMode(0x02);
+	setVideoMode(MODE_TEXT);
 	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
