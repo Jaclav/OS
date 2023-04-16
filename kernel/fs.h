@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <io.h>
 #include <string.h>
+#include "interrupts.h"
 
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
@@ -45,7 +46,6 @@ size_t numberOfFiles = 0;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
 
 static int sys_create(const int filename, size_t size);
 static int sys_remove(const int filename);
@@ -260,8 +260,7 @@ static int sys_remove(const int filename) {
 	return 0;
 }
 
-__attribute__((interrupt))
-void int0x21(struct interruptFrame * frame) {
+__int void int0x21(struct interruptFrame * frame) {
 	//see interrupts.asm
 	//DS and CS are on kernel address
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));

@@ -64,17 +64,17 @@ int main() {
 		pos.x += i;
 		pos.y = i % 250;
 		pos.x %= 250;
-		writePixel(pos, VGA_COLOR_GREEN);
+		writePixel(pos, Green);
 	}
 
 	for(size_t i = 0; i < SIZE_X; i++) {
 		pos.x = i;
 		pos.y = SIZE_Y - i;
-		writePixel(pos, VGA_COLOR_LIGHT_CYAN);
+		writePixel(pos, Cyan);
 	}
 	getc();
 	setVideoMode(0x2);
-	setColorPalette(VGA_COLOR_DARK_GREY);
+	setColorPalette(DarkGrey);
 
 	return -1234;
 }

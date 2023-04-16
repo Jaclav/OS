@@ -15,12 +15,15 @@ int main() {
 
 	Byte ch, cl, dh, dl = 1;
 	for(int i = 0; i < dl; i++) {
-		asm("int 0x13":"=b"(bx), "=c"(cx), "=d"(dx):"a"(0x0800), "dl"(i));
+		asm("int 0x13":"=b"(bx), "=c"(cx), "=d"(dx):"a"(0x0800), "d"(i));
 		ch = cx >> 8;
 		cl = (Byte)cx;
 		dh = dx >> 8;
 		dl = (Byte)dx;
-		printf("\xba%i:tracks=%i sectors/track=%i type=%i heads=%i disks=%i\n", i, ch, cl, bx, dh, dl);
+		int err = 0;
+		asm("int 0x13":"=a"(err):"a"(0x0100));
+		printf("\xba%i: tracks=%i S/T=%i type=%i H=%i disks=%i, err=%i\n", i, ch, cl, bx, dh, dl, err);
+		asm("int 0x13"::"a"(0), "d"(i));//reset errors
 	}
 
 	asm("int 0x1a":"=d"(dx), "=c"(cx):"a"(0x0400));

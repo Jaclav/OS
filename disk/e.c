@@ -53,6 +53,7 @@ int main() {
 				sizeY++;
 			putc('\n');
 		}
+		puts(0x80);
 		setCursorPosition(crsr);
 		key = getc();
 		if(key.character == 0 && key.scancode == 72) {//UP

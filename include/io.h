@@ -43,13 +43,23 @@ int printf(const int str, ...) {
 		if(*ptr == '%') {
 			switch(*(ptr + 1)) {
 			case 'i':
-			case 'd': {
+			case 'd':
 				puti(va_arg(va, int));
 				break;
-			}
 			case 'u':
 				asm("int 0x20"::"a"(0x200), "b"(va_arg(va, unsigned int)));
 				break;
+			case 'b': {
+				char num[17];
+				int par = va_arg(va, unsigned int);
+				for(int i = 0; i < 33; i++) {
+					num[15 - i] = par % 2 + '0';
+					par /= 2;
+				}
+				num[16] = 0;
+				asm("int 0x20"::"a"(0x100), "b"(num));
+				break;
+			}
 			case 'c':
 				asm("xor ah, ah\n"
 				    "int 0x20"::"a"(va_arg(va, int)));

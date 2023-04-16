@@ -1,6 +1,4 @@
 // https://grandidierite.github.io/bios-interrupts/
-// https://cplusplus.com/reference/cstdio/putchar/
-// https://archive.kernel.org/oldlinux/htmldocs/kernel-api/API-memset.html
 // https://en.wikipedia.org/wiki/INT_16H
 // https://en.wikipedia.org/wiki/INT_10H
 // https://en.wikipedia.org/wiki/INT_13H
@@ -21,12 +19,23 @@
 extern int load(Byte beginSector, Byte track, int parameter, int size);
 int gets(char *str, int size);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+__int void timer(struct interruptFrame * frame) {
+	static int a = 0;
+	// if(a % 1000 == 0)
+	// puti(a);
+	a++;
+}
+#pragma GCC diagnostic pop
+
 __attribute__((section("start")))
 void main() {
 	setVideoMode(0x02);
-	setColorPalette(VGA_COLOR_DARK_GREY);
+	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
+	addInterrupt(0x001c, timer);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
@@ -56,7 +65,10 @@ void main() {
 		}
 		else if(strcmp(command, "key")) {
 			Key key = getc();
-			printf("character=%i,scancode=%i, color=", key.character, key.scancode);
+			Word special = 0;
+			asm("int 0x16":"=a"(special):"a"(0x1200));
+			printf("character=%i,scancode=%i,special=%b,color=", key.character, key.scancode, special);
+			//get attribute
 			int a = 0;
 			asm("int 0x10":"=a"(a):"a"(0x0800), "b"(0x0000));
 			puti(a >> 8);
@@ -68,7 +80,7 @@ void main() {
 		else if(strcmp(command, "ls")) {
 			size_t i = 0;
 			size_t sum = 0;
-			cputs("NAME         TRACK:SECTOR   SIZE", VGA_COLOR_CYAN);
+			cputs("NAME         TRACK:SECTOR   SIZE", Cyan);
 			putc('\n');
 			for(; i < numberOfFiles; i++) {
 				puts(files[i].name);
@@ -107,7 +119,7 @@ void main() {
 					retVal = load(files[i].beginSector, files[i].track, parameter, files[i].size);
 afterCOM:
 					if(retVal != 0) {
-						cputs("Error:", VGA_COLOR_RED);
+						cputs("Error:", Red);
 						printf(" \"%s\" returned %i\n", command, retVal);
 					}
 
@@ -115,7 +127,7 @@ afterCOM:
 				}
 			}
 			if(i == numberOfFiles) {
-				cputs("Error:", VGA_COLOR_RED);
+				cputs("Error:", Red);
 				printf(" \"%s\" is unknown command!\n", command);
 			}
 		}
