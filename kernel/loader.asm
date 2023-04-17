@@ -57,7 +57,7 @@ load:
 		cmp		al,		0
 		jne 	.loop
 	.after:
-	mov 	es:[0xff],	0				;set null character
+	mov 	BYTE es:[0xff],	0			;set null character
 
 	;;;;;;;;;;;;;;;;;;
 	;* RUN NEW SEGMENT
@@ -75,6 +75,8 @@ load:
 
 	mov		WORD[0x16], 0			; CALL OFFSET
 	mov		WORD[0x18], es			; CALL SEGMENT
+	mov		sp,		0xffff			; set stack begin on end of segment
+	mov		ebp,	0xffff			; set stack begin on end of segment
 	push 	0						; set zero as flag register - for iret
 	call far [es:0x16]				; push flags; push cs; push ip
 	.end:
