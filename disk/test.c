@@ -18,16 +18,18 @@ int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
-	printf("Readed: %iB: ", read(disk, 10, file));
-	for(int i = 0; i < 10; i++)
+	size_t size = read(disk, 12, file);
+	printf("Readed: %iB: ", size);
+	for(size_t i = 0; i < size; i++)
 		putc(disk[i]);
-	printf("\nSize: %i; ID: %i\n", file->size, file->id);
+	printf("\nSize: %i; ID: %i\n", size, file->id);
 
-	if(read(disk, 512, file) != 512) {
+	size = read(disk, 512, file);
+	if(size != 512) {
 		puts("ERROR file cannot be readed\n");
 		return 403;
 	}
-	for(int i = 0; i < 512; i++)
+	for(size_t i = 0; i < size; i++)
 		putc(disk[i]);
 	putc('\n');
 

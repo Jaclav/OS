@@ -5,7 +5,7 @@
 
 __attribute__((section("start")))
 int main() {
-	char data[2000];
+	char data[2001];
 	char view[80][25];
 	memset(view, 0, 80 * 25);
 	memset(data, 0, 2000);
@@ -13,10 +13,10 @@ int main() {
 	if(file == NULL)
 		return -1;
 
-	int size = read(data, 512 * file->size, file) * 512;
+	size_t size = read(data, 2000, file);
 
 	cls();
-	int n = 0;
+	size_t n = 0;
 	for(int j = 0; j < 24; j++) {
 		for(int i = 0; i < 79; i++) {
 			if(n > size)
@@ -64,7 +64,7 @@ int main() {
 				sizeY++;
 			putc('\n');
 		}
-		puts(0x80);
+		printf("File: %s size: %i", 0x80, size);
 		setCursorPosition(crsr);
 		key = getc();
 		if(key.character == 0 && key.scancode == 72) {//UP
@@ -105,7 +105,7 @@ int main() {
 			setCursorPosition(crsr);
 		}
 		else if(key.character == 19 && key.scancode == 31) {//save
-			int n = 0;
+			n = 0;
 			bool isEmpty = true;
 			cls();
 			for(int j = 0; j < 24; j++) {

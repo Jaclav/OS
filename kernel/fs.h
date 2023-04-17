@@ -36,7 +36,7 @@ struct {
 	char name[FILENAME_MAX];
 	Byte track;
 	Byte beginSector;
-	Byte size;
+	Byte size;//! in sectors sector=512B
 } *files;
 
 bool map[TRACKS_MAX][SECTORS_PER_TRACK];//map[0] = 0 because there is no 0th sector, they are counted from 1
@@ -95,13 +95,16 @@ static int sys_open(const int filename) {
 	return -ENOENT;
 }
 
-static int sys_read(const Byte id, int ptr, int count) {
+static int sys_read(const Byte id, int ptr, size_t count) {
 	if(id > numberOfFiles)
 		return -ENOENT;
 
 	int sectors = (count - (count % 512)) / 512;
-	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors))
-		return -EFBIG;//TODO: copy how much is possible, set error somewhere(?)
+	//if wanted more than filesize read whole file
+	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors)) {
+		count = files[id].size * 512;
+		sectors = files[id].size;
+	}
 
 	//read whole sectors
 	if(sectors > 0) {
@@ -140,7 +143,7 @@ static int sys_read(const Byte id, int ptr, int count) {
 	return count;
 }
 
-static int sys_write(Byte id, int ptr, int count) {
+static int sys_write(Byte id, int ptr, size_t count) {
 	if(id > numberOfFiles)
 		return -ENOENT;
 
