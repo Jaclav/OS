@@ -46,17 +46,18 @@ load:
 	mov		DWORD es:[bx+4],0x900002c2	;ret 2
 
 	; load at 0x2000:80 program parameters
-	mov 	si, 	WORD[ebp+16]	; pointer to parameter string in si
+	mov 	si, 	WORD[ebp+16]		; pointer to parameter string in si
 	xor		bx,		bx
 	.loop:
 		mov 	al, 	[si+bx]
 		mov 	es:[bx+0x80],al
 		inc 	bx
-		cmp 	bx, 	80
+		cmp 	bx, 	0x7f
 		jge 	.after
 		cmp		al,		0
 		jne 	.loop
 	.after:
+	mov 	es:[0xff],	0				;set null character
 
 	;;;;;;;;;;;;;;;;;;
 	;* RUN NEW SEGMENT
