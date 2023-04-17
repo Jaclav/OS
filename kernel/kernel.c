@@ -30,15 +30,14 @@ __int void timer(struct interruptFrame * frame) {
 	    "mov bx,ss":"=a"(ax), "=b"(bx));
 	if(bx == 0x2000 && ax == 0x2000 && a % 1000 == 0) {
 		// puti(a / 1000); why does it matter
-		asm("mov		ax,		0x2000");
+		asm("mov		ax,		0x1000");
 		asm("mov		ds,		ax");
 		asm("mov		ss,		ax");
 		asm("mov		es,		ax");
 		asm("mov		fs,		ax");
 		asm("mov		gs,		ax");
+		load(1, 1, "HELLO", 1);
 
-		DEBUG;
-		exit(-1);
 		asm("push cx\n"
 		    "push bx\n"
 		    "push dx\n"

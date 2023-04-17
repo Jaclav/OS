@@ -8,7 +8,7 @@ __attribute__((section("start")))
 int main() {
 	char a[] = "Greetings from C disk! Parameters:";
 	Byte parameters = 0x80;
-	printf("%s %s\n", a, parameters);
+	printf("%s\"%s\"\n", a, parameters);
 	Byte disk[512];
 
 	//read and print file data.txt
