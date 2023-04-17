@@ -26,7 +26,8 @@ void puts(const int string) {
 
 void puti(int a) {
 	if(a < 0) {
-		putc('-');
+		asm("mov al, '-'\n"
+		    "int 0x20"::"a"(0));
 		a *= -1;
 	}
 	asm("mov bx, [ebp+8]\n"
@@ -52,7 +53,7 @@ int printf(const int str, ...) {
 			case 'b': {
 				char num[17];
 				int par = va_arg(va, unsigned int);
-				for(int i = 0; i < 33; i++) {
+				for(int i = 0; i < 16; i++) {
 					num[15 - i] = par % 2 + '0';
 					par /= 2;
 				}

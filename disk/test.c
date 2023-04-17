@@ -1,5 +1,6 @@
 #include <io.h>
 #include <file.h>
+#include <conio.h>
 #include <graphics.h>
 #include <string.h>
 

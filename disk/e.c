@@ -1,6 +1,6 @@
 #include <io.h>
 #include <file.h>
-#include <graphics.h>
+#include <conio.h>
 #include <string.h>
 
 __attribute__((section("start")))

@@ -25,8 +25,9 @@ kernel:$(BINS) $(OBJS)
 	nasm $(MACROS) -fbin bin/fat.asm -o bin/fat.bin
 	cat bin/boot/boot.bin bin/fat.bin bin/kernel.bin > bin/OS.img
 #might by seek=72 for 2_88 or seek=36 for 1_44
-	dd if=bin/disk/disk.img of=bin/OS.img seek=72	2> /dev/null
-	dd if=/dev/null of=bin/OS.img seek=200 bs=14k
+	dd if=bin/disk/disk.img of=bin/OS.img seek=72 2> /dev/null
+	dd if=/dev/null of=bin/OS.img seek=200 bs=14k 2> /dev/null
+	wc bin/kernel.bin -c
 
 disk: $(DISKBIN)
 	@./disk/disk.sh
@@ -36,15 +37,15 @@ disk: $(DISKBIN)
 
 %.bin: %.c
 	gcc $(CFLAGS) -c $< -o bin/$<.o
-	@gcc $(CFLAGS) -S $< -o bin/debug/$<.S
-	@objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm
+	@gcc $(CFLAGS) -S $< -o bin/debug/$<.S 2> /dev/null
+	@objdump -D -M i8086 bin/$<.o -M intel > bin/debug/$<.asm 2> /dev/null
 	ld -T disk/linker.ld -melf_i386 bin/$<.o -o bin/$@
 
 INTFLAGS=-mgeneral-regs-only -mno-red-zone
 %.o:%.c
 	gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -c $< -o bin/$@
-	@gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@.S
-	@objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm
+	@gcc $(MACROS) $(CFLAGS) $(INTFLAGS) -S $< -o bin/debug/$@.S 2> /dev/null
+	@objdump -D -M i8086 bin/$@ -M intel > bin/debug/$<.asm 2> /dev/null
 
 %.o:%.asm
 	nasm $(MACROS) -felf32 $< -o bin/$@

@@ -9,7 +9,7 @@
 #include <io.h>
 #include <string.h>
 #include <stdlib.h>
-#include <graphics.h>
+#include <conio.h>
 #include "interrupts.h"
 #include "fs.h"
 

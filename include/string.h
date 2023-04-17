@@ -2,7 +2,6 @@
 #define STRING_H
 
 #include "types.h"
-#include "math.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
@@ -23,6 +22,18 @@ bool strcmp(int str1, int str2) {
 	    "end%=:"
 	    ::"b"(0), "S"(str1), "D"(str2));
 }
+
+size_t strlen(const char *str) {
+	asm("xor eax,eax\n"
+	    "L%=:\n"
+	    "	cmp BYTE ptr [si+bx], 0\n"
+	    "	je end%=\n"
+	    "	inc bx\n"
+	    "	jmp L%=\n"
+	    "end%=:\n"
+	    "	mov eax, ebx"::"b"(0), "S"(str));
+}
+
 #pragma GCC diagnostic pop
 
 const char * strchr ( const char * str, int character ) {
@@ -34,19 +45,14 @@ const char * strchr ( const char * str, int character ) {
 	return NULL;
 }
 
-size_t strlen(const char *str) {
-	size_t size = 0;
-	for(; str[size] != 0; size++) {}
-	return size;
-}
-
+const uint32_t pows[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
 int stoi(const char *str) {
 	int num = 0;
 	size_t size = strlen(str) - 1;
-	for(size_t i = 0; str[i] != 0; i++) {
-		num += pow(10, (size - i)) * (str[i] - '0');
-	}
-	return num;
+	for(size_t i = (str[0] == '-' ? 1 : 0); str[i] != 0; i++)
+		num += pows[size - i] * (str[i] - '0');
+
+	return (str[0] == '-') ? -num : num;
 }
 
 void *memset(void * ptr, int value, size_t count) {
