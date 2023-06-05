@@ -16,8 +16,10 @@ KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
 run: clean disk kernel
-	bochs -q
-	@# qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
+	qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
+
+dbg: clean disk kernel
+	@bochs -q
 
 kernel:$(BINS) $(OBJS)
 #code loaded to memory by bootloader contains disk table and kernel

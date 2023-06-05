@@ -10,9 +10,12 @@ __attribute__((section("start")))
 int main() {
 	puts("\xc9\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcdINFO:\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbb\n");
 	Word ax, cx, dx, bx;
+
+	//memory
 	asm("int 0x15":"=a"(ax):"a"(0x88), "b"(0));;
 	printf("\xba\x45xtra memory: %ikB=%iMb\n", ax, ax / 1024);
 
+	//disks
 	Byte ch, cl, dh, dl = 1;
 	for(int i = 0; i < dl; i++) {
 		asm("int 0x13":"=b"(bx), "=c"(cx), "=d"(dx):"a"(0x0800), "d"(i));
@@ -26,6 +29,7 @@ int main() {
 		asm("int 0x13"::"a"(0), "d"(i));//reset errors
 	}
 
+	//date
 	asm("int 0x1a":"=d"(dx), "=c"(cx):"a"(0x0400));
 	ch = cx >> 8;
 	cl = (Byte)cx;
@@ -33,12 +37,18 @@ int main() {
 	dl = (Byte)dx;
 	printf("\xba%i%i/%i/%i\n", (ch / 16) * 10 + ch % 16, (cl / 16) * 10 + cl % 16, (dh / 16) * 10 + dh % 16, (dl / 16) * 10 + dl % 16);
 
+	//time
 	asm("int 0x1a":"=d"(dx), "=c"(cx):"a"(0x0200));
 	ch = cx >> 8;
 	cl = (Byte)cx;
 	dh = dx >> 8;
 	dl = (Byte)dx;
 	printf("\xba%i:%i:%i\n", (ch / 16) * 10 + ch % 16, (cl / 16) * 10 + cl % 16, (dh / 16) * 10 + dh % 16);
+
+	//get equipment list
+	asm("int 0x11":"=a"(ax));
+	printf("\xbaInstalled: %b\n", ax);
+
 	puts("\xc8\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xbc\n");
 	return 0;
 }
