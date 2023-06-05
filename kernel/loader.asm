@@ -4,7 +4,7 @@ bits 16
 
 global load
 ;TODO: add sys_exec(int filename)
-;TODO: make subprogram that exits
+;TODO: add sys_exeit(int code) as subprogram
 ;TODO: add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
 ;;; @brief load program to next segment (cs+0x1000) and executes it
 ;;; @param beginSector 	[ebp+8]

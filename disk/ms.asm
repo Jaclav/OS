@@ -12,8 +12,6 @@ MOUSE_RESOLUTION equ 3          ; Mouse resolution 8 counts/mm
 VIDEO_MODE       equ 0x13
 
 boot_start:
-    cld                         ; Set string instructions to use forward movement
-
     mov ax, VIDEO_MODE
     int 0x10                    ; Set video mode
 
@@ -48,12 +46,18 @@ boot_start:
 	mov ah, 2
 	int 0x20
 
+    cmp BYTE [curStatus], 10
+    je .exit
+
 	mov ah, 0x02
 	mov bx, 0x0
 	mov dx, 0x0
 	int 0x10
 
     jmp .main_loop              ; Endless main loop
+.exit:
+    mov 	ax, 	0
+    ret 2
 
 .no_mouse:
     mov bx, noMouseMsg          ; Error enabling mouse
