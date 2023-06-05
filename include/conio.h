@@ -23,9 +23,9 @@ typedef struct Cursor Cursor;
 
 typedef union {
 	struct {
-		unsigned int foreground: 4;
-		unsigned int background: 3;
-		unsigned int blink: 1;
+		Byte foreground: 4;
+		Byte background: 3;
+		Byte blink: 1;
 	};
 	Byte attributes;
 } Attributes;

@@ -4,10 +4,14 @@
 #include "types.h"
 #include <stdarg.h>
 
-struct Key {
-	Byte character, scancode;
+union Key {
+	struct {
+		Byte character: 8;
+		Byte scancode: 7;
+		Byte available: 1;
+	};
 };
-typedef struct Key Key;
+typedef union Key Key;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
@@ -86,10 +90,21 @@ int printf(const int str, ...) {
 //TODO: add separate getchar and getKey
 Key getc(void) {
 	Key key;
-	asm("mov ah, 0x00\n"
-	    "int 0x16"
-	    : "=a" (key)
-	    :"a" (0x10));
+	asm("int 0x16"
+	    :"=a"(key)
+	    :"a" (0x0));
+	return key;
+}
+
+Key getk(void) {
+	Key key;
+	asm("int 0x16\n"
+	    "mov bx, 0\n"
+	    "jnz .end\n"
+	    "mov bx, 1\n"
+	    ".end:"
+	    :"=a"(key), "=b"(key.available)
+	    :"a" (0x0100));
 	return key;
 }
 
