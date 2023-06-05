@@ -100,7 +100,7 @@ Key getk(void) {
 	Key key;
 	asm("int 0x16\n"
 	    "mov bx, 0\n"
-	    "jnz .end\n"
+	    "jz .end\n"
 	    "mov bx, 1\n"
 	    ".end:"
 	    :"=a"(key), "=b"(key.available)

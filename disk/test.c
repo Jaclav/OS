@@ -1,6 +1,7 @@
 #include <io.h>
 #include <file.h>
 #include <conio.h>
+#include <mouse.h>
 #include <graphics.h>
 #include <string.h>
 
@@ -77,7 +78,10 @@ int main() {
 		pos.y = SIZE_Y - i;
 		writePixel(pos, Cyan);
 	}
-	getc();
+	Key key;
+	do {
+		key = getk();
+	} while(key.available != 1);
 	setVideoMode(0x2);
 	setColorPalette(DarkGrey);
 
