@@ -8,6 +8,12 @@ struct Mouse {
 };
 typedef struct Mouse Mouse;
 
+enum CursorStatus {Nothing = 8, LeftPress = 9, RightPress = 10};
+
+extern void mouse_start();
+extern short mouseX, mouseY;
+extern char curStatus;
+
 int initialize() {
 
 }

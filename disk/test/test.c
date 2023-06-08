@@ -4,6 +4,7 @@
 #include <mouse.h>
 #include <graphics.h>
 #include <string.h>
+#include <stdlib.h>
 
 __attribute__((section("start")))
 int main() {
@@ -79,9 +80,32 @@ int main() {
 		writePixel(pos, Cyan);
 	}
 	Key key;
+	Cursor cur = {0, 0};
+	mouse_start();
+	Color color = Red;
 	do {
-		key = getk();
-	} while(key.available != 1);
+		printf("%i %i %i %i", mouseX, mouseY, curStatus, (Color)color);
+		Position pos = {mouseX, mouseY};
+		if(curStatus == LeftPress) {
+			color--;
+			udelay(100000);
+		}
+		if(curStatus == RightPress) {
+			color++;
+			udelay(100000);
+		}
+		writePixel(pos, color);
+
+		key = getKeyBuff();
+		if(key.available == 1) {
+			key = getc();
+			putc(key.character);
+		}
+		else
+			putc('x');
+		printf("      \r");
+		udelay(10000);
+	} while(key.character != 'a');
 	setVideoMode(0x2);
 	setColorPalette(DarkGrey);
 

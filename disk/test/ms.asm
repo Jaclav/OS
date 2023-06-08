@@ -1,3 +1,8 @@
+global mouse_start
+global mouseX
+global mouseY
+global curStatus
+
 bits 16
 %ifidn __?OUTPUT_FORMAT?__, bin
 	org 	0x100
@@ -11,53 +16,14 @@ MOUSE_RESOLUTION equ 3          ; Mouse resolution 8 counts/mm
 
 VIDEO_MODE       equ 0x13
 
-boot_start:
+mouse_start:
     mov ax, VIDEO_MODE
     int 0x10                    ; Set video mode
 
     call mouse_initialize
     jc .no_mouse                ; If CF set then error, inform user and end
     call mouse_enable           ; Enable the mouse
-
-    sti
-.main_loop:
-	mov ax, 0x0c02
-	mov bx, 0
-	mov cx, [mouseX]
-	mov dx, [mouseY]
-	int 0x10
-
-	mov bx,[mouseX]
-    mov ah, 2
-	int 0x20
-    mov bx, delimCommaSpc
-	mov ah, 1
-	int 0x20
-
-    mov bx, [mouseY]
-	mov ah, 2
-	int 0x20
-    mov bx, delimCommaSpc
-	mov ah, 1
-	int 0x20
-
-	xor bx,bx
-    mov bl, [curStatus]
-	mov ah, 2
-	int 0x20
-
-    cmp BYTE [curStatus], 10
-    je .exit
-
-	mov ah, 0x02
-	mov bx, 0x0
-	mov dx, 0x0
-	int 0x10
-
-    jmp .main_loop              ; Endless main loop
-.exit:
-    mov 	ax, 	0
-    ret 2
+    ret
 
 .no_mouse:
     mov bx, noMouseMsg          ; Error enabling mouse
@@ -224,6 +190,3 @@ mouseX:       dw 0              ; Current mouse X coordinate
 mouseY:       dw 0              ; Current mouse Y coordinate
 curStatus:    db 0              ; Current mouse status
 noMouseMsg:   db "Error setting up & initializing mouse", 0x0d, 0x0a, 0
-delimCommaSpc:db ", ", 0
-space: db " ",0
-space2: db "X",0

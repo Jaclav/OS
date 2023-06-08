@@ -96,7 +96,13 @@ Key getc(void) {
 	return key;
 }
 
-Key getk(void) {
+/**
+ * @brief Get key from buffor, to clear buffor use getc
+ *
+ * @return key from buffor
+ */
+Key getKeyBuff(void);
+Key getKeyBuff(void) {
 	Key key;
 	asm("int 0x16\n"
 	    "mov bx, 0\n"

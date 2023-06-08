@@ -51,10 +51,13 @@ static int sys_create(const int filename, size_t size);
 static int sys_remove(const int filename);
 
 static void saveFATable() {
-	asm("push es\n"
+	//FIXME what is better push es or bx?
+	asm("mov bx, es\n"
+		"push bx\n"
 	    "mov es, si\n"
 	    "int 0x13\n"
-	    "pop es"
+	    "pop bx\n"
+		"mov es, bx"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 }
 
