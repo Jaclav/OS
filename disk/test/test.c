@@ -80,7 +80,6 @@ int main() {
 		writePixel(pos, Cyan);
 	}
 	Key key;
-	Cursor cur = {0, 0};
 	mouse_start();
 	Color color = Red;
 	do {

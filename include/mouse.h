@@ -14,12 +14,12 @@ extern void mouse_start();
 extern short mouseX, mouseY;
 extern char curStatus;
 
-int initialize() {
+/*int initialize() {
 
 }
 
 int setMouse() {
 
-}
+}*/
 
 #endif //MOUSE_HPP
