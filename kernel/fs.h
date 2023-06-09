@@ -53,11 +53,11 @@ static int sys_remove(const int filename);
 static void saveFATable() {
 	//FIXME what is better push es or bx?
 	asm("mov bx, es\n"
-		"push bx\n"
+	    "push bx\n"
 	    "mov es, si\n"
 	    "int 0x13\n"
 	    "pop bx\n"
-		"mov es, bx"
+	    "mov es, bx"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 }
 
@@ -197,6 +197,7 @@ static int sys_write(Byte id, int ptr, size_t count) {
 
 static int sys_create(const int filename, size_t size) {
 	//TODO: move it to sys_open when file wasn't found
+	//TODO: return file's ID if success
 	if(size <= 0)//must be at least 1 sector
 		size = 1;
 

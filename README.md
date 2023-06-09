@@ -1,8 +1,6 @@
 # OS
 Simple 16 bit operating system. My goal is to achive:
 * errors management
-* disk management
-* file read/write
 * simple programs (file manager,file editor, games, image viewer)
 * user's custom programs execution
 * dynamic memory management
@@ -10,41 +8,42 @@ Simple 16 bit operating system. My goal is to achive:
 * protection rings
 * multithreading
 
-All sectors in BIOS **are counted from 1**\
+All sectors in BIOS **are counted from 1** and are 512B\
 Screenshot:\
 ![Screenshot](screenshot.png)
 ## Commands
-| Command     | Description                        |
-| :---------- | :--------------------------------- |
-| $           | Execute program $.com              |
-| cls         | clear screen                       |
-| pos         | print cursor position              |
-| key         | get keycode                        |
-| mode $      | change video mode to $             |
-| test        | test kernel library                |
-| sec $1 $2   | Print $2th sector from $1th strack |
-| ls          | Print files and their sizes        |
-| pic         | Draw bitmap file                   |
-| touch $1 $2 | Create $1 file with size $3        |
+| Command     | Description                       |
+| :---------- | :-------------------------------- |
+| $           | Execute program $.com             |
+| cls         | clear screen                      |
+| pos         | print cursor position             |
+| key         | get keycode                       |
+| mode $1     | change video mode to $1           |
+| test        | test kernel library               |
+| sec $1 $2   | Print $2th sector from $1th track |
+| ls          | Print files and their sizes       |
+| pic $1      | Draw bitmap from $1 file          |
+| touch $1 $2 | Create $1 file with size $2       |
 ## SYSTEM Interruptions
-0x20 is system interruption
+0x20 is IO int
 | AH   | Description               | Parameters            |
 | :--- | :------------------------ | :-------------------- |
 | 1    | print character on screen | AL - character        |
 | 2    | print string on screen    | BX - address ofstring |
 | 3    | print integer on screen   | BX - number           |
 
-0x21 is system interruption
-| AH   | Description                                         | Parameters                                                                    |
-| :--- | :-------------------------------------------------- | :---------------------------------------------------------------------------- |
-| 1    | Returns  AX - begin sector and BX - size in sectors | DX - file name                                                                |
-| 2    | Reads CX sectors to DI beginning from SI            | CX - count of sectors, SI beginnig sector, DI - pointer do destination memory |
-| 3    | Saves 512 B from SI to DIth sector                  | SI - data pointer to 512B DI - number of sector to save                       |
-| 4    | Creates file named SI with size CX in DIth sector   | SI - file name CX - file size DI - sector                                     |
+0x21 is file system int
+|  AH   | Description          | BX        | CX                   | DX        | Returns                                  |
+| :---: | :------------------- | :-------- | :------------------- | :-------- | :--------------------------------------- |
+|   1   | Get file's ID        | file name |                      |           | BX - file ID                             |
+|   2   | Reads file to memory | file id   | memory beginning     | size in B | Actually readed Bytes                    |
+|   3   | Saves memory to file | file id   | memory beginning     | size in B | Actually saved Bytes (completed to 512B) |
+|   4   | Creates file         | file name | new file size in Sec |           | 0 if success                             |
+|   4   | Removes BX file      | file name |                      |           | 0 if success                             |
 
 # Program loading and executing
-Program is loaded into address 0x2000:0x100.\
-Bytes from 0x2000:0 to 0x2000:0xff are reserved for OS i.e:
+Program is loaded into address (CS+0x1000):0x100.\
+Bytes from (CS+0x1000):0 to (CS+0x1000):0xff are reserved for OS i.e:
 * 0x00 to 0x08 stores call function to 0x100
 * 0x80 to 0xff stores string of program's paramaters
 
