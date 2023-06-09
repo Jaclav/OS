@@ -1,6 +1,8 @@
 #!/bin/bash
+# it is assumed that i track = 37 sectors
 cd bin/disk
 begin=0
+track=1
 
 echo "iret" > ../fat.asm
 echo "dw 0x55aa" >> ../fat.asm
@@ -20,12 +22,17 @@ wc -c *.[^i][^a^\.][^a] | while read a b;
 do
 	if [ "$b" != "razem" ]; then
 		size=`python3 <<< "import math; print(math.ceil($a/512))"`
-		printf "$b\tSize: $size sec = $a B\tbegin: $begin\n"
+		if [ $((begin+size)) -ge 36 ]; then							#may be 37, but it makes me feel safe
+			begin=0
+			track=$((track+1))
+			echo a
+		fi
+		printf "$b\tSize: $size sec = $a B\tbegin: $track:$begin\n"
 		fill=`python3 <<< "print(' '*$((15-${#b})))"`
-		echo "db \"$b\",0,\"$fill\", 1, $((begin+1)), $size" >> ../fat.asm
+		echo "db \"$b\",0,\"$fill\", $track, $((begin+1)), $size" >> ../fat.asm
 
-		dd if=$b of=disk.img seek=$begin	2> /dev/null
-		dd if=/dev/zero of=disk.img seek=100 count=1	2> /dev/null
+		dd if=$b of=disk.img seek=$((begin+(track-1)*72)) 2> /dev/null # 72*512=24204=0x9000 = new track
+		dd if=/dev/zero of=disk.img seek=150 count=1	2> /dev/null
 		begin=$((begin+size))
 	fi
 done

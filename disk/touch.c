@@ -1,6 +1,7 @@
 /**
- * @brief Create file $1 with size $2
+ * @brief Create file with name $1 and size $2
  *
+ * @return 0 if success negative if error
  */
 typedef unsigned int size_t;
 #define NULL 0
@@ -31,7 +32,7 @@ int main() {
 		num += pows[size - i] * (param2[i] - '0');
 
 	int ret = 1;
-	asm("int 0x21":"=a"(ret):"a"(0x0400), "c"(num), "S"(param1));
+	asm("int 0x21":"=a"(ret):"a"(0x0400), "b"(param1), "c"(num));
 
-	return ret;
+	return (ret > 0 ? 0 : ret);
 }

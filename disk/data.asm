@@ -9,4 +9,8 @@ db "Litwo! Ojczyzno moja! Ty jestes jak zdrowie,",0xa,\
 	"Jak mnie dziecko do zdrowia powrocilas cudem,",0xa,\
 	"(Gdy od placzacej matki pod Twoja opieke",0xa,\
 	"Ofiarowany, martwa podnioslem powieke",0xa,\
-	"I zaraz moglem pieszo do Twych swiatyn progu",0xa
+	"I zaraz moglem pieszo do Twych swiatyn progu",0xa,\
+	"Isc za wrocone zycie podziekowac Bogu),",0xa,\
+	"Tak nas powrocisz cudem na Ojczyzny lono.",0xa,\
+	"Tymczasem przenos moje dusze uteskniona",0xa,\
+	"Do tych pagorkow lesnych, do tych lak zielonych,"

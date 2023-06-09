@@ -11,7 +11,7 @@ int main() {
 	char a[] = "Greetings from C disk! Parameters:";
 	Byte parameters = 0x80;
 	printf("%s\"%s\"\n", a, parameters);
-	Byte disk[512];
+	Byte disk[701];
 
 	//read and print file data.txt
 	FILE *file = NULL;
@@ -26,13 +26,14 @@ int main() {
 		putc(disk[i]);
 	printf("\nSize: %i; ID: %i\n", size, file->id);
 
-	size = read(disk, 512, file);
-	if(size != 512) {
+	size = read(disk, 700, file);
+	if(size != 700) {
 		puts("ERROR file cannot be readed\n");
 		return 403;
 	}
 	for(size_t i = 0; i < size; i++)
 		putc(disk[i]);
+	puts("END");
 	putc('\n');
 
 	write("Hello!!! data.txt, I've overwritten it!", 40, file);
@@ -79,6 +80,7 @@ int main() {
 		pos.y = SIZE_Y - i;
 		writePixel(pos, Cyan);
 	}
+	getc();
 	Key key;
 	mouse_start();
 	Color color = Red;

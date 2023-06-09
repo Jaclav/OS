@@ -51,13 +51,10 @@ static int sys_create(const int filename, size_t size);
 static int sys_remove(const int filename);
 
 static void saveFATable() {
-	//FIXME what is better push es or bx?
-	asm("mov bx, es\n"
-	    "push bx\n"
+	asm("push es\n"
 	    "mov es, si\n"
 	    "int 0x13\n"
-	    "pop bx\n"
-	    "mov es, bx"
+	    "pop es"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 }
 
@@ -82,8 +79,10 @@ static int sys_setup() {
 		return -1;
 	files = 3;
 	for(; (*(int *)(numberOfFiles * 19 + 3) != 0) && numberOfFiles * 19 + 3 < 512; numberOfFiles++)
-		for(int i = 0; i < files[numberOfFiles].size; i++)
-			map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = 1;//reserve space
+		for(int i = 0; i < files[numberOfFiles].size; i++) {
+			if(files[numberOfFiles].track < TRACKS_MAX)
+				map[files[numberOfFiles].track][files[numberOfFiles].beginSector + i] = 1;//reserve space
+		}
 
 	return numberOfFiles;
 }
@@ -98,42 +97,31 @@ static int sys_open(const int filename) {
 	return -ENOENT;
 }
 
-static int sys_read(const Byte id, int ptr, size_t count) {
+static int sys_read(const Byte id, int ptr, size_t size) {
 	if(id > numberOfFiles)
 		return -ENOENT;
 
-	int sectors = (count - (count % 512)) / 512;
+	int sectors = (size - (size % 512)) / 512;
 	//if wanted more than filesize read whole file
-	if(files[id].size < (count % 512 != 0 ? sectors + 1 : sectors)) {
-		count = files[id].size * 512;
+	if(files[id].size < (size % 512 == 0 ? sectors : sectors + 1)) {
+		size = files[id].size * 512;
 		sectors = files[id].size;
 	}
 
 	//read whole sectors
 	if(sectors > 0) {
 		asm("int 0x13\n"
-		    "jnc exit%=\n"
-		    "mov eax, -1\n"
-		    "exit%=:\n"
-		    "	xor ah,ah\n"
-		    "	mov [ebp-24], ax"
 		    ::"a"(0x0200|sectors), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
 	}
 	//read rest
-	if(count % 512 != 0) {
+	if(size % 512 != 0) {
 		Byte readed[512];
-		memset(readed, 0, 512);
 
 		asm("push es\n"
 		    "mov es, si\n"
 		    "int 0x13\n"
 		    "pop es\n"
-		    "jnc exit%=\n"
-		    "mov eax, -1\n"
-		    "exit%=:\n"
-		    "	xor ah,ah\n"
-		    "	mov [ebp-24], ax"
-		    ::"a"(0x0201), "b"(readed), "c"(files[id].track<<8|files[id].beginSector), "d"(0), "S"(KERNEL_ADDRESS));
+		    ::"a"(0x0201), "b"(readed), "c"((files[id].track<<8|files[id].beginSector)+sectors), "d"(0), "S"(KERNEL_ADDRESS));
 
 		//copy from cs:readed to ss:ptr
 		asm("L%=:\n"
@@ -141,39 +129,36 @@ static int sys_read(const Byte id, int ptr, size_t count) {
 		    "	mov byte ptr ss:[di+bx], al\n"
 		    "	inc bx\n"
 		    "loop L%="
-		    ::"D"(ptr), "S"(readed), "b"(0), "c"(count%512));
+		    ::"D"(ptr+(sectors*512)), "S"(readed), "b"(0), "c"(size%512));
 	}
-	return count;
+	return size;
 }
 
-static int sys_write(Byte id, int ptr, size_t count) {
+static int sys_write(Byte id, int ptr, size_t size) {
+	//TODO: add modes, when append when override
 	if(id > numberOfFiles)
 		return -ENOENT;
 
-	int sectors = (count - (count % 512)) / 512;
+	int sectors = (size - (size % 512)) / 512;
 	//if not enough space try resizing
-	if(files[id].size < sectors + (count % 512 != 0 ? 1 : 0)) {
+	if(files[id].size < sectors + (size % 512 != 0 ? 1 : 0)) {
 		char filename[FILENAME_MAX];
 		strcpy(filename, files[id].name);
 		int ret = sys_remove(filename);
 		if(ret < 0)return ret;
 
-		ret = sys_create(filename, sectors + (count % 512 != 0 ? 1 : 0));
-		if(ret < 0)return ret;
-
-		ret = sys_open(filename);
+		ret = sys_create(filename, sectors + (size % 512 != 0 ? 1 : 0));
 		if(ret < 0)return ret;
 		id = ret;
 	}
 
 	//save whole sectors
 	if(sectors > 0) {
-		asm("mov ah, 3\n"
-		    "int 0x13"
+		asm("int 0x13"
 		    ::"a"(0x0300|sectors), "b"(ptr), "c"(files[id].track<<8|files[id].beginSector), "d"(0));
 	}
 	//save rest
-	if(count % 512 != 0) {
+	if(size % 512 != 0) {
 		Byte toSave[512];
 		memset(toSave, 0, 512);
 
@@ -183,21 +168,19 @@ static int sys_write(Byte id, int ptr, size_t count) {
 		    "	mov byte ptr cs:[di+bx], al\n"
 		    "	inc bx\n"
 		    "loop L%="
-		    ::"D"(toSave), "S"(ptr + (count - (count % 512))), "b"(0), "c"(count % 512));
+		    ::"D"(toSave), "S"(ptr + (size - (size % 512))), "b"(0), "c"(size % 512));
 
 		asm("push es\n"
 		    "mov es, si\n"
-		    "mov ah, 3\n"
 		    "int 0x13\n"
 		    "pop es"
 		    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|(files[id].beginSector+sectors)), "d"(0), "S"(KERNEL_ADDRESS));
 	}
-	return count;
+	return size;
 }
 
 static int sys_create(const int filename, size_t size) {
 	//TODO: move it to sys_open when file wasn't found
-	//TODO: return file's ID if success
 	if(size <= 0)//must be at least 1 sector
 		size = 1;
 
@@ -240,7 +223,7 @@ end:
 	strncpy(files[numberOfFiles].name, filename, FILENAME_MAX);
 	numberOfFiles++;
 	saveFATable();
-	return 0;
+	return numberOfFiles - 1;//return file's ID
 }
 
 static int sys_remove(const int filename) {

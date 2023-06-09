@@ -8,7 +8,7 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 //https://cplusplus.com/reference/cstdio/FILE/
-//TODO: remove file->size;
+//TODO: remove file pointer
 
 typedef struct {
 	Byte id;
