@@ -16,7 +16,7 @@ typedef enum {Black = 0, Blue, Green, Cyan, Red, Magenta, Brown, LightGrey, Dark
 
 /**
  * @brief pointer to NULL
- * @todo Should it be 0 or ((void *) 0)?
+ * @todo Make 0th Byte always zero for safety reason
  */
 #ifndef NULL
 #define NULL ((void *) 0)

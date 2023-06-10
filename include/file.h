@@ -1,7 +1,7 @@
 /**
  * @file file.h
  * @brief File IO
- * @todo remove file pointer, make FILE object same as in fs.h i.e. size and id
+ * @todo remove FILE as pointer
  */
 #ifndef FILE_H
 #define FILE_H
@@ -14,38 +14,54 @@
 
 //https://cplusplus.com/reference/cstdio/FILE/
 
-typedef struct {
-	Byte id;
-	Byte size;
-	Word fpi;
+typedef union {
+	struct {
+		Byte id;/**< file's id*/
+		Byte size;/**< size in Sectors (512B)*/
+	};
+	short val;/**< actually value returned by interruption*/
 } FILE;
 
 FILE *open(int filename, int mode) {
 	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
-	file.fpi = 0;
-	asm ("int 0x21\n"
-	     "mov bl, ah\n"
-	     "xor ah, ah":"=a"(file.id), "=b"(file.size):"a"(0x100), "b"(filename));
-	if((char)file.size < 0)
+	asm ("int 0x21":"=a"(file):"a"(0x100), "b"(filename));
+	if(file.val < 0)
 		return NULL;
 	return &file;
 }
 
-int read ( int buf, size_t count, FILE * stream ) {
-	asm("int 0x21"::"a"(0x0200), "b"(stream->id), "c"(buf), "d"(count));
+/**
+ * @brief Read from file
+ *
+ * @param buf pointer to destinated memory
+ * @param size to read in bytes
+ * @param stream FILE
+ * @return int actually readed Bytes or -error
+ */
+int read ( int buf, size_t size, FILE * stream ) {
+	asm("int 0x21"::"a"(0x0200), "b"(stream->id), "c"(buf), "d"(size));
 }
 
-int write ( int buf, size_t count, FILE * stream ) {
-	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(buf), "d"(count));
+
+/**
+ * @brief Write to file
+ *
+ * @param buf pointer to source memory
+ * @param size to write in Bytes, file will be rounded to whole sectors
+ * @param stream FILE
+ * @return int actually writted Bytes or -error
+ */
+int write ( int buf, size_t size, FILE * stream ) {
+	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(buf), "d"(size));
 }
 
 /**
  * @brief Create file
  *
- * @param filename file name
- * @param size file size >= 0
- * @return int 0 if succsesfull
+ * @param filename
+ * @param size in sectors(512B) >=0
+ * @return int new file's id or -error
  */
 int create(const int filename, size_t size) {
 	asm("int 0x21"::"a"(0x0400), "b"(filename), "c"(size));
@@ -54,8 +70,8 @@ int create(const int filename, size_t size) {
 /**
  * @brief Remove file
  *
- * @param filename file name
- * @return int 0 if success
+ * @param filename
+ * @return int 0 if success or -error
  */
 int remove(const int filename) {
 	asm("int 0x21"::"a"(0x0500), "b"(filename));

@@ -26,16 +26,16 @@ Screenshot:\
 | touch $1 $2 | Create $1 file with size $2       |
 ## SYSTEM Interruptions
 0x20 is IO int
-| AH   | Description               | Parameters            |
-| :--- | :------------------------ | :-------------------- |
-| 1    | print character on screen | AL - character        |
-| 2    | print string on screen    | BX - address ofstring |
-| 3    | print integer on screen   | BX - number           |
+| AH   | Description                      | Parameters            |
+| :--- | :------------------------------- | :-------------------- |
+| 1    | print character on screen        | AL - character        |
+| 2    | print string on screen           | BX - address ofstring |
+| 3    | print unsigned integer on screen | BX - number           |
 
 0x21 is file system int, if error it will return negative value like [errno](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md)
 |  AH   | Description          | BX        | CX                   | DX        | Returns                                  |
 | :---: | :------------------- | :-------- | :------------------- | :-------- | :--------------------------------------- |
-|   1   | Get file's ID        | file name |                      |           | BX - file ID                             |
+|   1   | Get file's ID        | file name |                      |           | File ID File size (in sectors)           |
 |   2   | Reads file to memory | file id   | memory beginning     | size in B | Actually readed Bytes                    |
 |   3   | Saves memory to file | file id   | memory beginning     | size in B | Actually saved Bytes (completed to 512B) |
 |   4   | Creates file         | file name | new file size in Sec |           | file's ID                                |

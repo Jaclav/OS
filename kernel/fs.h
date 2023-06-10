@@ -87,7 +87,7 @@ int sys_setup() {
  * @brief Open file
  *
  * @param filename
- * @return int {size,id} or -error
+ * @return int {size in Sectors(512B),id} or -error
  */
 int sys_open(const int filename) {
 	for(size_t id = 0; id < numberOfFiles; id++) {
@@ -102,7 +102,7 @@ int sys_open(const int filename) {
 /**
  * @brief Create file
  *
- * @param filename name
+ * @param filename
  * @param size in sectors(512B)
  * @return int new file's id or -error
  * @todo file must be all in one track, change it
@@ -189,7 +189,7 @@ int sys_remove(const int filename) {
  * @param id file's id
  * @param ptr pointer to destinated memory
  * @param size to read in bytes
- * @return int actually readed Bytes
+ * @return int actually readed Bytes or -error
  */
 int sys_read(const Byte id, int ptr, size_t size) {
 	if(id > numberOfFiles)
@@ -234,7 +234,7 @@ int sys_read(const Byte id, int ptr, size_t size) {
  * @param id file's id
  * @param ptr pointer to source memory
  * @param size to write in Bytes, file will be rounded to whole sectors
- * @return int actually writted Bytes
+ * @return int actually writted Bytes or -error
  * @todo add modes, when append when override
  */
 int sys_write(Byte id, int ptr, size_t size) {

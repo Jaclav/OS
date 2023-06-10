@@ -23,6 +23,7 @@ __start int main() {
 		puts("ERROR file connot be opened\n");
 		return 404;
 	}
+	printf("Size: %i; ID: %i\n", file->size, file->id);
 	size_t size = read(disk, 12, file);
 	printf("Readed: %iB: ", size);
 	for(size_t i = 0; i < size; i++)
