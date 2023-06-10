@@ -19,6 +19,7 @@ run: clean disk kernel
 	qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
 dbg: clean disk kernel
+	doxygen OS
 	@bochs -q
 
 kernel:$(BINS) $(OBJS)

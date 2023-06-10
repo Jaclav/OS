@@ -1,8 +1,10 @@
 /**
- * @brief Write data from $1 track $2 sector
+ * @file sec.c
+ * @brief Read 512B from disk
+ * @param Track
+ * @param Sector
  */
-typedef unsigned int size_t;
-#define NULL 0
+#include <types.h>
 
 int stoi(const char* str) {
 	char pows[] = {1, 10, 100};
@@ -16,8 +18,7 @@ int stoi(const char* str) {
 	return num;
 }
 
-__attribute__((section("start")))
-int main() {
+__start int main() {
 	char* param1 = NULL;
 	char* param2 = NULL;
 	for(int i = 0; * (char*)(0x80 + i) != 0; i++) {

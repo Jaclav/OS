@@ -1,17 +1,31 @@
-//TODO rename it to not mismatch with std
+/**
+ * @file stdlib.h
+ * @brief Standard libary
+ * @todo change name to not be mismatched with stdlib.h
+ */
 #ifndef STDLIB_H
 #define STDLIB_H
 
 #include "types.h"
 
+/**
+ * @brief Get RAM size in first 1MB
+ * @todo get RAM size above first 1MB with int 0x15 AH=0x88, see info.com
+ * @return size in kB
+ */
 Word getMemorySize(void) {
-	// size in kB
 	Word size;
 	asm("int 0x12"
 	    :"=a"(size));
 	return size;
 }
 
+/**
+ * @brief Delay usecs microseconds
+ *
+ * @param usecs
+ */
+void udelay(unsigned long usecs);
 void udelay(unsigned long usecs) {
 	//http://vitaly_filatov.tripod.com/ng/asm/asm_026.13.html
 	asm("int 0x15"
@@ -20,6 +34,7 @@ void udelay(unsigned long usecs) {
 }
 
 void exit(int val) {
+	//TODO: do it as OS interruption
 	asm("push cx\n"
 	    "push bx\n"
 	    "push dx\n"

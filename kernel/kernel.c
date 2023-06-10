@@ -1,31 +1,35 @@
-// https://grandidierite.github.io/bios-interrupts/
-// https://en.wikipedia.org/wiki/INT_16H
-// https://en.wikipedia.org/wiki/INT_10H
-// https://en.wikipedia.org/wiki/INT_13H
-// http://www.brackeen.com/vga/basics.html#3
-//BUG: cannot give string literal to char* parameter, only int WHY!?
-//TODO:https://stackoverflow.com/questions/34420076/how-to-get-realtime-key-presses-in-assembly
-#define KERNEL 1
+/**
+ * @file kernel.c
+ * @author Jaclav
+ * @brief Simple 16 bit kernel for BIOS
+ * @date 2023-06-10
+ *
+ * @copyright Copyright (c) 2023
+ *
+ * @bug cannot give string literal to char* parameter, only int WHY!?
+ */
 #include <io.h>
 #include <string.h>
 #include <stdlib.h>
 #include <conio.h>
-#include "interrupts.h"
-#include "fs.h"
 
+#define KERNEL 1
 #ifndef KERNEL_ADDRESS
 #define KERNEL_ADDRESS 0
 #endif
+
+#include "interrupts.h"
+#include "fs.h"
 
 extern int load(Byte beginSector, Byte track, int parameter, int size);
 int gets(char *str, int size);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-__int void timer(struct interruptFrame * frame) {
+/*__int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
 	static int a = 0;
-	/*int ax = 0, bx;
+	int ax = 0, bx;
 	asm("mov ax,es\n"
 	    "mov bx,ss":"=a"(ax), "=b"(bx));
 	if(bx == 0x2000 && ax == 0x2000 && a % 1000 == 0) {
@@ -42,18 +46,25 @@ __int void timer(struct interruptFrame * frame) {
 		    "push bx\n"
 		    "push dx\n"
 		    "iret"::"a"(-1), "d"(*(int*)(0x8)), "b"(0x1000), "c"(0));
-	}*/
+	}
 	a++;
-}
+	if(a > 20) {
+		a = 0;
+		asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+		puts("TIMER");
+		asm("pop ds");
+		asm("jmp 0x1000:0x0");
+	}
+}*/
+// extern void timer(void);
 #pragma GCC diagnostic pop
 
-__attribute__((section("start")))
-void main() {
-	setVideoMode(MODE_TEXT);
+__start void main() {
+	setVideoMode(TextMode);
 	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	addInterrupt(0x001c, timer);
+	// addInterrupt(0x001c, timer);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);

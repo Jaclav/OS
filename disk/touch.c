@@ -1,13 +1,12 @@
 /**
- * @brief Create file with name $1 and size $2
- *
- * @return 0 if success negative if error
+ * @file touch.c
+ * @brief Create file
+ * @param filename
+ * @param filesize
  */
-typedef unsigned int size_t;
-#define NULL 0
+#include <types.h>
 
-__attribute__((section("start")))
-int main() {
+__start int main() {
 	char* param1 = NULL;
 	char* param2 = NULL;
 	for(int i = 0; * (char*)(0x80 + i) != 0; i++) {

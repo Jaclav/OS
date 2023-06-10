@@ -1,3 +1,7 @@
+/**
+ * @file string.h
+ * @brief Simple string handling
+ */
 #ifndef STRING_H
 #define STRING_H
 
@@ -5,6 +9,14 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
+/**
+ * @brief Compares two string until \0 appeares
+ *
+ * @param str1
+ * @param str2
+ * @return true if are same
+ * @return false if not
+ */
 bool strcmp(int str1, int str2) {
 	asm("L%=:\n"
 	    "	mov al, [si+bx]\n"
@@ -23,6 +35,12 @@ bool strcmp(int str1, int str2) {
 	    ::"b"(0), "S"(str1), "D"(str2));
 }
 
+/**
+ * @brief Returns length of string
+ *
+ * @param str
+ * @return size_t
+ */
 size_t strlen(const char *str) {
 	asm("xor eax,eax\n"
 	    "L%=:\n"
@@ -36,6 +54,13 @@ size_t strlen(const char *str) {
 
 #pragma GCC diagnostic pop
 
+/**
+ * @brief Find first appearance of character
+ *
+ * @param str
+ * @param character
+ * @return pointer to first appearance or NULL if not found
+ */
 const char * strchr ( const char * str, int character ) {
 	while(*str != 0) {
 		if(*str == character)
@@ -46,6 +71,12 @@ const char * strchr ( const char * str, int character ) {
 }
 
 const uint32_t pows[] = {1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000};
+/**
+ * @brief Convert string to int
+ *
+ * @param str
+ * @return int
+ */
 int stoi(const char *str) {
 	int num = 0;
 	size_t size = strlen(str) - 1;
@@ -55,6 +86,14 @@ int stoi(const char *str) {
 	return (str[0] == '-') ? -num : num;
 }
 
+/**
+ * @brief Set count Bytes of *ptr to value
+ *
+ * @param ptr
+ * @param value
+ * @param count
+ * @return *ptr
+ */
 void *memset(void * ptr, int value, size_t count) {
 	asm("L%=:\n\
         mov [bx],dx\n\
@@ -64,6 +103,13 @@ void *memset(void * ptr, int value, size_t count) {
 	return ptr;
 }
 
+/**
+ * @brief Copy from source to destination until \0 appears
+ *
+ * @param destination
+ * @param source
+ * @return *destination
+ */
 char * strcpy ( char * destination, const char * source ) {
 	//copy all characters, including null
 	int i = 0;
@@ -74,6 +120,14 @@ char * strcpy ( char * destination, const char * source ) {
 	return destination;
 }
 
+/**
+ * @brief Copy num Bytes from source to destination until \0 appears
+ *
+ * @param destination
+ * @param source
+ * @param num
+ * @return *destination
+ */
 char *strncpy ( char * destination, const char * source, size_t num ) {
 	asm("L%=:\n"
 	    "	mov al, byte ptr [si+bx]\n"

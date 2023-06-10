@@ -1,24 +1,27 @@
+/**
+ * @file io.h
+ * @brief Standard input output library
+ * @todo add cursorColor and setCursorColor(Color color)
+ */
 #ifndef IO_H
 #define IO_H
 
 #include "types.h"
 #include <stdarg.h>
 
-union Key {
+typedef union Key {
 	struct {
 		Byte character: 8;
 		Byte scancode: 7;
 		Byte available: 1;
 	};
-};
-typedef union Key Key;
+} Key;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 void putc(Byte character) {
-	//TODO: add cursorColor and setCursorColor(Color color)
 	asm("mov al, [ebp+8]\n"
 	    "int 0x20"::"a"(0));
 }
@@ -38,8 +41,16 @@ void puti(int a) {
 	    "int 0x20"::"a"(0x200));
 }
 
-int printf(const int str, ...) {
-//https://cplusplus.com/reference/cstdio/printf/
+/**
+ * @brief C-like printf function
+ * @details See https://cplusplus.com/reference/cstdio/printf/
+ *
+ * @param str string to be printed with specifiers
+ * @param ... additional arguments depending on specifiers
+ * @bug %s cannot be string literal like "something" as argument in ...
+ */
+void printf(const int str, ...) {
+
 	va_list va;
 	va_start(va, str);
 
@@ -69,7 +80,7 @@ int printf(const int str, ...) {
 				asm("xor ah, ah\n"
 				    "int 0x20"::"a"(va_arg(va, int)));
 				break;
-			case 's'://BUG: cannot be string literal why!?
+			case 's':
 				asm("int 0x20"::"a"(0x100), "b"(va_arg(va, int)));
 				break;
 			default:
@@ -84,10 +95,14 @@ int printf(const int str, ...) {
 		ptr++;
 	}
 	va_end(va);
-	return 0;
+	return;
 }
 
-//TODO: add separate getchar and getKey
+/**
+ * @brief Wait for key in buffor, get it and clear buffor
+ *
+ * @return Key
+ */
 Key getc(void) {
 	Key key;
 	asm("int 0x16"
@@ -97,11 +112,10 @@ Key getc(void) {
 }
 
 /**
- * @brief Get key from buffor, to clear buffor use getc
- *
- * @return key from buffor
+ * @brief Get key from buffor
+ * @details to clear buffor use getc
+ * @return Key from buffor
  */
-Key getKeyBuff(void);
 Key getKeyBuff(void) {
 	Key key;
 	asm("int 0x16\n"

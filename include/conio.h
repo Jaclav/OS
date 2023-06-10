@@ -1,10 +1,7 @@
 /**
  * @file conio.h
- * @brief https://www.programmingsimplified.com/c/conio.h
- * @date 2023-04-17
- *
- * @copyright Copyright (c) 2023
- *
+ * @brief Console input output control
+ * @details Something like https://www.programmingsimplified.com/c/conio.h
  */
 
 #ifndef CONIO_H
@@ -12,16 +9,13 @@
 
 #include "types.h"
 
-#define MODE_TEXT 2
-#define MODE_TEXT_COLOR 16
-#define MODE_COLOR 19
+enum Modes {TextMode = 2, TextColorMode = 16, ColorMode = 19};
 
-struct Cursor {
+typedef struct Cursor {
 	Byte x, y;
-};
-typedef struct Cursor Cursor;
+} Cursor;
 
-typedef union {
+typedef union Attributes {
 	struct {
 		Byte foreground: 4;
 		Byte background: 3;
@@ -41,11 +35,13 @@ void setColorPalette(Byte color) {
 	    ::"a"(0x0b00), "b"(color));
 }
 
+/**
+ * @brief Get position of Cursor
+ * @details DH = row DL = column
+ *
+ * @return Cursor
+ */
 Cursor getCursorPosition(void) {
-	/*
-	DH = row
-	DL = column
-	*/
 	Cursor cursor;
 	asm("int 0x10"
 	    : "=d"(cursor)
@@ -53,11 +49,20 @@ Cursor getCursorPosition(void) {
 	return cursor;
 }
 
+/**
+ * @brief Set position of cursor
+ *
+ * @param cursor
+ */
 void setCursorPosition(Cursor cursor) {
 	asm("int 0x10"
 	    :: "a"(0x0200), "b"(0x0), "d"(cursor));
 }
 
+/**
+ * @brief Clear screen
+ *
+ */
 void cls(void) {
 	asm("int 0x10\n\
         cls_l%=:\n\
@@ -73,6 +78,13 @@ void cls(void) {
 	    "d" (0x0));
 }
 
+/**
+ * @brief Color put character
+ *
+ * @param c character
+ * @param color
+ * @param times how many times put c
+ */
 void cputc(char c, Color color, Byte times) {
 	asm("int 0x10"::"a"(0x0900|c), "b"(0x0000|color), "c"(times));
 	//move cursor by 1
@@ -83,6 +95,12 @@ void cputc(char c, Color color, Byte times) {
 	    :: "a"(0x0200|times));
 }
 
+/**
+ * @brief Color put string
+ *
+ * @param str
+ * @param color
+ */
 void cputs(int str, Color color) {
 	char* ptr = (char *)str;
 	while(*ptr != 0) {

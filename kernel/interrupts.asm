@@ -1,8 +1,5 @@
 bits 16
 ; About interrupts:
-	;; https://www.ctyme.com/rbrown.htm
-	;; https://wiki.osdev.org/Interrupt_Vector_Table
-	;; https://wiki.osdev.org/Interrupt_Service_Routines
 	;; When interrupt handler is called on stack are: [esp]=old eip [esp+2]=old cs [esp+4] old flags
 	;; to use local interrupt's variables DS must be changed to local i.e. KERNEL_ADDRESS
 	;; all cs of interrupt handler are KERNEL_ADDRESS - only kernel should handle
@@ -109,3 +106,37 @@ divZero:
 	.err db "ERROR: Zero division!",0xa,0
 
 %include "boot/io.asm"
+
+; global timer
+; timer:
+; 	push ax
+; 	push cx
+; 	push dx
+
+; 	mov cx, ds
+; 	mov bx, 0x1000
+; 	mov ds, bx
+
+; 	inc WORD[counter]
+; 	cmp WORD [counter], 100
+; 	jl .end
+
+; 	mov ah, 0
+; 	mov al, 'X'
+; 	int 0x20
+; 	mov WORD[counter], 0
+
+; 	; setSegments 0ma
+; 	;mov esp, 0xffd8
+; 	dbg
+; 	JMP 0xFFFF:0
+
+; 	.end:
+; 	mov ds,cx
+
+; 	pop dx
+; 	pop cx
+; 	pop ax
+; 	iret
+
+; counter: dw  0

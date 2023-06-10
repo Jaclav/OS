@@ -1,14 +1,18 @@
+/**
+ * @file mouse.h
+ * @brief Get mouse position and status
+ * @todo import all from disk/test/ms.asm
+ */
 #ifndef MOUSE_HPP
 #define MOUSE_HPP
 
 #include <types.h>
 
-struct Mouse {
+typedef struct Mouse {
 	Byte x, y, status;
-};
-typedef struct Mouse Mouse;
+} Mouse;
 
-enum CursorStatus {Nothing = 8, LeftPress = 9, RightPress = 10};
+enum CursorStatus {NothingPress = 8, LeftPress = 9, RightPress = 10};
 
 extern void mouse_start();
 extern short mouseX, mouseY;

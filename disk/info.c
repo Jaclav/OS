@@ -1,6 +1,6 @@
 /**
  * @file info.c
- * @brief Show extra memory, disk info, date and time
+ * @brief Show extra memory, disk information, list of devices, date and time
  * @date 2023-04-11
  *
  */

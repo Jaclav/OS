@@ -1,10 +1,15 @@
+/**
+ * @file e.c
+ * @brief Simple text editor
+ * @param filename file to edit
+ */
 #include <io.h>
+#include <types.h>
 #include <file.h>
 #include <conio.h>
 #include <string.h>
 
-__attribute__((section("start")))
-int main() {
+__start int main() {
 	char data[2001];
 	char view[80][25];
 	memset(view, 0, 80 * 25);

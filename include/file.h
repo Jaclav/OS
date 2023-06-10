@@ -1,3 +1,8 @@
+/**
+ * @file file.h
+ * @brief File IO
+ * @todo remove file pointer, make FILE object same as in fs.h i.e. size and id
+ */
 #ifndef FILE_H
 #define FILE_H
 
@@ -8,7 +13,6 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 //https://cplusplus.com/reference/cstdio/FILE/
-//TODO: remove file pointer
 
 typedef struct {
 	Byte id;

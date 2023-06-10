@@ -1,3 +1,7 @@
+/**
+ * @file test.c
+ * @brief Test every library and system element
+ */
 #include <io.h>
 #include <file.h>
 #include <conio.h>
@@ -6,8 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-__attribute__((section("start")))
-int main() {
+__start int main() {
 	char a[] = "Greetings from C disk! Parameters:";
 	Byte parameters = 0x80;
 	printf("%s\"%s\"\n", a, parameters);

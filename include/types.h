@@ -19,4 +19,6 @@ typedef Byte Color;
 #define DEBUG asm("xchg bx,bx");
 #endif
 
+#define __start __attribute__((section("start")))
+
 #endif
