@@ -10,10 +10,13 @@
 #include "types.h"
 
 /**
- * @brief Video modes, can be changed with void setVideoMode(Byte mode);
+ * @brief Video modes, can be changed with void setVideoMode(Mode mode);
  */
-enum Modes {TextMode = 2, TextColorMode = 16, ColorMode = 19};
+typedef enum {TextMode = 2, TextColorMode = 16, ColorMode = 19} Mode;
 
+/**
+ * @brief Position of cursor
+ */
 typedef struct Cursor {
 	Byte x, y;
 } Cursor;
@@ -30,7 +33,12 @@ typedef union Attributes {
 	Byte attributes;/**< character on screen attrubutes as Byte*/
 } Attributes;
 
-void setVideoMode(Byte mode) {
+/**
+ * @brief Set the video mode of screen
+ *
+ * @param mode
+ */
+void setVideoMode(Mode mode) {
 	asm("int 0x10"
 	    :
 	    :"a"(0x0000|mode));
