@@ -1,5 +1,5 @@
 WFLAGS=-Wno-int-conversion -Wall -Wextra -pedantic -Wfatal-errors
-CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -std=gnu11 -Iinclude
+CFLAGS=$(WFLAGS) -fno-pie -ffreestanding -m16 -O0 -s -masm=intel -std=gnu11 -Iinclude -fshort-enums
 
 SRC=$(wildcard kernel/*.c kernel/*.asm)
 OBJS=$(SRC:.c=.o) $(SRC:.asm=.o)
