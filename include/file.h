@@ -14,12 +14,15 @@
 
 //https://cplusplus.com/reference/cstdio/FILE/
 
+/**
+ * @brief information about file
+ */
 typedef union {
 	struct {
 		Byte id;/**< file's id*/
 		Byte size;/**< size in Sectors (512B)*/
 	};
-	short val;/**< actually value returned by interruption*/
+	short val;/**< actually value returned by sys_open interruption*/
 } FILE;
 
 FILE *open(int filename, int mode) {

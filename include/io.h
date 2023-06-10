@@ -9,6 +9,9 @@
 #include "types.h"
 #include <stdarg.h>
 
+/**
+ * @brief Key information, got from buffor
+ */
 typedef union Key {
 	struct {
 		Byte character: 8;

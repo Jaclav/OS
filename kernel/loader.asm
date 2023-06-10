@@ -1,22 +1,28 @@
-;! as kernel is in 32 bits functions must be called with 32bit return address - call DWORD. can also push 0; call func
-bits 16
+;;
+; @file loader-asm.c
+; @brief Programs loader
+;! @details as kernel is in 32 bits functions must be called with 32bit return address - call DWORD. can also push 0; call func
+;;
 %include "lib.asm"
+bits 16
 
 global load
-;TODO: add sys_exec(int filename)
-;TODO: add sys_exit(int code) as subprogram
-;TODO: add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
-;;; @brief load program to next segment (cs+0x1000) and executes it
-;;; @param beginSector 	[ebp+8]
-;;; @param track		[ebp+12]
-;;; @param parameter	[ebp+16]
-;;; @param size			[ebp+20]
-;;; @return				AX = -8 when error else program value
+;;
+; @brief load program to next segment (cs+0x1000) and executes it
+; @param beginSector [ebp+8]
+; @param track [ebp+12]
+; @param parameter [ebp+16]
+; @param size [ebp+20]
+; @return int value returned from program or -ENOEXEC (-8) when error
+; @todo add sys_exec(int filename)
+; @todo add sys_exit(int code) as subprogram
+; @todo add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
+;;
 load:
 	push	ebp
 	mov		ebp,	esp
 
-	;;;;;;;;;;;
+	; ;;;;;;;;;;
 	;* READ DISK
 	;! set ES on callee segment ES=(CS+0x1000)
 	mov 	bx,		cs
@@ -30,11 +36,11 @@ load:
 	mov		ah,		2        		; BIOS read
 	mov		al,		[ebp+20]		; sectors to read
 	int		0x13                	; BIOS disk
-	jc 		error					; CF = 1 disk reading error
+	jc 		.error					; CF = 1 disk reading error
 	cmp		al,		[ebp+20]		; AL = number of readed sectors
-	jne		error
+	jne		.error
 
-	;;;;;;;;;;;;;;;;;;;;;
+	; ;;;;;;;;;;;;;;;;;;;;
 	;* PREPARE NEW SEGMENT
 	; set automatic return from code that didn't return on itself
 	; put it on first non program position - (size*512)+0x100+4
@@ -59,8 +65,8 @@ load:
 	.after:
 	mov 	BYTE es:[0xff],	0			;set null character
 
-	;;;;;;;;;;;;;;;;;;
-	;* RUN NEW SEGMENT
+	; ;;;;;;;;;;;;;;;;;
+	; RUN NEW SEGMENT
 	setSegments 	es
 	; set COM header like in https://en.wikipedia.org/wiki/Program_Segment_Prefix
 	;00000000  9090              nop nop
@@ -89,8 +95,8 @@ load:
 	mov		ax,	dx
 	ret
 
-error:
-	; return -ENOEXEC
-	pop		ebp
-	mov		eax,	-8				; ENOEXEC - executable format error
-	ret
+	.error:
+		; return -ENOEXEC
+		pop		ebp
+		mov		eax,	-8				; ENOEXEC - executable format error
+		ret

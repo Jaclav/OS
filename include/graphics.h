@@ -10,9 +10,12 @@
 
 #include "types.h"
 
+/**
+ * @brief Position on screen
+ */
 typedef struct Position {
-	Word x;/**< X position */
-	Word y;/**< Y position */
+	Word x;
+	Word y;
 }Position;
 
 const size_t SIZE_X = 640;

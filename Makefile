@@ -19,8 +19,12 @@ run: clean disk kernel
 	qemu-system-i386 -drive file=bin/OS.img,format=raw,if=floppy,index=0
 
 dbg: clean disk kernel
-	doxygen OS
 	@bochs -q
+
+doxygen:
+	./asm4doxy.pl.pl -od -undoc kernel/*.asm
+	doxygen OS
+	rm kernel/*-asm.c
 
 kernel:$(BINS) $(OBJS)
 #code loaded to memory by bootloader contains disk table and kernel
