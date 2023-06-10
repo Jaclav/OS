@@ -128,7 +128,7 @@ char * strcpy ( char * destination, const char * source ) {
  * @param num
  * @return *destination
  */
-char *strncpy ( char * destination, const char * source, size_t num ) {
+int strncpy (int destination, int source, size_t num ) {
 	asm("L%=:\n"
 	    "	mov al, byte ptr [si+bx]\n"
 	    "	mov byte ptr [di+bx], al\n"

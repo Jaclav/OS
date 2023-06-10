@@ -7,6 +7,7 @@
  * @copyright Copyright (c) 2023
  *
  * @bug cannot give string literal to char* parameter, only int WHY!?
+ * @bug cannot use * as pointers, int only
  */
 #include <io.h>
 #include <string.h>
@@ -139,28 +140,24 @@ __start void main() {
 		}
 		else {
 			//check if there is program called command+".com"
-			//TODO do it by chcecking if file exists by FILE fopen
-			size_t i = 0;
-			char com[] = ".com";
-			strncpy(command + strlen(command), com, 5);
-			for(; i < numberOfFiles; i++) {
-				if(strcmp(files[i].name, command)) {
-					retVal = load(files[i].beginSector, files[i].track, parameter, files[i].size);
+			short i = 0;
+			strncpy(command + strlen(command), ".com", 5);
+			i = sys_open(command);
+			if(i > 0) {
+				i = (Byte)i;
+				retVal = load(files[i].beginSector, files[i].track, parameter, files[i].size);
 afterCOM:
-					if(retVal != 0) {
-						cputs("Error:", Red);
-						printf(" \"%s\" returned %i\n", command, retVal);
-					}
-
-					goto mainLoop;
+				if(retVal != 0) {
+					cputs("Error:", Red);
+					printf(" \"%s\" returned %i\n", command, retVal);
 				}
 			}
-			if(i == numberOfFiles) {
+			else {
 				cputs("Error:", Red);
-				printf(" \"%s\" is unknown command!\n", command);
+				if(i == -ENOENT)
+					printf(" \"%s\" is unknown command!\n", command);
 			}
 		}
-mainLoop:
 		putc('>');
 	}
 
