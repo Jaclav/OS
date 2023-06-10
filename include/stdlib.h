@@ -33,8 +33,13 @@ void udelay(unsigned long usecs) {
 	    :"a"(0x8600), "c"(usecs>>16), "d"((Word)usecs));
 }
 
+/**
+ * @brief Exit from program
+ *
+ * @param val return code
+ * @todo to it as OS interruption
+ */
 void exit(int val) {
-	//TODO: do it as OS interruption
 	asm("push cx\n"
 	    "push bx\n"
 	    "push dx\n"

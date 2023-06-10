@@ -18,6 +18,10 @@
 extern int setInterrupts();
 extern int addInterrupt(int number, int function);
 
+/**
+ * @brief frame for interruption, required by gcc for __int
+ * @todo IDK how to use them, they are required by GCC to use __int
+ */
 typedef struct interruptFrame {
 	Word ip;
 	Word cs;

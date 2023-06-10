@@ -11,7 +11,8 @@
 #include "types.h"
 
 typedef struct Position {
-	Word x, y;
+	Word x;/**< X position */
+	Word y;/**< Y position */
 }Position;
 
 const size_t SIZE_X = 640;

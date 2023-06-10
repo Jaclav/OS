@@ -21,16 +21,31 @@ typedef union Key {
 #pragma GCC diagnostic ignored "-Wreturn-type"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+/**
+ * @brief Put character
+ *
+ * @param character
+ */
 void putc(Byte character) {
 	asm("mov al, [ebp+8]\n"
 	    "int 0x20"::"a"(0));
 }
 
+/**
+ * @brief Put string
+ *
+ * @param string
+ */
 void puts(const int string) {
 	asm("mov bx,[ebp+8]\n"
 	    "int 0x20"::"a"(0x100));
 }
 
+/**
+ * @brief Put int
+ * @details will put - for negative numbers, to use uint see %u in printf()
+ * @param a
+ */
 void puti(int a) {
 	if(a < 0) {
 		asm("mov al, '-'\n"

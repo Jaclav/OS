@@ -9,19 +9,25 @@
 
 #include "types.h"
 
+/**
+ * @brief Video modes, can be changed with void setVideoMode(Byte mode);
+ */
 enum Modes {TextMode = 2, TextColorMode = 16, ColorMode = 19};
 
 typedef struct Cursor {
 	Byte x, y;
 } Cursor;
 
+/**
+ * @brief Attributes of character on screen
+ */
 typedef union Attributes {
 	struct {
-		Byte foreground: 4;
-		Byte background: 3;
-		Byte blink: 1;
+		Byte foreground: 4;/**< foreground color */
+		Byte background: 3;/**< background color */
+		Byte blink: 1;	   /**< blink or last bit of background color */
 	};
-	Byte attributes;
+	Byte attributes;/**< character on screen attrubutes as Byte*/
 } Attributes;
 
 void setVideoMode(Byte mode) {

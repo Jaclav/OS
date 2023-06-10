@@ -8,11 +8,12 @@
 
 #include <types.h>
 
-typedef struct Mouse {
-	Byte x, y, status;
-} Mouse;
+typedef enum {NothingPress = 8, LeftPress = 9, RightPress = 10} CursorStatus;
 
-enum CursorStatus {NothingPress = 8, LeftPress = 9, RightPress = 10};
+typedef struct Mouse {
+	Byte x, y;
+	CursorStatus status;
+} Mouse;
 
 extern void mouse_start();
 extern short mouseX, mouseY;
