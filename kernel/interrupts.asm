@@ -2,7 +2,7 @@
 ; @file interrupts-asm.c
 ; @brief Kernel's interruptions
 ; @details About interrupts:
-; @details When interrupt handler is called on stack are: [esp]=old eip [esp+2]=old cs [eesp+4] old flags
+; @details When interrupt handler is called on stack are: [esp]=old eip [esp+2]=old cs [esp+4] old flags
 ; @details to use local interrupt's variables DS must be changed to local i.e. KERNEL_ADDRESS
 ; @details all cs of interrupt handler are KERNEL_ADDRESS - only kernel should handle
 ;;

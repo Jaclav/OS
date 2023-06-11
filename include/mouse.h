@@ -1,33 +1,108 @@
 /**
  * @file mouse.h
  * @brief Get mouse position and status
- * @todo import all from disk/test/ms.asm
+ * @details Inspired by https://stackoverflow.com/questions/54280828/making-a-mouse-handler-in-x86-assembly
+ * @details See more: interrupts.c RBIL
  */
 #ifndef MOUSE_HPP
 #define MOUSE_HPP
 
 #include <types.h>
+#include <errno.h>
+
+#define HW_EQUIP_PS2 4
+#define MOUSE_PKT_BYTES 3
+#define MOUSE_RESOLUTION 3
 
 typedef enum {NothingPress = 8, LeftPress = 9, RightPress = 10} MouseStatus;
 
 /**
- * @brief Mouse position and status
+ * @brief Mouse values, changed by handler when mouse is enabled
  */
-typedef struct Mouse {
-	Byte x, y;
-	MouseStatus status;
-} Mouse;
+struct Mouse {
+	short x, y, status;
+} mouse;
 
-extern void mouse_start();
-extern short mouseX, mouseY;
-extern char curStatus;
+/**
+ * @brief Handler for mouse device
+ * @details see M-15C207 in interrupts.c RBIL
+ */
+void mouseHandler() {
+	char dx, dy;
+	asm("push ds\n"
+	    "push cs\n"
+	    "pop ds\n");
 
-/*int initialize() {
+	asm("mov ax, [ebp+10]\n"
+	    "mov bx, [ebp+12]\n"
+	    "mov cx, [ebp+14]":"=a"(dy), "=b"(dx), "=c"(mouse.status));
+	mouse.x += dx;
+	mouse.y -= dy;
 
+	asm("pop ds\n"
+	    "nop\n"
+	    "mov esp, ebp\n"
+	    "pop ebp");
+	asm(".byte 0xcb");//16 bit retf
 }
 
-int setMouse() {
+/**
+ * @brief Disable mouse
+ */
+void mouseDisable() {
+	asm("int 0x15\n"::"a"(0xc200), "b"(0));//Disable
 
-}*/
+	//clear callback function
+	asm("push es\n"
+	    "mov es, bx\n"
+	    "int 0x15\n"
+	    "pop es"::"a"(0xc207), "b"(0x0000));
+}
+
+/**
+ * @brief Enable mouse
+ */
+void mouseEnable() {
+	mouseDisable();
+
+	//set callback function
+	asm("push es\n"
+	    "push cs\n"
+	    "pop es\n"
+	    "int 0x15\n"
+	    "pop es"::"a"(0xc207), "b"(mouseHandler));
+	asm("int 0x15\n"::"a"(0xc200), "b"(0x100));//Enable
+}
+
+/**
+ * @brief Initialize mouse, by default mouse in enabled
+ *
+ * @return int 0 if success -ENODEV if error
+ */
+int mouseInitialize() {
+	short installedDevices;
+	asm("int 0x11":"=a"(installedDevices));
+	if((installedDevices & HW_EQUIP_PS2) == 0)
+		return -ENODEV;
+
+	asm("int 0x15\n"
+	    "jnc exit%=\n"
+	    "mov ax, -1\n"
+	    "exit%=:\n"
+	    :"=a"(installedDevices):"a"(0xc205), "b"(MOUSE_PKT_BYTES<<8));
+	if(installedDevices < 0)
+		return -ENODEV;
+
+	asm("int 0x15\n"
+	    "jnc exit%=\n"
+	    "mov ax, -1\n"
+	    "exit%=:\n"
+	    :"=a"(installedDevices):"a"(0xc203), "b"(MOUSE_RESOLUTION<<8));
+	if(installedDevices < 0)
+		return -ENODEV;
+
+	mouseEnable();
+	return 0;
+}
 
 #endif //MOUSE_HPP

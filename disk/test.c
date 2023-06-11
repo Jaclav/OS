@@ -85,17 +85,19 @@ __start int main() {
 		writePixel(pos, Cyan);
 	}
 	getc();
+	int ret = mouseInitialize();
+	if(ret < 0)return ret;
+	setVideoMode(ColorMode);
 	Key key;
-	mouse_start();
 	Color color = Red;
 	do {
-		printf("%i %i %i %i", mouseX, mouseY, curStatus, (Color)color);
-		Position pos = {mouseX, mouseY};
-		if(curStatus == LeftPress) {
+		printf("%i %i %i %i", mouse.x, mouse.y, mouse.status, (Color)color);
+		Position pos = {mouse.x, mouse.y};
+		if(mouse.status == LeftPress) {
 			color--;
 			udelay(100000);
 		}
-		if(curStatus == RightPress) {
+		if(mouse.status == RightPress) {
 			color++;
 			udelay(100000);
 		}

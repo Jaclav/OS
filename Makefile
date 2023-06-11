@@ -37,7 +37,6 @@ kernel:$(BINS) $(OBJS)
 	wc bin/kernel.bin -c
 
 disk: $(DISKBIN)
-	$(MAKE) -C disk
 	@./disk/disk.sh
 
 %.bin: %.asm
