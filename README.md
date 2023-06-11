@@ -18,7 +18,7 @@ Screenshot:<br>
 | $       | Execute program $.com, see [Programs](#Programs) |
 | cls     | clear screen                                     |
 | pos     | print cursor position                            |
-| key     | get information                                     |
+| key     | get information                                  |
 | mode $1 | change video mode to $1                          |
 | ls      | Print files and their sizes                      |
 | map     | Show map of used sectors                         |
@@ -26,10 +26,14 @@ Screenshot:<br>
 
 ## Programs
 Programs<span id="Programs"></span> installed on OS are in directory disk/<br>
-To call program.com with parameters enter "program parameters"
+To call program.com with parameters enter "program parameters"<br>
+# For developers
+To add Your program to OS put .c file into directory disk/<br>
+Developers should use libraries in include/ and mustn't use anything in kernel/<br>
+Main function should have __start from types.h as attribute to be executed at first<br>
 # SYSTEM Interruptions
-0x20 is system IO interruption, see syscall()<br>
-0x21 is file system intterruption, if error it will return negative value like [errno](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md) see int0x21()
+0x20 is system IO interruption, see syscall() [it's masked in io.h]<br>
+0x21 is file system intterruption, if error it will return negative value like [errno](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md) see int0x21() [it's masked in file.h]
 
 
 # Program loading and executing
