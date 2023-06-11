@@ -1,6 +1,7 @@
 /**
  * @file fs.h
  * @brief File system only for kernel use, users should use file.h
+ * @details It adds file system interruption in int0x21()
  * @todo better handle disk errors
  */
 #ifndef FS_H
@@ -284,8 +285,17 @@ int sys_write(Byte id, int ptr, size_t size) {
 /**
  * @brief interruption for file system
  * @details sets all sys_* functions as interruption
+ * |  AH   | Description          | BX        | CX                   | DX        | Returned AX                              |
+ * | :---: | :------------------- | :-------- | :------------------- | :-------- | :--------------------------------------- |
+ * |   0   | sys_setup()          |           |                      |           | Number of loaded files                   |
+ * |   1   | sys_open()           | file name |                      |           | (file ID)<<8 \| (file size (in sectors)) |
+ * |   2   | sys_read()           | file id   | memory beginning     | size in B | Actually readed Bytes                    |
+ * |   3   | sys_write()          | file id   | memory beginning     | size in B | Actually saved Bytes (completed to 512B) |
+ * |   4   | sys_create()         | file name | new file size in Sec |           | file's ID                                |
+ * |   4   | sys_remove()         | file name |                      |           | 0 if success                             |
+
  * @param registers AX, BX, CX, DX, SI, DI
- * @return values are in registers AX, BX
+ * @return register AX
  */
 __int void int0x21(interruptFrame * frame) {
 	//see interrupts.asm
