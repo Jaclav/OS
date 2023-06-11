@@ -15,22 +15,30 @@
 //https://cplusplus.com/reference/cstdio/FILE/
 
 /**
- * @brief information about file
+ * @brief Information about file
  */
-typedef union {
-	struct {
-		Byte id;/**< file's id*/
-		Byte size;/**< size in Sectors (512B)*/
-	};
-	short val;/**< actually value returned by sys_open interruption*/
+typedef struct {
+	Byte id;/**< file's id*/
+	Word size;/**< size in Bytes*/
 } FILE;
 
+/**
+ * @brief Open file
+ *
+ * @param filename
+ * @param mode
+ * @todo add modes, see sys_write() todo
+ * @return FILE*
+ */
 FILE *open(int filename, int mode) {
 	//https://pubs.opengroup.org/onlinepubs/9699919799/functions/fopen.html
 	static FILE file;
-	asm ("int 0x21":"=a"(file):"a"(0x100), "b"(filename));
-	if(file.val < 0)
+	short val;
+	asm ("int 0x21":"=a"(val):"a"(0x100), "b"(filename));
+	if(val < 0)
 		return NULL;
+	file.id = (Byte)val;
+	file.size = (val >> 8) * 512;//sys_open returns size in Sectors
 	return &file;
 }
 

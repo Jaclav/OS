@@ -8,24 +8,26 @@ Simple 16 bit operating system. My goal is to achive:
 * protection rings
 * multithreading
 
-All sectors in BIOS **are counted from 1** and are 512B\
-[Documentation ](http://192.168.0.60/pi/OS_doc/)\
-Screenshot:\
+All sectors in BIOS **are counted from 1** and are 512B<br>
+[Documentation ](http://192.168.0.60/pi/OS_doc/)<br>
+Screenshot:<br>
 ![Screenshot](screenshot.png)
-## Commands
-| Command     | Description                       |
-| :---------- | :-------------------------------- |
-| $           | Execute program $.com             |
-| cls         | clear screen                      |
-| pos         | print cursor position             |
-| key         | get keycode                       |
-| mode $1     | change video mode to $1           |
-| test        | test kernel library               |
-| sec $1 $2   | Print $2th sector from $1th track |
-| ls          | Print files and their sizes       |
-| pic $1      | Draw bitmap from $1 file          |
-| touch $1 $2 | Create $1 file with size $2       |
-## SYSTEM Interruptions
+# Commands
+| Command | Description                                      |
+| :------ | :----------------------------------------------- |
+| $       | Execute program $.com, see [Programs](#Programs) |
+| cls     | clear screen                                     |
+| pos     | print cursor position                            |
+| key     | get information                                     |
+| mode $1 | change video mode to $1                          |
+| ls      | Print files and their sizes                      |
+| map     | Show map of used sectors                         |
+| rm $1   | Remove $1 file                                   |
+
+## Programs
+Programs<span id="Programs"></span> installed on OS are in directory disk/<br>
+To call program.com with parameters enter "program parameters"
+# SYSTEM Interruptions
 0x20 is IO int
 | AH   | Description                      | Parameters            |
 | :--- | :------------------------------- | :-------------------- |
@@ -43,7 +45,7 @@ Screenshot:\
 |   4   | Removes BX file      | file name |                      |           | 0 if success                             |
 
 # Program loading and executing
-Program is loaded into address (CS+0x1000):0x100.\
+Program is loaded into address (CS+0x1000):0x100.<br>
 Bytes from (CS+0x1000):0 to (CS+0x1000):0xff are reserved for OS i.e:
 * 0x00 to 0x08 stores call function to 0x100
 * 0x80 to 0xff stores string of program's paramaters

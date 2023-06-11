@@ -1,6 +1,6 @@
 /**
  * @file mouse.h
- * @brief Get mouse position and status
+ * @brief Get mouse position and status, to use mouse call mouseInitialize()
  * @details Inspired by https://stackoverflow.com/questions/54280828/making-a-mouse-handler-in-x86-assembly
  * @details See more: interrupts.c RBIL
  */
