@@ -17,6 +17,7 @@ global load
 ; @todo add sys_exec(int filename)
 ; @todo add sys_exit(int code) as subprogram
 ; @todo add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
+; @todo change call far on jmp far and iret to push 0; push callerAddress; push DWORD[0x8]; iret
 ;;
 load:
 	push	ebp
@@ -73,7 +74,6 @@ load:
 	;00000002  6A00              push byte 0x0 ; because C uses 32 bit return, assembly must return ret 2 to pop this
 	;00000004  E8F900            call 0x100
 	;00000007  CF                iret
-	;TODO: change call far on jmp far and iret to push 0; push callerAddress; push DWORD[0x8]; iret
 	mov 	DWORD[0x0],	0x006a9090
 	mov 	DWORD[0x4],	0xcf00f9e8
 	mov 	DWORD[0x8],	.end

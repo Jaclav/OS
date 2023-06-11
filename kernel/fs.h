@@ -107,9 +107,9 @@ int sys_open(const int filename) {
  * @param size in sectors(512B)
  * @return int new file's id or -error
  * @todo file must be all in one track, change it
+ * @todo add it to sys_open when file wasn't found
  */
 int sys_create(const int filename, size_t size) {
-	//TODO: move it to sys_open when file wasn't found
 	if(size <= 0)//must be at least 1 sector
 		size = 1;
 
@@ -284,7 +284,7 @@ int sys_write(Byte id, int ptr, size_t size) {
 
 /**
  * @brief interruption for file system
- * @details sets all sys_* functions as interruption
+ * @details sets all sys_* functions as interruption see interrupts-asm.c  and interrupts.h
  * |  AH   | Description          | BX        | CX                   | DX        | Returned AX                              |
  * | :---: | :------------------- | :-------- | :------------------- | :-------- | :--------------------------------------- |
  * |   0   | sys_setup()          |           |                      |           | Number of loaded files                   |
@@ -296,10 +296,9 @@ int sys_write(Byte id, int ptr, size_t size) {
 
  * @param registers AX, BX, CX, DX, SI, DI
  * @return register AX
+ * @todo change order of ah
  */
 __int void int0x21(interruptFrame * frame) {
-	//see interrupts.asm
-	//TODO change order of ah
 	//DS and CS are on kernel address
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
