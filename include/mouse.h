@@ -40,9 +40,7 @@ void mouseHandler() {
 	mouse.y -= dy;
 
 	asm("pop ds\n"
-	    "nop\n"
-	    "mov esp, ebp\n"
-	    "pop ebp");
+	    "leave");
 	asm(".byte 0xcb");//16 bit retf
 }
 

@@ -54,6 +54,7 @@ add		sp,		4
 call 	getChar
 
 setSegments KERNEL_ADDRESS
+mov 	sp, 0xfff0
 jmp 	KERNEL_ADDRESS:0x200
 hlt
 

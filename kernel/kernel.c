@@ -27,37 +27,36 @@ int gets(char *str, int size);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
-/*__int void timer(struct interruptFrame * frame) {
+/**
+ * @brief Interruption is called 18 times per second
+ * @todo It should switch between processes, add multithreading
+ * @bug doesn't work on bochs
+ */
+__int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
-	static int a = 0;
-	int ax = 0, bx;
-	asm("mov ax,es\n"
-	    "mov bx,ss":"=a"(ax), "=b"(bx));
-	if(bx == 0x2000 && ax == 0x2000 && a % 1000 == 0) {
-		// puti(a / 1000); why does it matter
-		asm("mov		ax,		0x1000");
-		asm("mov		ds,		ax");
-		asm("mov		ss,		ax");
-		asm("mov		es,		ax");
-		asm("mov		fs,		ax");
-		asm("mov		gs,		ax");
-		load(1, 1, "HELLO", 1);
+	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
-		asm("push cx\n"
-		    "push bx\n"
+	static int counter = 0;
+	if(counter >= 1000) {
+		putc('X');
+		counter = 0;
+		asm("out 0x20,al"::"a"(0xA0)); // https://wiki.osdev.org/PIC#End_of_Interrupt
+		udelay(1000000);
+		asm("mov		ds,		ax\n"
+		    "mov		ss,		ax\n"
+		    "mov		es,		ax\n"
+		    "mov		fs,		ax\n"
+		    "mov		gs,		ax\n"
+		    "mov esp, 0xfff0\n"
+		    "push cx\n"
+		    "push ax\n"
 		    "push dx\n"
-		    "iret"::"a"(-1), "d"(*(int*)(0x8)), "b"(0x1000), "c"(0));
+		    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(0));
 	}
-	a++;
-	if(a > 20) {
-		a = 0;
-		asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
-		puts("TIMER");
-		asm("pop ds");
-		asm("jmp 0x1000:0x0");
-	}
-}*/
-// extern void timer(void);
+	counter++;
+
+	asm("pop ds");
+}
 #pragma GCC diagnostic pop
 
 __start void main() {
@@ -65,7 +64,6 @@ __start void main() {
 	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
-	// addInterrupt(0x001c, timer);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
@@ -137,6 +135,9 @@ __start void main() {
 			}
 			asm("int 0x21":"=a"(retVal):"a"(0x0500), "b"(parameter));
 			goto afterCOM;
+		}
+		else if(strcmp(command, "x")) {
+			addInterrupt(0x001c, timer);
 		}
 		else {
 			//check if there is program called command+".com"

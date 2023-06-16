@@ -13,6 +13,10 @@
 #ifndef INTERRUPTS_H
 #define INTERRUPTS_H
 
+#ifndef KERNEL
+#error Only kernel should use this file!
+#endif
+
 #include "types.h"
 
 extern int setInterrupts();

@@ -1,8 +1,9 @@
 /**
  * @file fs.h
- * @brief File system only for kernel use, users should use file.h
- * @details It adds file system interruption in int0x21()
- * @todo better handle disk errors
+ * @brief File system, adds file system interruption in int0x21()
+ * @details Adds file management
+ * @attention Only for kernel use, users should use file.h
+ * @todo better handle disk errors see info.c
  */
 #ifndef FS_H
 #define FS_H
@@ -16,11 +17,6 @@
 #include <io.h>
 #include <string.h>
 #include "interrupts.h"
-
-#ifndef KERNEL_ADDRESS
-#define KERNEL_ADDRESS 0
-#error KERNEL_ADDRESS undefined!
-#endif
 
 #define FILENAME_MAX 16
 #define SECTORS_PER_TRACK 37
@@ -37,10 +33,6 @@ struct {
 bool map[TRACKS_MAX][SECTORS_PER_TRACK];//map[0] = 0 because there is no 0th sector, they are counted from 1
 
 size_t numberOfFiles = 0;
-
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-type"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 static void saveFATable() {
 	asm("push es\n"
@@ -282,6 +274,8 @@ int sys_write(Byte id, int ptr, size_t size) {
 	return size;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /**
  * @brief interruption for file system
  * @details sets all sys_* functions as interruption see interrupts-asm.c  and interrupts.h

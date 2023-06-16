@@ -28,8 +28,8 @@ Screenshot:<br>
 Programs<span id="Programs"></span> installed on OS are in directory disk/<br>
 To call program.com with parameters enter "program parameters"<br>
 # For developers
-To add Your program to OS put .c file into directory disk/<br>
-Developers should use libraries in include/ and mustn't use anything in kernel/<br>
+To add Your program to OS put .c file into directory disk/, it will be added as (your program name).com<br>
+Developers may use libraries in include/ and mustn't use anything in kernel/<br>
 Main function should have __start from types.h as attribute to be executed at first<br>
 # SYSTEM Interruptions
 0x20 is system IO interruption, see syscall() [it's masked in io.h]<br>

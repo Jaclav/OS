@@ -23,7 +23,7 @@ __start int main() {
 		dh = dx >> 8;
 		dl = (Byte)dx;
 		int err = 0;
-		asm("int 0x13":"=a"(err):"a"(0x0100));
+		asm("int 0x13":"=a"(err):"a"(0x0100), "d"(i));
 		printf("\xba%i: tracks=%i S/T=%i type=%i H=%i disks=%i, err=%i\n", i, ch, cl, bx, dh, dl, err);
 		asm("int 0x13"::"a"(0), "d"(i));//reset errors
 	}
