@@ -75,9 +75,9 @@ load:
 	;00000000  9090              nop nop
 	;00000002  6A00              push byte 0x0 ; because C uses 32 bit return, assembly must return ret 2 to pop this
 	;00000004  E8F900            call 0x100
-	;00000007  CF                iret
+	;00000007  CB                retf
 	mov 	DWORD[0x0],	0x006a9090
-	mov 	DWORD[0x4],	0xcf00f9e8
+	mov 	DWORD[0x4],	0xcb00f9e8
 	mov 	DWORD[0x8],	.end
 	mov 	DWORD[0x12],ebp
 
@@ -85,8 +85,9 @@ load:
 	mov		WORD[0x18], es			; CALL SEGMENT
 	mov		sp,		0xffff			; set stack begin on end of segment
 	mov		ebp,	0xffff			; set stack begin on end of segment
-	pushf 							; push flags - for iret see 78th line
+	pushf
 	call far [es:0x16]				; push cs; push ip
+	popf
 	.end:
 	; in caller CS
 	mov		dx,		ax				;save return code
