@@ -35,43 +35,64 @@ bool programsMap[PROGRAMS_MAX];
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
+/**
+ * @brief Reset OS to kernel
+ */
+void reset() {
+	puts("Exiting...");
+	asm("mov		ds,		ax\n"
+	    "mov		ss,		ax\n"
+	    "mov		es,		ax\n"
+	    "mov		fs,		ax\n"
+	    "mov		gs,		ax\n"
+	    "mov 		esp, 	0xfff0\n"
+	    "push 		cx\n"
+	    "push 		ax\n"
+	    "push 		dx\n"
+	    "iretw\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(IF));
+}
+
 /**
  * @brief Interruption is called 18 times per second
  * @details see B-1C interrupts.e RBIL
  * @todo It should switch between processes, add multithreading
- * @bug Don't hold it too long
- * @bug what if buffer is jamed? Handle it!
  */
 __int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
 	asm("pushw ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
-	int seg;
-	asm("mov %0, ss":"=r"(seg));
+	static int counter = 0;
+	static int lastReset = 100;
+	lastReset++;
 
-	asm("out 0x20,al"::"a"(0xA0)); // https://wiki.osdev.org/PIC#End_of_Interrupt
+	EOI();
 	Word special = 0;
+	//handle Ctrl+Alt+L
 	asm("int 0x16":"=a"(special):"a"(0x1200));
-	if(special == 0x30C) {//CTRL + ALT
-		while(special == 0x30c && getKeyBuff().available == 0)//wait untill buffer is not empty
-			asm("int 0x16":"=a"(special):"a"(0x1200));
-
-		if(getKeyBuff().scancode == 38) {
-			puts("Exiting...");
-			// udelay(1000000);
-			asm("mov		ds,		ax\n"
-			    "mov		ss,		ax\n"
-			    "mov		es,		ax\n"
-			    "mov		fs,		ax\n"
-			    "mov		gs,		ax\n"
-			    "mov esp, 0xfff0\n"
-			    "push cx\n"
-			    "push ax\n"
-			    "push dx\n"
-			    "iretw\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(IF));
+	if(special == 0x30C && lastReset >= 100) { //CTRL + ALT
+		Key key;
+		for(int i = 0; i < 0x1f; i += 2) {
+			asm("pushw ds\n"
+			    "xor bx, bx\n"
+			    "mov ds, bx\n"
+			    "mov ax, WORD ptr [0x41E+si]\n"
+			    "popw ds":"=a"(key):"S"(i));
+			if(key.scancode == 38 && key.character == 0) {
+				//clear buffor
+				for(int i = 0; i < 0x1f; i += 2)
+					asm("pushw ds\n"
+					    "xor bx, bx\n"
+					    "mov ds, bx\n"
+					    "mov WORD ptr [0x41E+si],bx\n"
+					    "popw ds"::"S"(i));
+				lastReset = 0;
+				reset();
+			}
 		}
 	}
 
-	static int counter = 0;
+	int seg;
+	asm("mov %0, ss":"=r"(seg));
 	if(seg == KERNEL_ADDRESS)
 		return;
 	if(counter >= 1000) {
@@ -82,15 +103,40 @@ __int void timer(struct interruptFrame * frame) {
 
 	asm("popw ds");
 }
+
+/**
+ * @brief Shift + PrintScreen handler
+ * @details It's called from int 9 see H-09 interrupts.a RBIL
+ * @bug doesn't work on bochs
+ */
+__int void shiftPrtSc(struct interruptFrame * frame) {
+	putc('B');
+	asm("hlt");
+}
+
+/**
+ * @brief Ctrl + Break handler
+ * @details It's called from int 9 see H-09 interrupts.a RBIL
+ * @details https://www.stanislavs.org/helppc/int_1b.html
+ * @bug doesn't work on bochs
+ */
+__int void ctrlBreak(struct interruptFrame * frame) {
+	asm("pushw ds\n mov ds, bx\nmov [0x471],ax\n popw ds"::"a"(0), "b"(0));
+	EOI();
+	reset();
+}
+
 #pragma GCC diagnostic pop
 
 __start void main() {
 	setVideoMode(TextMode);
 	setColorPalette(DarkGrey);
 	setInterrupts();
-	addInterrupt(0x0021, int0x21);
+	addInterrupt(0x21, int0x21);
 	asm("sti");//! set interruption flag
-	addInterrupt(0x001c, timer);
+	addInterrupt(0x1c, timer);
+	addInterrupt(0x1b, ctrlBreak);
+	addInterrupt(5, shiftPrtSc);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
@@ -130,7 +176,10 @@ __start void main() {
 		}
 		else if(strcmp(command, "mode")) {
 			setVideoMode(stoi(parameter));
-			printf("Mode: %i", stoi(parameter));
+			short col, size;
+			asm("pushw ds\n xor bx,bx\nmov ds, bx\nmov ax, [0x44a]\n popw ds":"=a"(col));
+			asm("pushw ds\n xor bx,bx\nmov ds, bx\nmov ax, [0x44c]\n popw ds":"=a"(size));
+			printf("Mode: %i, columns/row: %i, size %i", stoi(parameter), col, size);
 		}
 		else if(strcmp(command, "mem")) {
 			Byte val;

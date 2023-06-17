@@ -41,4 +41,13 @@ typedef struct interruptFrame {
  */
 #define IF 1<<9
 
+/**
+ * @brief End of interruption
+ * @details See https://wiki.osdev.org/PIC#End_of_Interrupt
+ * @details P0020003F RBIL ports.a
+ * @details https://www.geeksforgeeks.org/operating-modes-of-8259-pic/
+ * @details https://wiki.osdev.org/8259_PIC
+ */
+#define EOI() asm("out 0x20, al"::"a"(0x20));
+#define REBOOT() asm("out 0x64, al"::"a"(0xfE));
 #endif
