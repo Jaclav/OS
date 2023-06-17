@@ -11,7 +11,7 @@ DISK=$(wildcard disk/*.c disk/*.asm)
 DISKBIN=$(DISK:.c=.bin) $(DISK:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=22#counted from 0, so first disk sector will be 17 (counted from 1)
+DISK_START=23#counted from 0, so first disk sector will be 17 (counted from 1)
 KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
@@ -22,6 +22,7 @@ dbg: clean disk kernel
 	@bochs -q
 
 doxygen:
+	rm -rf docs/*
 	./asm4doxy.pl.pl -od -undoc kernel/*.asm
 	doxygen OS
 	rm kernel/*-asm.c

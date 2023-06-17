@@ -9,8 +9,7 @@ bits 16
 
 putc:
 	;; write single character
-	push	bp
-	mov		bp,		sp
+	enter 	0,		0
 	push	ax
 	push	bx
 
@@ -46,14 +45,12 @@ putc:
 	.end:
 	pop 	bx
 	pop 	ax
-	mov		sp,		bp
-	pop		bp
+	leave
 	ret
 
 puts:
 	;; write string
-	push	bp
-	mov		bp,		sp
+	enter 	0,		0
 	push	ax
 	push	bx
 
@@ -73,14 +70,12 @@ puts:
 	.after:
 	pop 	bx
 	pop 	ax
-	mov		sp,		bp
-	pop		bp
+	leave
 	ret
 
 puti:
 	;; write int
-	push	bp
-	mov		bp,		sp
+	enter 	0,		0
 	push	ax
 	push	bx
 	push	cx
@@ -118,8 +113,7 @@ puti:
 	pop		cx
 	pop		bx
 	pop		ax
-	mov		sp,		bp
-	pop		bp
+	leave
 	ret
 
 getChar:

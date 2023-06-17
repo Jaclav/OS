@@ -8,16 +8,20 @@ bits 16
 
 global load
 ;;
-; @brief load program to next segment (cs+0x1000) and executes it
+; @brief load program to segment and executes it
 ; @param beginSector [ebp+8]
 ; @param track [ebp+12]
 ; @param parameter [ebp+16]
 ; @param size [ebp+20]
+; @param segment [ebp+24]
 ; @return int value returned from program or -ENOEXEC (-8) when error
 ; @todo add sys_exec(int filename)
 ; @todo add sys_exit(int code) as subprogram
 ; @todo add check if in code is 8E = change of sreg or EA = jmpf and then don't execute
 ; @todo change call far on jmp far and iret to push 0; push callerAddress; push DWORD[0x8]; iret
+; @todo add pages int 10h AH=5
+; @todo split it to loading and executing
+; @todo add to programsMap program's properties
 ;;
 load:
 	push	ebp
@@ -25,9 +29,7 @@ load:
 
 	; ;;;;;;;;;;
 	;* READ DISK
-	;! set ES on callee segment ES=(CS+0x1000)
-	mov 	bx,		cs
-	add		bx,		0x1000
+	mov		bx,		[ebp+24]
 	mov 	es,		bx				; segment
 	mov 	bx,		0x100			; offset
 	mov 	dh,		0               ; head

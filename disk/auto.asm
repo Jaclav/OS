@@ -2,8 +2,7 @@ bits 16
 %ifidn __?OUTPUT_FORMAT?__, bin
 	org 	0x100
 %endif
-push	ebp
-mov		ebp,	esp
+enter	0,		0
 
 ;puts parameter
 mov		ah,		1
@@ -18,8 +17,7 @@ mov		ah,		1
 mov		bx,		DISK_TEXT
 int		0x20
 
-mov		esp,	ebp
-pop		ebp
+leave
 mov 	ax, 	0
 ret 	2
 

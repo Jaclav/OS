@@ -18,8 +18,21 @@
 #include <string.h>
 #include "interrupts.h"
 
+/**
+ * @brief Maximal size of file name
+ */
 #define FILENAME_MAX 16
+
+/**
+ * @brief Number of sectors per track
+ * @details Depends on floppy mode, 18 for 1.44 or 36 for 2.88, I use 2.88 @todo to avoid breaking file into tracks see sys_create()
+ */
 #define SECTORS_PER_TRACK 37
+
+/**
+ * @brief Maximal number of tracks in OS
+ * @todo do it dynamically
+ */
 #define TRACKS_MAX 3
 
 //do it static - only this file should be able to use this
@@ -30,6 +43,9 @@ struct {
 	Byte size;//! in sectors sector=512B
 } *files;
 
+/**
+ * @brief Map of used sectors in tracks
+ */
 bool map[TRACKS_MAX][SECTORS_PER_TRACK];//map[0] = 0 because there is no 0th sector, they are counted from 1
 
 size_t numberOfFiles = 0;

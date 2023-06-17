@@ -22,8 +22,16 @@
 #include "interrupts.h"
 #include "fs.h"
 
-extern int load(Byte beginSector, Byte track, int parameter, int size);
+extern int load(Byte beginSector, Byte track, int parameter, int size, int segment);
 int gets(char *str, int size);
+
+/**
+ * @brief Maximal number of programs running simultaneously
+ * @details 1 segment for 1 program causes lack of segments https://wiki.osdev.org/Memory_Map_(x86)
+ */
+#define PROGRAMS_MAX 7
+
+bool programsMap[PROGRAMS_MAX];
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -35,23 +43,38 @@ int gets(char *str, int size);
 __int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
 	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+	int seg;
+	asm("mov %0, ss":"=r"(seg));
+
+	asm("out 0x20,al"::"a"(0xA0)); // https://wiki.osdev.org/PIC#End_of_Interrupt
+	Word special = 0;
+	asm("int 0x16":"=a"(special):"a"(0x1200));
+	if(special == 0x30C) {//CTRL + ALT
+		while(special == 0x30c && getKeyBuff().available == 0)//wait untill buffer is not empty
+			asm("int 0x16":"=a"(special):"a"(0x1200));
+
+		if(getKeyBuff().scancode == 38) {
+			puts("Exiting...");
+			// udelay(1000000);
+			asm("mov		ds,		ax\n"
+			    "mov		ss,		ax\n"
+			    "mov		es,		ax\n"
+			    "mov		fs,		ax\n"
+			    "mov		gs,		ax\n"
+			    "mov esp, 0xfff0\n"
+			    "push cx\n"
+			    "push ax\n"
+			    "push dx\n"
+			    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(0));
+		}
+	}
 
 	static int counter = 0;
+	if(seg == KERNEL_ADDRESS)
+		return;
 	if(counter >= 1000) {
-		putc('X');
 		counter = 0;
-		asm("out 0x20,al"::"a"(0xA0)); // https://wiki.osdev.org/PIC#End_of_Interrupt
-		udelay(1000000);
-		asm("mov		ds,		ax\n"
-		    "mov		ss,		ax\n"
-		    "mov		es,		ax\n"
-		    "mov		fs,		ax\n"
-		    "mov		gs,		ax\n"
-		    "mov esp, 0xfff0\n"
-		    "push cx\n"
-		    "push ax\n"
-		    "push dx\n"
-		    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(0));
+		putc('X');
 	}
 	counter++;
 
@@ -64,6 +87,7 @@ __start void main() {
 	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
+	addInterrupt(0x001c, timer);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
 	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
@@ -105,6 +129,15 @@ __start void main() {
 			setVideoMode(stoi(parameter));
 			printf("Mode: %i", stoi(parameter));
 		}
+		else if(strcmp(command, "mem")) {
+			Byte val;
+			for(int i = 0; i < 1024; i++) {
+				asm("mov ds, si\n"
+				    "mov al, byte ptr ds:[bx]\n"
+				    "mov ds, di":"=a"(val):"b"(i), "S"(stoi(parameter)), "D"(KERNEL_ADDRESS));
+				putc(val);
+			}
+		}
 		else if(strcmp(command, "ls")) {
 			size_t i = 0;
 			size_t sum = 0;
@@ -136,17 +169,28 @@ __start void main() {
 			asm("int 0x21":"=a"(retVal):"a"(0x0500), "b"(parameter));
 			goto afterCOM;
 		}
-		else if(strcmp(command, "x")) {
-			addInterrupt(0x001c, timer);
-		}
 		else {
 			//check if there is program called command+".com"
-			short i = 0;
+			short id = 0;
 			strncpy(command + strlen(command), ".com", 5);
-			i = sys_open(command);
-			if(i > 0) {
-				i = (Byte)i;
-				retVal = load(files[i].beginSector, files[i].track, parameter, files[i].size);
+			id = sys_open(command);
+			if(id > 0) {
+				id = (Byte)id;
+				//find free segment
+				char freeSegment = -ENOMEM;
+				for(int j = 0; j < PROGRAMS_MAX; j++) {
+					if(!programsMap[j]) {
+						programsMap[j] = true;
+						freeSegment = j;
+						break;
+					}
+				}
+				if(freeSegment == -ENOMEM) {
+					retVal = -ENOMEM;
+					goto afterCOM;
+				}
+				freeSegment += 1;//0x1000 segment is kernel
+				retVal = load(files[id].beginSector, files[id].track, parameter, files[id].size, KERNEL_ADDRESS + 0x1000 * freeSegment);
 afterCOM:
 				if(retVal != 0) {
 					cputs("Error:", Red);
@@ -155,7 +199,7 @@ afterCOM:
 			}
 			else {
 				cputs("Error:", Red);
-				if(i == -ENOENT)
+				if(id == -ENOENT)
 					printf(" \"%s\" is unknown command!\n", command);
 			}
 		}

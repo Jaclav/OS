@@ -94,7 +94,7 @@ int stoi(const char *str) {
  * @param count
  * @return *ptr
  */
-void *memset(void * ptr, int value, size_t count) {
+int memset(int ptr, int value, size_t count) {
 	asm("L%=:\n\
         mov [bx],dx\n\
         inc bx\n\
