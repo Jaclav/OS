@@ -11,8 +11,8 @@ DISK=$(wildcard disk/*.c disk/*.asm)
 DISKBIN=$(DISK:.c=.bin) $(DISK:.asm=.bin)
 
 KERNEL_ADDRESS=0x1000
-DISK_START=23#counted from 0, so first disk sector will be 17 (counted from 1)
-KERNEL_SIZE=$(DISK_START)-2#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
+DISK_START=22#counted from 0, so first disk sector will be 17 (counted from 1)
+KERNEL_SIZE=$(DISK_START)-1#bootloaderr will load KERNEL_SIZE + 1 = 15 sectors
 MACROS=-DKERNEL_ADDRESS=$(KERNEL_ADDRESS) -DKERNEL_SIZE=$(KERNEL_SIZE)
 
 run: clean disk kernel
@@ -35,7 +35,7 @@ kernel:$(BINS) $(OBJS)
 #might by seek=72 for 2_88 or seek=36 for 1_44
 	dd if=bin/disk/disk.img of=bin/OS.img seek=72 2> /dev/null
 	dd if=/dev/null of=bin/OS.img seek=200 bs=14k 2> /dev/null
-	wc bin/kernel.bin -c
+	@python3 -c "import math; x=\"`wc bin/kernel.bin -c`\"; print(\"Kernel size = \",end=''); print(math.ceil(int(x[:x.find(' ')])/512))"
 
 disk: $(DISKBIN)
 	@./disk/disk.sh

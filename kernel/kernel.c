@@ -38,7 +38,7 @@ bool programsMap[PROGRAMS_MAX];
 /**
  * @brief Interruption is called 18 times per second
  * @todo It should switch between processes, add multithreading
- * @bug doesn't work on bochs
+ * @bug Don't hold it too long
  */
 __int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
@@ -170,12 +170,20 @@ __start void main() {
 			goto afterCOM;
 		}
 		else {
+			//remove whitespace from command beginning
+			int i = 1;
+			for(; i < 96 && command[i] != 0 && command[i] == ' '; i++) {
+			}
+			if(command[0] == 0)
+				strcpy(command, command + i);
+
 			//check if there is program called command+".com"
 			short id = 0;
 			strncpy(command + strlen(command), ".com", 5);
 			id = sys_open(command);
 			if(id > 0) {
 				id = (Byte)id;
+
 				//find free segment
 				char freeSegment = -ENOMEM;
 				for(int j = 0; j < PROGRAMS_MAX; j++) {
