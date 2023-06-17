@@ -85,12 +85,12 @@ load:
 	mov		WORD[0x18], es			; CALL SEGMENT
 	mov		sp,		0xffff			; set stack begin on end of segment
 	mov		ebp,	0xffff			; set stack begin on end of segment
-	push 	0						; set zero as flag register - for iret
-	call far [es:0x16]				; push flags; push cs; push ip
+	pushf 							; push flags - for iret see 78th line
+	call far [es:0x16]				; push cs; push ip
 	.end:
 	; in caller CS
 	mov		dx,		ax				;save return code
-	mov 	esp,	[0x12]
+	xchg 	esp,	[0x12]
 	setSegments 	cs
 
 	pop		ebp

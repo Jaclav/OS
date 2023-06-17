@@ -24,7 +24,7 @@ extern int addInterrupt(int number, int function);
 
 /**
  * @brief frame for interruption, required by gcc for __int
- * @todo IDK how to use them, they are required by GCC to use __int
+ * @todo IDK how to use them, they are required by GCC to use __int, see todo in interrupts.asm
  */
 typedef struct interruptFrame {
 	Word ip;
@@ -35,5 +35,10 @@ typedef struct interruptFrame {
 } interruptFrame;
 
 #define __int __attribute__((interrupt))
+
+/**
+ * @brief Interruption flag
+ */
+#define IF 1<<9
 
 #endif

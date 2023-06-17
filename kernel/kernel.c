@@ -37,8 +37,10 @@ bool programsMap[PROGRAMS_MAX];
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 /**
  * @brief Interruption is called 18 times per second
+ * @details see B-1C interrupts.e RBIL
  * @todo It should switch between processes, add multithreading
  * @bug Don't hold it too long
+ * @bug what if buffer is jamed? Handle it!
  */
 __int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
@@ -65,7 +67,7 @@ __int void timer(struct interruptFrame * frame) {
 			    "push cx\n"
 			    "push ax\n"
 			    "push dx\n"
-			    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(0));
+			    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(IF));
 		}
 	}
 
@@ -87,6 +89,7 @@ __start void main() {
 	setColorPalette(DarkGrey);
 	setInterrupts();
 	addInterrupt(0x0021, int0x21);
+	asm("sti");//! set interruption flag
 	addInterrupt(0x001c, timer);
 	int bufforSize = 0;
 	asm("int 0x21":"=a"(bufforSize):"a"(0));
