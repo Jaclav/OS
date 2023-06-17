@@ -18,6 +18,7 @@ done
 mv data.com data.txt
 mv image.com image.bmp
 
+printf "File sections bytes track sector" | awk '{ printf "%-10s %-10s %-10s %-10s %-10s\n", $1, $2, $3, $4, $5}'
 wc -c *.[^i][^a^\.][^a] | while read a b;
 do
 	if [ "$b" != "razem" ]; then
@@ -25,9 +26,8 @@ do
 		if [ $((begin+size)) -ge 36 ]; then							#may be 37, but it makes me feel safe
 			begin=0
 			track=$((track+1))
-			echo a
 		fi
-		printf "$b\tSize: $size sec = $a B\tbegin: $track:$begin\n"
+		printf "$b $size $a $track $begin" | awk '{ printf "%-10s %-10s %-10s %-10s %-10s\n", $1, $2, $3, $4, $5}'
 		fill=`python3 <<< "print(' '*$((15-${#b})))"`
 		echo "db \"$b\",0,\"$fill\", $track, $((begin+1)), $size" >> ../fat.asm
 

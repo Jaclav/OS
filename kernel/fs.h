@@ -51,10 +51,10 @@ bool map[TRACKS_MAX][SECTORS_PER_TRACK];//map[0] = 0 because there is no 0th sec
 size_t numberOfFiles = 0;
 
 static void saveFATable() {
-	asm("push es\n"
+	asm("pushw es\n"
 	    "mov es, si\n"
 	    "int 0x13\n"
-	    "pop es"
+	    "popw es"
 	    ::"a"(0x0301), "d"(0), "c"(2), "b"(0), "S"(KERNEL_ADDRESS));
 }
 
@@ -220,10 +220,10 @@ int sys_read(const Byte id, int ptr, size_t size) {
 	if(size % 512 != 0) {
 		Byte readed[512];
 
-		asm("push es\n"
+		asm("pushw es\n"
 		    "mov es, si\n"
 		    "int 0x13\n"
-		    "pop es\n"
+		    "popw es\n"
 		    ::"a"(0x0201), "b"(readed), "c"((files[id].track<<8|files[id].beginSector)+sectors), "d"(0), "S"(KERNEL_ADDRESS));
 
 		//copy from cs:readed to ss:ptr
@@ -281,10 +281,10 @@ int sys_write(Byte id, int ptr, size_t size) {
 		    "loop L%="
 		    ::"D"(toSave), "S"(ptr + (size - (size % 512))), "b"(0), "c"(size % 512));
 
-		asm("push es\n"
+		asm("pushw es\n"
 		    "mov es, si\n"
 		    "int 0x13\n"
-		    "pop es"
+		    "popw es"
 		    ::"a"(0x0301), "b"(toSave), "c"(files[id].track<<8|(files[id].beginSector+sectors)), "d"(0), "S"(KERNEL_ADDRESS));
 	}
 	return size;
@@ -310,7 +310,7 @@ int sys_write(Byte id, int ptr, size_t size) {
  */
 __int void int0x21(interruptFrame * frame) {
 	//DS and CS are on kernel address
-	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+	asm("pushw ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 
 	// registers are backed up, after this function, they are restored
 	int ax = 0, bx = 0, cx = 0, dx = 0, di = 0, si = 0;
@@ -349,7 +349,7 @@ __int void int0x21(interruptFrame * frame) {
 		asm("mov [ebp-24],eax"::"a"(ENOSYS));
 		break;
 	}
-	asm("pop ds");
+	asm("popw ds");
 }
 #pragma GCC diagnostic pop
 

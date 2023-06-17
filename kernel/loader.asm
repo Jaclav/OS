@@ -101,5 +101,5 @@ load:
 	.error:
 		; return -ENOEXEC
 		pop		ebp
-		mov		eax,	-8				; ENOEXEC - executable format error
+		mov		ax,	-	8			; ENOEXEC - executable format error
 		ret

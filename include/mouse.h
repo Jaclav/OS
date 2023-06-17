@@ -29,9 +29,9 @@ struct Mouse {
  */
 void mouseHandler() {
 	char dx, dy;
-	asm("push ds\n"
-	    "push cs\n"
-	    "pop ds\n");
+	asm("pushw ds\n"
+	    "pushw cs\n"
+	    "popw ds\n");
 
 	asm("mov ax, [ebp+10]\n"
 	    "mov bx, [ebp+12]\n"
@@ -39,9 +39,9 @@ void mouseHandler() {
 	mouse.x += dx;
 	mouse.y -= dy;
 
-	asm("pop ds\n"
-	    "leave");
-	asm(".byte 0xcb");//16 bit retf
+	asm("popw ds\n"
+	    "leave\n"
+	    "retfw");
 }
 
 /**
@@ -51,10 +51,10 @@ void mouseDisable() {
 	asm("int 0x15\n"::"a"(0xc200), "b"(0));//Disable
 
 	//clear callback function
-	asm("push es\n"
+	asm("pushw es\n"
 	    "mov es, bx\n"
 	    "int 0x15\n"
-	    "pop es"::"a"(0xc207), "b"(0x0000));
+	    "popw es"::"a"(0xc207), "b"(0x0000));
 }
 
 /**
@@ -64,11 +64,11 @@ void mouseEnable() {
 	mouseDisable();
 
 	//set callback function
-	asm("push es\n"
-	    "push cs\n"
-	    "pop es\n"
+	asm("pushw es\n"
+	    "pushw cs\n"
+	    "popw es\n"
 	    "int 0x15\n"
-	    "pop es"::"a"(0xc207), "b"(mouseHandler));
+	    "popw es"::"a"(0xc207), "b"(mouseHandler));
 	asm("int 0x15\n"::"a"(0xc200), "b"(0x100));//Enable
 }
 

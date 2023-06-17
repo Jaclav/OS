@@ -44,7 +44,7 @@ bool programsMap[PROGRAMS_MAX];
  */
 __int void timer(struct interruptFrame * frame) {
 //https://wiki.osdev.org/Processes_and_Threads
-	asm("push ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
+	asm("pushw ds\nmov ds, ax"::"a"(KERNEL_ADDRESS));
 	int seg;
 	asm("mov %0, ss":"=r"(seg));
 
@@ -67,7 +67,7 @@ __int void timer(struct interruptFrame * frame) {
 			    "push cx\n"
 			    "push ax\n"
 			    "push dx\n"
-			    "iret\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(IF));
+			    "iretw\n"::"a"(KERNEL_ADDRESS), "d"(0x200), "c"(IF));
 		}
 	}
 
@@ -80,7 +80,7 @@ __int void timer(struct interruptFrame * frame) {
 	}
 	counter++;
 
-	asm("pop ds");
+	asm("popw ds");
 }
 #pragma GCC diagnostic pop
 
