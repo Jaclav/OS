@@ -23,6 +23,7 @@ dbg: clean disk kernel
 
 doxygen:
 	rm -rf docs/*
+#git add docs/html/ -f
 #http://bogdro.evai.pl/soft4asm/asm4doxy.txt
 	asm4doxy -od -undoc kernel/*.asm
 	doxygen OS
