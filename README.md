@@ -9,7 +9,7 @@ Simple 16 bit operating system. My goal is to achive:
 * multithreading
 
 All sectors in BIOS **are counted from 1** and are 512B<br>
-[Documentation ](jaclav.github.io/OS)<br>
+[Documentation ](https://jaclav.github.io/OS/html)<br>
 Screenshot:<br>
 ![Screenshot](screenshot.png)
 # Commands
