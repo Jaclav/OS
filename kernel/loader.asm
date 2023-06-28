@@ -83,8 +83,8 @@ load:
 
 	mov		WORD[0x16], 0			; CALL OFFSET
 	mov		WORD[0x18], es			; CALL SEGMENT
-	mov		sp,		0xffff			; set stack begin on end of segment
-	mov		ebp,	0xffff			; set stack begin on end of segment
+	mov		esp,	0xffff			; set stack begin on end of segment
+	mov		ebp,	esp
 	pushf
 	call far [es:0x16]				; push cs; push ip
 	popf

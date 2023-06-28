@@ -3,7 +3,7 @@
  * @brief File system, adds file system interruption in int0x21()
  * @details Adds file management
  * @attention Only for kernel use, users should use file.h
- * @todo better handle disk errors see info.c
+ * @todo better handle disk errors see info.c, check if CF is set after reading/writing
  */
 #ifndef FS_H
 #define FS_H

@@ -16,7 +16,7 @@
 typedef struct Position {
 	Word x;
 	Word y;
-}Position;
+} Position;
 
 const size_t SIZE_X = 640;
 const size_t SIZE_Y = 350;
