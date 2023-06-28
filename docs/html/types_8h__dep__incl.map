@@ -1,0 +1,19 @@
+<map id="include/types.h" name="include/types.h">
+<area shape="rect" id="node1" title="usefull macros, definitions, enums etc." alt="" coords="602,5,723,32"/>
+<area shape="rect" id="node2" href="$e_8c.html" title="Simple text editor." alt="" coords="463,155,535,181"/>
+<area shape="rect" id="node3" href="$sec_8c.html" title="Read 512B from disk." alt="" coords="1279,80,1366,107"/>
+<area shape="rect" id="node4" href="$touch_8c.html" title="Create file." alt="" coords="1390,80,1490,107"/>
+<area shape="rect" id="node5" href="$conio_8h.html" title="Console input output control." alt="" coords="672,80,792,107"/>
+<area shape="rect" id="node9" href="$file_8h.html" title="File IO." alt="" coords="541,80,648,107"/>
+<area shape="rect" id="node10" href="$graphics_8h.html" title="Draw pixels in graphics mode." alt="" coords="817,80,957,107"/>
+<area shape="rect" id="node11" href="$io_8h.html" title="Standard input output library." alt="" coords="222,80,319,107"/>
+<area shape="rect" id="node13" href="$fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="129,155,220,181"/>
+<area shape="rect" id="node14" href="$mouse_8h.html" title="Get mouse position and status, to use mouse call mouseInitialize()" alt="" coords="981,80,1110,107"/>
+<area shape="rect" id="node15" href="$stdlib_8h.html" title="Standard libary." alt="" coords="1134,80,1255,107"/>
+<area shape="rect" id="node16" href="$string_8h.html" title="Simple string handling." alt="" coords="344,80,467,107"/>
+<area shape="rect" id="node17" href="$interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="5,80,147,107"/>
+<area shape="rect" id="node6" href="$pic_8c.html" title="draw raw picture from file 32px x 32px" alt="" coords="559,155,641,181"/>
+<area shape="rect" id="node7" href="$test_8c.html" title="Test every library and system element." alt="" coords="717,155,806,181"/>
+<area shape="rect" id="node8" href="$kernel_8c.html" title="Simple 16 bit kernel for BIOS." alt="" coords="339,229,456,256"/>
+<area shape="rect" id="node12" href="$info_8c.html" title="Show extra memory, disk information, list of devices, date and time." alt="" coords="245,155,334,181"/>
+</map>
