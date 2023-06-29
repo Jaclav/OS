@@ -1,0 +1,14 @@
+<map id="kernel/kernel.c" name="kernel/kernel.c">
+<area shape="rect" id="node1" title="Simple 16 bit kernel for BIOS." alt="" coords="201,5,319,32"/>
+<area shape="rect" id="node2" href="$io_8h.html" title="Standard input output library." alt="" coords="19,155,66,181"/>
+<area shape="rect" id="node7" href="$string_8h.html" title="Simple string handling." alt="" coords="355,155,426,181"/>
+<area shape="rect" id="node8" href="$stdlib_8h.html" title="Standard libary." alt="" coords="373,80,443,107"/>
+<area shape="rect" id="node9" href="$conio_8h.html" title="Console input output control." alt="" coords="476,80,545,107"/>
+<area shape="rect" id="node10" href="$interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="90,155,187,181"/>
+<area shape="rect" id="node11" href="$fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="206,80,253,107"/>
+<area shape="rect" id="node3" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="273,229,343,256"/>
+<area shape="rect" id="node6" title=" " alt="" coords="5,229,80,256"/>
+<area shape="rect" id="node4" title=" " alt="" coords="216,304,299,331"/>
+<area shape="rect" id="node5" title=" " alt="" coords="323,304,394,331"/>
+<area shape="rect" id="node12" title=" " alt="" coords="263,155,331,181"/>
+</map>

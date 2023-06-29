@@ -1,0 +1,7 @@
+<map id="include/conio.h" name="include/conio.h">
+<area shape="rect" id="node1" title="Console input output control." alt="" coords="137,5,257,32"/>
+<area shape="rect" id="node2" href="$e_8c.html" title="Simple text editor." alt="" coords="5,80,77,107"/>
+<area shape="rect" id="node3" href="$pic_8c.html" title="draw raw picture from file 32px x 32px" alt="" coords="101,80,184,107"/>
+<area shape="rect" id="node4" href="$test_8c.html" title="Test every library and system element." alt="" coords="209,80,298,107"/>
+<area shape="rect" id="node5" href="$kernel_8c.html" title="Simple 16 bit kernel for BIOS." alt="" coords="323,80,440,107"/>
+</map>
