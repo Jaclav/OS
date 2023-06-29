@@ -1,5 +1,0 @@
-<map id="kernel/interrupts.h" name="kernel/interrupts.h">
-<area shape="rect" id="node1" title="Setting system interruptions, see interrupts.asm." alt="" coords="21,5,163,32"/>
-<area shape="rect" id="node2" href="$fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="5,80,96,107"/>
-<area shape="rect" id="node3" href="$kernel_8c.html" title="Simple 16 bit kernel for BIOS." alt="" coords="33,155,151,181"/>
-</map>

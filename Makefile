@@ -28,6 +28,7 @@ doxygen:
 	asm4doxy -od -undoc kernel/*.asm
 	doxygen OS
 	rm kernel/*-asm.c
+	mv docs/html/* docs/
 
 kernel:$(BINS) $(OBJS)
 #code loaded to memory by bootloader contains disk table and kernel

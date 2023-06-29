@@ -1,9 +1,0 @@
-<map id="include/io.h" name="include/io.h">
-<area shape="rect" id="node1" title="Standard input output library." alt="" coords="263,5,361,32"/>
-<area shape="rect" id="node2" href="$e_8c.html" title="Simple text editor." alt="" coords="5,80,77,107"/>
-<area shape="rect" id="node3" href="$info_8c.html" title="Show extra memory, disk information, list of devices, date and time." alt="" coords="102,80,191,107"/>
-<area shape="rect" id="node4" href="$pic_8c.html" title="draw raw picture from file 32px x 32px" alt="" coords="216,80,299,107"/>
-<area shape="rect" id="node5" href="$test_8c.html" title="Test every library and system element." alt="" coords="323,80,413,107"/>
-<area shape="rect" id="node6" href="$fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="437,80,528,107"/>
-<area shape="rect" id="node7" href="$kernel_8c.html" title="Simple 16 bit kernel for BIOS." alt="" coords="465,155,583,181"/>
-</map>

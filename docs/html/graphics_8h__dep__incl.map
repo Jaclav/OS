@@ -1,5 +1,0 @@
-<map id="include/graphics.h" name="include/graphics.h">
-<area shape="rect" id="node1" title="Draw pixels in graphics mode." alt="" coords="31,5,171,32"/>
-<area shape="rect" id="node2" href="$pic_8c.html" title="draw raw picture from file 32px x 32px" alt="" coords="5,80,88,107"/>
-<area shape="rect" id="node3" href="$test_8c.html" title="Test every library and system element." alt="" coords="113,80,202,107"/>
-</map>

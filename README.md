@@ -8,7 +8,7 @@ Simple 16 bit operating system. My goal is to achive:
 * protection rings
 * multithreading
 
-[**Documentation**](https://jaclav.github.io/OS/html)<br>
+[**Documentation**](https://jaclav.github.io/OS)<br>
 All sectors in BIOS **are counted from 1** and are 512B<br>
 Screenshot:<br>
 ![Screenshot](screenshot.png)

@@ -1,8 +1,0 @@
-<map id="disk/info.c" name="disk/info.c">
-<area shape="rect" id="node1" title="Show extra memory, disk information, list of devices, date and time." alt="" coords="101,5,190,32"/>
-<area shape="rect" id="node2" href="$io_8h.html" title="Standard input output library." alt="" coords="122,80,169,107"/>
-<area shape="rect" id="node3" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="62,155,133,181"/>
-<area shape="rect" id="node6" title=" " alt="" coords="157,155,232,181"/>
-<area shape="rect" id="node4" title=" " alt="" coords="5,229,88,256"/>
-<area shape="rect" id="node5" title=" " alt="" coords="113,229,183,256"/>
-</map>
