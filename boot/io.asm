@@ -27,7 +27,7 @@ putc:
 	mov 	bl,		0x0f	; color = white
 	int 	0x10			; BIOS screen
 
-	;;clear buffor from colors
+	;;clear buffer from colors
 	;TODO make it customizable
 	mov		eax,	0x920
 	mov    	ecx,	0xff

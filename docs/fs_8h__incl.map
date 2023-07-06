@@ -1,11 +1,10 @@
 <map id="kernel/fs.h" name="kernel/fs.h">
-<area shape="rect" id="node1" title="File system, adds file system interruption in int0x21()" alt="" coords="107,5,198,32"/>
-<area shape="rect" id="node2" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="170,155,241,181"/>
-<area shape="rect" id="node5" title=" " alt="" coords="25,80,93,107"/>
-<area shape="rect" id="node6" href="$io_8h.html" title="Standard input output library." alt="" coords="333,80,380,107"/>
-<area shape="rect" id="node8" href="$string_8h.html" title="Simple string handling." alt="" coords="117,80,188,107"/>
-<area shape="rect" id="node9" href="$interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="212,80,309,107"/>
-<area shape="rect" id="node3" title=" " alt="" coords="114,229,196,256"/>
-<area shape="rect" id="node4" title=" " alt="" coords="221,229,292,256"/>
-<area shape="rect" id="node7" title=" " alt="" coords="319,155,394,181"/>
+<area shape="rect" id="node1" title="File system, adds file system interruption in int0x21()" alt="" coords="94,5,185,32"/>
+<area shape="rect" id="node2" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="146,155,216,181"/>
+<area shape="rect" id="node5" title=" " alt="" coords="24,80,92,107"/>
+<area shape="rect" id="node6" href="$io_8h.html" title="Standard input output library." alt="" coords="116,80,163,107"/>
+<area shape="rect" id="node7" href="$string_8h.html" title="Simple string handling." alt="" coords="187,80,258,107"/>
+<area shape="rect" id="node8" href="$interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="282,80,379,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="89,229,172,256"/>
+<area shape="rect" id="node4" title=" " alt="" coords="196,229,267,256"/>
 </map>

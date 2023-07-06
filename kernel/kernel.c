@@ -10,8 +10,8 @@
  * @bug cannot use * as pointers, int only
  */
 #include <io.h>
-#include <string.h>
-#include <stdlib.h>
+#include "../include/string.h"
+#include "../include/stdlib.h"
 #include <conio.h>
 
 #define KERNEL 1
@@ -78,7 +78,7 @@ __int void timer(struct interruptFrame * frame) {
 			    "mov ax, WORD ptr [0x41E+si]\n"
 			    "popw ds":"=a"(key):"S"(i));
 			if(key.scancode == 38 && key.character == 0) {
-				//clear buffor
+				//clear buffer
 				for(int i = 0; i < 0x1f; i += 2)
 					asm("pushw ds\n"
 					    "xor bx, bx\n"
@@ -137,16 +137,16 @@ __start void main() {
 	addInterrupt(0x1c, timer);
 	addInterrupt(0x1b, ctrlBreak);
 	addInterrupt(5, shiftPrtSc);
-	int bufforSize = 0;
-	asm("int 0x21":"=a"(bufforSize):"a"(0));
-	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufforSize);
+	int bufferSize = 0;
+	asm("int 0x21":"=a"(bufferSize):"a"(0));
+	printf("Kernel loaded.\nVersion: "__DATE__" "__TIME__"\nMemory size: %ikB\nLoaded %i files\n>", getMemorySize(), bufferSize);
 
 	char command[100];
 	char parameter[100];
 	int retVal;
 
 	for(;;) {
-		bufforSize = gets(command, 98);
+		bufferSize = gets(command, 98);
 		if(strchr(command, ' ') == NULL)
 			parameter[0] = 0;
 		else {
@@ -154,7 +154,7 @@ __start void main() {
 			*(char *)strchr(command, ' ') = 0;
 		}
 
-		if(bufforSize == 0) {
+		if(bufferSize == 0) {
 
 		}
 		else if(strcmp(command, "cls")) {
@@ -335,4 +335,51 @@ int gets(char *str, int size) {
 	str[oldPtr < ptr ? ptr : oldPtr] = 0; //end string with null
 	putc('\n');
 	return ptr;
+}
+
+/**
+ * @brief Function for int 0x20 AH=3 see io.h printf()
+ *
+ * @param a pointer to first parameter on stack, nth parameter is a+4n
+ * @todo do it with dll
+ */
+void __printf(int a) {
+	char* ptr = *(int *)a;
+	int iterator = 1;
+	while(*ptr != 0) {
+		if(*ptr == '%') {
+			//I know it should be done with switch-case but it gives strange and bad assembly
+			char specifier = *(ptr + 1);
+			if(specifier == 'i' || specifier == 'd')
+				puti(*(int *)(a + 4 * iterator++));
+			else if(specifier == 'u')
+				asm("int 0x20"::"a"(0x200), "b"(*(int *)(a + 4 * iterator++)));
+			else if(specifier == 'b') {
+				char num[17];
+				int par = *(int *)(a + 4 * iterator++);
+				for(int i = 0; i < 16; i++) {
+					num[15 - i] = par % 2 + '0';
+					par /= 2;
+				}
+				num[16] = 0;
+				asm("int 0x20"::"a"(0x100), "b"(num));
+			}
+			else if(specifier == 'c')
+				asm("xor ah, ah\n"
+				    "int 0x20"::"a"(*(char *)(a + 4 * iterator++)));
+			else if(specifier == 's')
+				asm("int 0x20"::"a"(0x100), "b"(*(int *)(a + 4 * iterator++)));
+			else {
+				asm("xor ah,ah\n"
+				    "int 0x20"::"a"(*ptr));
+				ptr--;
+			}
+			ptr++;
+		}
+		else
+			putc(*ptr);
+		ptr++;
+	}
+
+	return;
 }

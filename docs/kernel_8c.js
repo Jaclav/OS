@@ -3,6 +3,7 @@ var kernel_8c =
     [ "KERNEL", "kernel_8c.html#ac4e52c1bd876037cd22e859f38fd5d27", null ],
     [ "KERNEL_ADDRESS", "kernel_8c.html#a6f867ea06f8f2e2170af9b7302a13163", null ],
     [ "PROGRAMS_MAX", "kernel_8c.html#a00104ab9597df9ead9e7746bcade4224", null ],
+    [ "__printf", "kernel_8c.html#a5e6c84dbf3b63ebc48d53ba6c0ff338a", null ],
     [ "ctrlBreak", "kernel_8c.html#adcc779ba76cb1ba5c8750439f360f936", null ],
     [ "gets", "kernel_8c.html#a95c5eca96d67e5392cf95f221af53a1a", null ],
     [ "load", "kernel_8c.html#a449fe6b2f1183d89152a0715d694b59b", null ],

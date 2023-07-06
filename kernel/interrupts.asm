@@ -11,6 +11,7 @@
 bits 16
 global setInterrupts
 global addInterrupt
+extern __printf
 ;;
 ; @brief Set system interruptions
 ; @details set syscall and errors handles
@@ -67,9 +68,11 @@ addInterrupt:
 ; @details it adds:
 ; @details 0 - putc AL = character
 ; @details 1 - puts BX = &string
-; @details 2 - puti BX = number
+; @details 2 - puti BX = unsigned number
+; @details 3 - printf BX = pointer to first parameter in stack, nth parameter is on BX+4n
 ;;
 syscall:
+	enter	0,		0
 	; system calls
 	cmp		ah,		0
 	je		.putc
@@ -77,13 +80,15 @@ syscall:
 	je		.puts
 	cmp		ah,		2
 	je		.puti
+	cmp		ah,		3
+	je		.printf
 	; if not recognised print message
 	setDS KERNEL_ADDRESS
 	push	.message
 	call 	puts
 	add		sp,		2
 	pop		ds
-	iret
+	jmp		.exit
 	.message db "SYSCALL YAY!",0xa,0
 
 	.putc:
@@ -92,20 +97,29 @@ syscall:
 		push	ax
 		call 	putc
 		add		sp,		2
-		iret
+		jmp		.exit
 
 	.puts:
 		; bx is address of string to put
 		push	bx
 		call	puts
 		add		sp,		2
-		iret
+		jmp		.exit
 
 	.puti:
 		; bx is number to print
 		push	bx
 		call	puti
 		add		sp,		2
+		jmp		.exit
+
+	.printf:
+		push 	WORD 0
+		push	bx
+		call 	DWORD 	__printf
+		jmp 	.exit
+	.exit:
+		leave
 		iret
 
 divZero:
