@@ -66,10 +66,12 @@ addInterrupt:
 ;;
 ; @brief System interruption 0x20
 ; @details it adds:
-; @details 0 - putc AL = character
-; @details 1 - puts BX = &string
-; @details 2 - puti BX = unsigned number
-; @details 3 - printf BX = pointer to first parameter in stack, nth parameter is on BX+4n
+; |  AH   | Description | AL        | BX                                                                   |
+; | :---: | :---------- | :-------- | :------------------------------------------------------------------- |
+; |   0   | putc()      | character |                                                                      |
+; |   1   | puts()      |           | address of string                                                    |
+; |   2   | puti()      |           | unsigned number                                                      |
+; |   3   | printf()    |           | address of first parameter on stack, next is 4B behind on stack etc. |
 ;;
 syscall:
 	enter	0,		0

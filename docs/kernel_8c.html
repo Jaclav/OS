@@ -110,7 +110,7 @@ Include dependency graph for kernel.c:</div>
 <area shape="rect" href="conio_8h.html" title="Console input output control." alt="" coords="590,80,659,107"/>
 <area shape="rect" href="interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="308,155,405,181"/>
 <area shape="rect" href="fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="237,80,284,107"/>
-<area shape="rect" href="types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="369,229,440,256"/>
+<area shape="rect" href="types_8h.html" title="useful macros, definitions, enums etc." alt="" coords="369,229,440,256"/>
 <area shape="rect" title=" " alt="" coords="313,304,395,331"/>
 <area shape="rect" title=" " alt="" coords="420,304,491,331"/>
 <area shape="rect" title=" " alt="" coords="216,155,284,181"/>
@@ -155,7 +155,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="kern
 <tr class="memitem:a1747f65af538643494b92c0c902100bd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="types_8h.html#ab824202b42bffae0b3c431c919857cae">__start</a> void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="kernel_8c.html#a1747f65af538643494b92c0c902100bd">main</a> ()</td></tr>
 <tr class="separator:a1747f65af538643494b92c0c902100bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5e6c84dbf3b63ebc48d53ba6c0ff338a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="kernel_8c.html#a5e6c84dbf3b63ebc48d53ba6c0ff338a">__printf</a> (int a)</td></tr>
-<tr class="memdesc:a5e6c84dbf3b63ebc48d53ba6c0ff338a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Printf C-like function, see <a class="el" href="io_8h.html" title="Standard input output library.">io.h</a> <a class="el" href="io_8h.html#a7b62ded86f7b8a57c8771db7bce8ce11" title="C-like printf function.">printf()</a>  <a href="kernel_8c.html#a5e6c84dbf3b63ebc48d53ba6c0ff338a">More...</a><br /></td></tr>
+<tr class="memdesc:a5e6c84dbf3b63ebc48d53ba6c0ff338a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Function for int 0x20 AH=3 see <a class="el" href="io_8h.html" title="Standard input output library.">io.h</a> <a class="el" href="io_8h.html#a7b62ded86f7b8a57c8771db7bce8ce11" title="C-like printf function.">printf()</a>  <a href="kernel_8c.html#a5e6c84dbf3b63ebc48d53ba6c0ff338a">More...</a><br /></td></tr>
 <tr class="separator:a5e6c84dbf3b63ebc48d53ba6c0ff338a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
@@ -211,10 +211,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>programsMap</b> [<a c
       </table>
 </div><div class="memdoc">
 
-<p>Printf C-like function, see <a class="el" href="io_8h.html" title="Standard input output library.">io.h</a> <a class="el" href="io_8h.html#a7b62ded86f7b8a57c8771db7bce8ce11" title="C-like printf function.">printf()</a> </p>
+<p>Function for int 0x20 AH=3 see <a class="el" href="io_8h.html" title="Standard input output library.">io.h</a> <a class="el" href="io_8h.html#a7b62ded86f7b8a57c8771db7bce8ce11" title="C-like printf function.">printf()</a> </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">a</td><td>pointer to first parameter on stack, nth parameter is a+4n </td></tr>
+    <tr><td class="paramname">a</td><td>address of first parameter on stack, nth parameter is a+4n </td></tr>
   </table>
   </dd>
 </dl>

@@ -1,6 +1,6 @@
 /**
  * @file types.h
- * @brief usefull macros, definitions, enums etc.
+ * @brief useful macros, definitions, enums etc.
  */
 #ifndef TYPES_H
 #define TYPES_H

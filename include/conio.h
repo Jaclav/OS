@@ -30,7 +30,7 @@ typedef union Attributes {
 		Byte background: 3;/**< background color */
 		Byte blink: 1;	   /**< blink or last bit of background color */
 	};
-	Byte attributes;/**< character on screen attrubutes as Byte*/
+	Byte attributes;/**< character on screen attributes as Byte*/
 } Attributes;
 
 /**

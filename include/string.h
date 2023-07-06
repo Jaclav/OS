@@ -10,7 +10,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-type"
 /**
- * @brief Compares two string until \0 appeares
+ * @brief Compares two string until \0 appears
  *
  * @param str1
  * @param str2

@@ -20,7 +20,7 @@ __start int main() {
 	FILE *file;
 	file = open(name, "");
 	if(file == NULL) {
-		puts("ERROR file connot be opened\n");
+		puts("ERROR file cannot be opened\n");
 		setVideoMode(TextMode);
 		return 404;
 	}

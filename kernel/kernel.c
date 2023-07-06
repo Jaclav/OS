@@ -340,7 +340,7 @@ int gets(char *str, int size) {
 /**
  * @brief Function for int 0x20 AH=3 see io.h printf()
  *
- * @param a pointer to first parameter on stack, nth parameter is a+4n
+ * @param a address of first parameter on stack, nth parameter is a+4n
  * @todo do it with dll
  */
 void __printf(int a) {

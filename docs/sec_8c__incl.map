@@ -1,6 +1,6 @@
 <map id="disk/sec.c" name="disk/sec.c">
 <area shape="rect" id="node1" title="Read 512B from disk." alt="" coords="54,5,141,32"/>
-<area shape="rect" id="node2" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="62,80,133,107"/>
+<area shape="rect" id="node2" href="$types_8h.html" title="useful macros, definitions, enums etc." alt="" coords="62,80,133,107"/>
 <area shape="rect" id="node3" title=" " alt="" coords="5,155,88,181"/>
 <area shape="rect" id="node4" title=" " alt="" coords="113,155,183,181"/>
 </map>

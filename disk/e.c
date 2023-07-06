@@ -37,7 +37,7 @@ __start int main() {
 		}
 	}
 	Key key;
-	Cursor crsr;
+	Cursor cursor;
 	Cursor def = getCursorPosition();
 	int sizeY = 0;
 	Attributes underCursor;
@@ -51,15 +51,15 @@ __start int main() {
 			wasNewline = false;
 			for(int i = 0; i < 79; i++) {
 				if(view[i][j] != 0) {
-					if(i == crsr.x && j == crsr.y)
+					if(i == cursor.x && j == cursor.y)
 						cputc(view[i][j], underCursor.attributes, 1);
 					else
 						cputc(view[i][j], LightGrey, 1);
 					wasNewline = true;
 				}
-				else if(i == crsr.x && j == crsr.y) {
+				else if(i == cursor.x && j == cursor.y) {
 					if(i != 0)
-						while(crsr.x > 0 && view[crsr.x - 1][crsr.y] == 0)crsr.x--;
+						while(cursor.x > 0 && view[cursor.x - 1][cursor.y] == 0)cursor.x--;
 					cputc(view[i][j], underCursor.attributes, 1);
 				}
 			}
@@ -70,44 +70,44 @@ __start int main() {
 			putc('\n');
 		}
 		printf("File: %s size: %i", 0x80, size);
-		setCursorPosition(crsr);
+		setCursorPosition(cursor);
 		key = getc();
 		if(key.character == 0 && key.scancode == 72) {//UP
-			crsr = getCursorPosition();
-			if(crsr.y > 0)
-				crsr.y--;
-			setCursorPosition(crsr);
+			cursor = getCursorPosition();
+			if(cursor.y > 0)
+				cursor.y--;
+			setCursorPosition(cursor);
 		}
 		else if(key.character == 0 && key.scancode == 80 ) {//DOWN
-			crsr = getCursorPosition();
-			if(crsr.y < sizeY)
-				crsr.y++;
-			if(crsr.y == sizeY)
-				crsr.x = 0;
-			setCursorPosition(crsr);
+			cursor = getCursorPosition();
+			if(cursor.y < sizeY)
+				cursor.y++;
+			if(cursor.y == sizeY)
+				cursor.x = 0;
+			setCursorPosition(cursor);
 		}
 		else if(key.character == 0 && key.scancode == 77) {//RIGHT
-			crsr = getCursorPosition();
-			crsr.x++;
-			setCursorPosition(crsr);
+			cursor = getCursorPosition();
+			cursor.x++;
+			setCursorPosition(cursor);
 		}
 		else if(key.character == 0 && key.scancode == 75) {//LEFT
-			crsr = getCursorPosition();
-			crsr.x--;
-			setCursorPosition(crsr);
+			cursor = getCursorPosition();
+			cursor.x--;
+			setCursorPosition(cursor);
 		}
-		else if(key.character == 8 && key.scancode == 14 && crsr.x > 0) { //backspace
-			crsr = getCursorPosition();
-			view[crsr.x ][crsr.y] = 0;
-			crsr.x--;
-			setCursorPosition(crsr);
+		else if(key.character == 8 && key.scancode == 14 && cursor.x > 0) { //backspace
+			cursor = getCursorPosition();
+			view[cursor.x ][cursor.y] = 0;
+			cursor.x--;
+			setCursorPosition(cursor);
 		}
 		else if(key.character == 13 && key.scancode == 28) {//enter
-			crsr = getCursorPosition();
-			if(crsr.y < sizeY)
-				crsr.y++;
-			crsr.x = 0;
-			setCursorPosition(crsr);
+			cursor = getCursorPosition();
+			if(cursor.y < sizeY)
+				cursor.y++;
+			cursor.x = 0;
+			setCursorPosition(cursor);
 		}
 		else if(key.character == 19 && key.scancode == 31) {//save
 			n = 0;
@@ -135,8 +135,8 @@ __start int main() {
 			return (ret > 0 ? 0 : ret);
 		}
 		else {
-			view[crsr.x][crsr.y] = key.character;//TODO: edit in data, not in view!!!
-			crsr.x++;
+			view[cursor.x][cursor.y] = key.character;//TODO: edit in data, not in view!!!
+			cursor.x++;
 		}
 	}
 	while(key.character != 27 && key.scancode != 1);//escape

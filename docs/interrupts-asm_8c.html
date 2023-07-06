@@ -206,13 +206,20 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>System interruption 0x20. </p>
-<p>it adds:</p>
-<p>0 - putc AL = character</p>
-<p>1 - puts BX = &amp;string</p>
-<p>2 - puti BX = unsigned number</p>
-<p>3 - printf BX = pointer to first parameter in stack, nth parameter is on BX+4n </p>
+<p>it adds: </p><table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadCenter">AH   </th><th class="markdownTableHeadLeft">Description   </th><th class="markdownTableHeadLeft">AL   </th><th class="markdownTableHeadLeft">BX    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">0   </td><td class="markdownTableBodyLeft"><a class="el" href="io_8h.html#ac90bc1d87cd3ce4ea14c65a9f51d4406" title="Put character.">putc()</a>   </td><td class="markdownTableBodyLeft">character   </td><td class="markdownTableBodyLeft"></td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">1   </td><td class="markdownTableBodyLeft"><a class="el" href="io_8h.html#a8ebcec517224c2512c08adbec3c00083" title="Put string.">puts()</a>   </td><td class="markdownTableBodyLeft"></td><td class="markdownTableBodyLeft">address of string    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyCenter">2   </td><td class="markdownTableBodyLeft"><a class="el" href="io_8h.html#a0922fad4557f65295939b86dd42ae78e" title="Put int.">puti()</a>   </td><td class="markdownTableBodyLeft"></td><td class="markdownTableBodyLeft">unsigned number    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyCenter">3   </td><td class="markdownTableBodyLeft"><a class="el" href="io_8h.html#a7b62ded86f7b8a57c8771db7bce8ce11" title="C-like printf function.">printf()</a>   </td><td class="markdownTableBodyLeft"></td><td class="markdownTableBodyLeft">address of first parameter on stack, next is 4B behind on stack etc.   </td></tr>
+</table>
 
-<p class="definition">Definition at line <a class="el" href="interrupts-asm_8c_source.html#l00045">45</a> of file <a class="el" href="interrupts-asm_8c_source.html">interrupts-asm.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="interrupts-asm_8c_source.html#l00047">47</a> of file <a class="el" href="interrupts-asm_8c_source.html">interrupts-asm.c</a>.</p>
 
 </div>
 </div>

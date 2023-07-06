@@ -20,7 +20,7 @@ __start int main() {
 	FILE *file = NULL;
 	file = open("data.txt", "");
 	if(file == NULL) {
-		puts("ERROR file connot be opened\n");
+		puts("ERROR file cannot be opened\n");
 		return 404;
 	}
 	printf("Size: %i; ID: %i\n", file->size, file->id);

@@ -12,7 +12,7 @@ __start int main() {
 
 	//memory
 	asm("int 0x15":"=a"(ax):"a"(0x88), "b"(0));;
-	printf("\xba\x45xtra memory: %ikB=%iMb\n", ax, ax / 1024);
+	printf("\xba\x45Extra memory: %ikB=%iMb\n", ax, ax / 1024);
 
 	//disks
 	Byte ch, cl, dh, dl = 1;

@@ -45,7 +45,7 @@ FILE *open(int filename, int mode) {
 /**
  * @brief Read from file
  *
- * @param buf pointer to destinated memory
+ * @param buf pointer to target memory
  * @param size to read in bytes
  * @param stream FILE
  * @return int actually readed Bytes or -error
@@ -61,7 +61,7 @@ int read ( int buf, size_t size, FILE * stream ) {
  * @param buf pointer to source memory
  * @param size to write in Bytes, file will be rounded to whole sectors
  * @param stream FILE
- * @return int actually writted Bytes or -error
+ * @return int actually written Bytes or -error
  */
 int write ( int buf, size_t size, FILE * stream ) {
 	asm("int 0x21"::"a"(0x0300), "b"(stream->id), "c"(buf), "d"(size));

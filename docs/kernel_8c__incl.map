@@ -6,7 +6,7 @@
 <area shape="rect" id="node8" href="$conio_8h.html" title="Console input output control." alt="" coords="590,80,659,107"/>
 <area shape="rect" id="node9" href="$interrupts_8h.html" title="Setting system interruptions, see interrupts.asm." alt="" coords="308,155,405,181"/>
 <area shape="rect" id="node10" href="$fs_8h.html" title="File system, adds file system interruption in int0x21()" alt="" coords="237,80,284,107"/>
-<area shape="rect" id="node3" href="$types_8h.html" title="usefull macros, definitions, enums etc." alt="" coords="369,229,440,256"/>
+<area shape="rect" id="node3" href="$types_8h.html" title="useful macros, definitions, enums etc." alt="" coords="369,229,440,256"/>
 <area shape="rect" id="node4" title=" " alt="" coords="313,304,395,331"/>
 <area shape="rect" id="node5" title=" " alt="" coords="420,304,491,331"/>
 <area shape="rect" id="node11" title=" " alt="" coords="216,155,284,181"/>

@@ -196,7 +196,7 @@ int sys_remove(const int filename) {
  * @brief Read from file
  *
  * @param id file's id
- * @param ptr pointer to destinated memory
+ * @param ptr pointer to target memory
  * @param size to read in bytes
  * @return int actually readed Bytes or -error
  */
@@ -243,7 +243,7 @@ int sys_read(const Byte id, int ptr, size_t size) {
  * @param id file's id
  * @param ptr pointer to source memory
  * @param size to write in Bytes, file will be rounded to whole sectors
- * @return int actually writted Bytes or -error
+ * @return int actually written Bytes or -error
  * @todo add modes, when append when override
  */
 int sys_write(Byte id, int ptr, size_t size) {
@@ -303,7 +303,6 @@ int sys_write(Byte id, int ptr, size_t size) {
  * |   3   | sys_write()          | file id   | memory beginning     | size in B | Actually saved Bytes (completed to 512B) |
  * |   4   | sys_create()         | file name | new file size in Sec |           | file's ID                                |
  * |   4   | sys_remove()         | file name |                      |           | 0 if success                             |
-
  * @param registers AX, BX, CX, DX, SI, DI
  * @return register AX
  * @todo change order of ah
